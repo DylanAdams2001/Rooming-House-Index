@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ListingPhoto } from "@/components/listing-photo";
+import { CalendarClock } from "lucide-react";
 import type { RoomListing } from "@/lib/mock-listings";
 
 export function ListingCard({ listing }: { listing: RoomListing }) {
@@ -34,6 +35,12 @@ export function ListingCard({ listing }: { listing: RoomListing }) {
         <div>
           <p className="font-display text-2xl text-ink">${listing.weeklyRate}/wk</p>
           <p className="mt-2 line-clamp-3 text-sm text-body">{listing.description}</p>
+          {listing.inspectionTime && (
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+              <CalendarClock className="h-3.5 w-3.5" />
+              Inspection: {listing.inspectionTime}
+            </p>
+          )}
         </div>
         <Button asChild className="w-full">
           <Link href={`/listings/${listing.id}`}>See Listing</Link>

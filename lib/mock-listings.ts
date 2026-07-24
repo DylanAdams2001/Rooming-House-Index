@@ -12,9 +12,23 @@ export type RoomListing = {
   availableFrom: string;
   description: string;
   photos?: string[]; // real photos, in display order — first is the room itself, not the house
+  inspectionTime?: string; // e.g. "Saturday 25 Jul, 10:00am - 10:30am"
 };
 
 export const mockListings: RoomListing[] = [
+  {
+    id: "listing-st-albans-1",
+    suburbId: "st-albans-3021",
+    suburbName: "St Albans",
+    address: "15 Grace Street, St Albans",
+    roomType: "Single",
+    weeklyRate: 380,
+    availableFrom: "Available now",
+    description:
+      "Immaculately presented studio room in a near-new, purpose-built rooming house — a rare standard for the area. This light-filled room is fully self-contained with its own kitchenette, reverse-cycle split-system air conditioning, built-in mirrored robe, and a private study nook, all finished with quality laminate flooring throughout. Residents also enjoy a large shared kitchen and dining space, perfect for entertaining or unwinding after work. Positioned in a quiet, well-maintained street close to St Albans station, Chinatown's shops and eateries, and local bus routes. Presented in outstanding condition and available now — inspections highly recommended, this one won't last.",
+    photos: ["/listings/st-albans-example/room.jpg", "/listings/st-albans-example/kitchen.jpg"],
+    inspectionTime: "Saturday 25 Jul, 10:00am - 10:30am",
+  },
   {
     id: "listing-footscray-1",
     suburbId: "footscray-3011",
@@ -68,18 +82,6 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 150,
     availableFrom: "Available now",
     description: "Shared room in a well-maintained 8-room house, all bills and NBN included.",
-  },
-  {
-    id: "listing-st-albans-1",
-    suburbId: "st-albans-3021",
-    suburbName: "St Albans",
-    address: "15 Grace Street, St Albans",
-    roomType: "Single",
-    weeklyRate: 380,
-    availableFrom: "Available now",
-    description:
-      "Immaculately presented studio room in a near-new, purpose-built rooming house — a rare standard for the area. This light-filled room is fully self-contained with its own kitchenette, reverse-cycle split-system air conditioning, built-in mirrored robe, and a private study nook, all finished with quality laminate flooring throughout. Residents also enjoy a large shared kitchen and dining space, perfect for entertaining or unwinding after work. Positioned in a quiet, well-maintained street close to St Albans station, Chinatown's shops and eateries, and local bus routes. Presented in outstanding condition and available now — inspections highly recommended, this one won't last.",
-    photos: ["/listings/st-albans-example/room.jpg", "/listings/st-albans-example/kitchen.jpg"],
   },
   {
     id: "listing-dandenong-1",
