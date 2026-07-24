@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { suburbs, dashboardStats, type Suburb } from "@/lib/mock-data";
+import { suburbs, dashboardStats, formatAvgRoomRate, type Suburb } from "@/lib/mock-data";
 import { DemandBadge } from "@/components/demand-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -33,6 +33,12 @@ export default function MarketOverviewPage() {
   const sorted = useMemo(() => {
     const { get } = SORT_OPTIONS[sortKey];
     return [...suburbs].sort((a, b) => {
+      // Suburbs without a verified rate have nothing real to compare — keep them
+      // below the ones we do, regardless of sort direction, rather than mixing
+      // fabricated numbers into a real ranking.
+      if (sortKey === "avgRoomRate" && a.avgRoomRateVerified !== b.avgRoomRateVerified) {
+        return a.avgRoomRateVerified ? -1 : 1;
+      }
       const av = get(a);
       const bv = get(b);
       const cmp = typeof av === "string" ? av.localeCompare(bv as string) : (av as number) - (bv as number);
@@ -129,11 +135,8 @@ export default function MarketOverviewPage() {
                     <td className="px-6 py-4">
                       <DemandBadge level={s.demandLevel} />
                     </td>
-                    <td className="px-6 py-4 text-body">
-                      ${s.avgRoomRate}/wk
-                      {!s.avgRoomRateVerified && (
-                        <span className="ml-1 text-xs text-muted">est.</span>
-                      )}
+                    <td className={s.avgRoomRateVerified ? "px-6 py-4 text-body" : "px-6 py-4 text-muted"}>
+                      {formatAvgRoomRate(s)}
                     </td>
                     <td className="px-6 py-4 text-body">{s.numRoomingHouses}</td>
                     <td className="px-6 py-4">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DemandBadge } from "@/components/demand-badge";
-import type { Suburb } from "@/lib/mock-data";
+import { formatAvgRoomRate, type Suburb } from "@/lib/mock-data";
 
 export function SuburbCard({
   suburb,
@@ -29,11 +29,14 @@ export function SuburbCard({
         <dl className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <dt className="text-muted">Avg. room rate</dt>
-            <dd className="font-display text-lg text-ink">
-              ${suburb.avgRoomRate}/wk
-              {!suburb.avgRoomRateVerified && (
-                <span className="ml-1 font-sans text-xs font-normal text-muted">est.</span>
-              )}
+            <dd
+              className={
+                suburb.avgRoomRateVerified
+                  ? "font-display text-lg text-ink"
+                  : "font-sans text-sm text-muted"
+              }
+            >
+              {formatAvgRoomRate(suburb)}
             </dd>
           </div>
           <div>

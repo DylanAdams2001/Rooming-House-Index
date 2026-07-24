@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
-import type { Suburb, DemandLevel } from "@/lib/mock-data";
+import { formatAvgRoomRate, type Suburb, type DemandLevel } from "@/lib/mock-data";
 import { DemandBadge } from "@/components/demand-badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -89,7 +89,7 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
                   <div className="text-xs">
                     <p className="font-display text-sm text-ink">{suburb.name}</p>
                     <p className="text-muted">
-                      ${suburb.avgRoomRate}/wk &middot; {suburb.numRoomingHouses} rooming houses
+                      {formatAvgRoomRate(suburb)} &middot; {suburb.numRoomingHouses} rooming houses
                     </p>
                     <p className="mt-0.5 text-muted">Click to view addresses</p>
                   </div>

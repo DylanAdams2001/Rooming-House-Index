@@ -20,6 +20,7 @@ export type Suburb = {
   demandLevel: DemandLevel;
   avgRoomRate: number; // per week, AUD
   avgRoomRateVerified?: boolean; // true only when a real figure has been supplied (not estimated)
+  avgRoomRateDisplay?: string; // overrides the $X/wk label, e.g. "$330-350/wk" for a real range
   numRoomingHouses: number;
   lat: number;
   lng: number;
@@ -191,13 +192,14 @@ const curatedSuburbs: Suburb[] = [
     state: "VIC",
     council: "Frankston City Council",
     demandLevel: "Low",
-    avgRoomRate: 165,
+    avgRoomRate: 370,
+    avgRoomRateVerified: true,
     numRoomingHouses: 107,
     lat: -38.1418,
     lng: 145.1233,
     commentary:
       "Frankston offers low entry prices but softer demand relative to inner and middle-ring suburbs. Vacancy is elevated, reflecting an oversupply relative to current population growth.",
-    rentalTrend: rentalTrend(150),
+    rentalTrend: rentalTrend(355),
     supplyGrowth: supplyGrowth(11),
   },
   {
@@ -207,13 +209,15 @@ const curatedSuburbs: Suburb[] = [
     state: "VIC",
     council: "Wyndham City Council",
     demandLevel: "Low",
-    avgRoomRate: 170,
+    avgRoomRate: 340,
+    avgRoomRateVerified: true,
+    avgRoomRateDisplay: "$330-350/wk",
     numRoomingHouses: 32,
     lat: -37.9004,
     lng: 144.662,
     commentary:
       "Werribee's rapid population growth is skewed toward family housing rather than shared rooming accommodation, keeping rooming house demand comparatively low despite the area's overall growth.",
-    rentalTrend: rentalTrend(155),
+    rentalTrend: rentalTrend(325),
     supplyGrowth: supplyGrowth(9),
   },
   {
@@ -260,8 +264,19 @@ function seededValue(seed: string, min: number, max: number) {
   return min + ((hash % 1000) / 1000) * (max - min);
 }
 
+// Real room rates supplied directly, for suburbs that only exist in the generated
+// (non-curated) list. Overrides the seeded placeholder rate for these ids only.
+const VERIFIED_RATES: Record<string, number> = {
+  "laverton-3028": 370,
+  "norlane-3214": 330,
+  "ballarat-east-3350": 360,
+  "melton-south-3338": 320,
+};
+
 const generatedSuburbs: Suburb[] = vicSuburbsExtra.map((s) => {
-  const avgRoomRate = Math.round(seededValue(s.id, 175, 260) / 5) * 5;
+  const verifiedRate = VERIFIED_RATES[s.id];
+  const avgRoomRate = verifiedRate ?? Math.round(seededValue(s.id, 175, 260) / 5) * 5;
+  const avgRoomRateVerified = verifiedRate !== undefined;
   return {
     id: s.id,
     name: s.name,
@@ -270,13 +285,17 @@ const generatedSuburbs: Suburb[] = vicSuburbsExtra.map((s) => {
     council: s.council,
     demandLevel: estimateDemand(s.numRoomingHouses),
     avgRoomRate,
-    avgRoomRateVerified: false,
+    avgRoomRateVerified,
     numRoomingHouses: s.numRoomingHouses,
     lat: s.lat,
     lng: s.lng,
-    commentary: `${s.name} has ${s.numRoomingHouses} registered rooming house${
-      s.numRoomingHouses === 1 ? "" : "s"
-    } on the Consumer Affairs Victoria register. Rate and demand figures for this suburb are estimated pending verified data.`,
+    commentary: avgRoomRateVerified
+      ? `${s.name} has ${s.numRoomingHouses} registered rooming house${
+          s.numRoomingHouses === 1 ? "" : "s"
+        } on the Consumer Affairs Victoria register.`
+      : `${s.name} has ${s.numRoomingHouses} registered rooming house${
+          s.numRoomingHouses === 1 ? "" : "s"
+        } on the Consumer Affairs Victoria register. Rate and demand figures for this suburb are estimated pending verified data.`,
     rentalTrend: rentalTrend(avgRoomRate - 15),
     supplyGrowth: supplyGrowth(Math.max(s.numRoomingHouses - 4, 1)),
   };
@@ -286,6 +305,13 @@ export const suburbs: Suburb[] = [...curatedSuburbs, ...generatedSuburbs];
 
 export function getSuburbById(id: string) {
   return suburbs.find((s) => s.id === id);
+}
+
+// Never show a fabricated rate as if it were real — suburbs without a verified
+// figure say so plainly instead of displaying the estimated placeholder number.
+export function formatAvgRoomRate(suburb: Suburb): string {
+  if (!suburb.avgRoomRateVerified) return "No market data";
+  return suburb.avgRoomRateDisplay ?? `$${suburb.avgRoomRate}/wk`;
 }
 
 export const dashboardStats = {

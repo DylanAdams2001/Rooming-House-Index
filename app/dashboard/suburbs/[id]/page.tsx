@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSuburbById, suburbs } from "@/lib/mock-data";
+import { getSuburbById, suburbs, formatAvgRoomRate } from "@/lib/mock-data";
 import { DemandBadge } from "@/components/demand-badge";
 import { SaveSuburbButton } from "@/components/save-suburb-button";
 import { RentalTrendChart } from "@/components/charts/rental-trend-chart";
@@ -43,14 +43,8 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile
           label="Avg. room rate"
-          value={
-            <>
-              ${suburb.avgRoomRate}/wk
-              {!suburb.avgRoomRateVerified && (
-                <span className="ml-1 font-sans text-xs font-normal text-muted">est.</span>
-              )}
-            </>
-          }
+          value={formatAvgRoomRate(suburb)}
+          muted={!suburb.avgRoomRateVerified}
         />
         <StatTile label="Rooming houses" value={String(suburb.numRoomingHouses)} />
         <StatTile
@@ -91,11 +85,21 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
   );
 }
 
-function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
+function StatTile({
+  label,
+  value,
+  muted,
+}: {
+  label: string;
+  value: React.ReactNode;
+  muted?: boolean;
+}) {
   return (
     <div className="rounded-card border border-line bg-white p-5">
       <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-      <div className="mt-2 font-display text-2xl text-ink">{value}</div>
+      <div className={muted ? "mt-2 text-lg text-muted" : "mt-2 font-display text-2xl text-ink"}>
+        {value}
+      </div>
     </div>
   );
 }
