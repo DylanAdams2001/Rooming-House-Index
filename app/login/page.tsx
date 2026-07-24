@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: { redirectTo?: string };
+}) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-offwhite px-6">
       <Link href="/" className="mb-10 font-display text-2xl text-ink">
@@ -12,7 +16,7 @@ export default function LoginPage() {
         <p className="mb-8 text-center text-sm text-muted">
           Log in to access your dashboard
         </p>
-        <AuthForm mode="login" />
+        <AuthForm mode="login" redirectTo={searchParams.redirectTo} />
       </div>
     </div>
   );

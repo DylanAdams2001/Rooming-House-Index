@@ -10,10 +10,12 @@ create table if not exists public.users (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null,
   full_name text,
-  -- 'investor': default platform user (suburb data, saved suburbs).
+  -- 'investor': platform user browsing suburb data, saved suburbs, room listings as a landlord.
+  -- 'tenant': signed up via the public /listings page to enquire about a room — the qualification
+  --           step before an Uber/Airbnb-style trust rating gets built on top later.
   -- 'provider': runs one or more service_providers listings (insurance, legal, etc.) and chats with investors.
   -- 'admin': platform owner — can see every conversation across every provider, for payment/compliance oversight.
-  role text not null default 'investor' check (role in ('investor', 'provider', 'admin')),
+  role text not null default 'investor' check (role in ('investor', 'tenant', 'provider', 'admin')),
   created_at timestamptz not null default now()
 );
 
@@ -27,12 +29,23 @@ create policy "Users can update their own profile"
   on public.users for update
   using (auth.uid() = id);
 
--- Auto-create a public.users row whenever a new auth user signs up.
+-- Auto-create a public.users row whenever a new auth user signs up. The role comes from
+-- supabase.auth.signUp's options.data.role (see components/auth-form.tsx) — e.g. someone
+-- signing up from the "Enquire" flow on /listings arrives here with role='tenant'. Falls
+-- back to 'investor' if no role was passed or it's not one of the recognised values.
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (id, email)
-  values (new.id, new.email);
+  insert into public.users (id, email, role)
+  values (
+    new.id,
+    new.email,
+    case
+      when new.raw_user_meta_data->>'role' in ('investor', 'tenant', 'provider', 'admin')
+        then new.raw_user_meta_data->>'role'
+      else 'investor'
+    end
+  );
   return new;
 end;
 $$ language plpgsql security definer;

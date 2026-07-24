@@ -8,7 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({
+  mode,
+  redirectTo,
+  role,
+}: {
+  mode: "login" | "signup";
+  redirectTo?: string;
+  role?: string;
+}) {
   const router = useRouter();
   const supabase = createClient();
   const [email, setEmail] = useState("");
@@ -17,6 +25,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const destination = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -24,23 +34,34 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     setMessage(null);
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { role: role ?? "investor" } },
+      });
       if (error) {
         setError(error.message);
+      } else if (data.session) {
+        // Email confirmation disabled — user is already signed in.
+        router.push(destination);
+        router.refresh();
       } else {
-        setMessage("Check your email to confirm your account.");
+        setMessage("Check your email to confirm your account, then log in to continue.");
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setError(error.message);
       } else {
-        router.push("/dashboard");
+        router.push(destination);
         router.refresh();
       }
     }
     setLoading(false);
   }
+
+  const signupHref = redirectTo ? `/signup?redirectTo=${encodeURIComponent(redirectTo)}` : "/signup";
+  const loginHref = redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : "/login";
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
@@ -79,14 +100,14 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         {mode === "login" ? (
           <>
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-ink underline underline-offset-4">
+            <Link href={signupHref} className="text-ink underline underline-offset-4">
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="text-ink underline underline-offset-4">
+            <Link href={loginHref} className="text-ink underline underline-offset-4">
               Log in
             </Link>
           </>
