@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-white text-body font-sans;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+}
+
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+}
+
+/* Leaflet ships its own anchor color that overrides in-popup buttons/links — reset to brand tokens.
+   Leaflet's stylesheet is injected at runtime (after globals.css), so !important is required
+   to win regardless of load order. */
+.leaflet-popup-content a,
+.leaflet-popup-content a:hover,
+.leaflet-popup-content a:visited {
+  color: inherit !important;
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(26, 26, 26, 0.12);
+}
+.leaflet-container {
+  font-family: system-ui, -apple-system, sans-serif;
+}

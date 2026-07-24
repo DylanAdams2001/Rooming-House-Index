@@ -1,0 +1,1802 @@
+[
+  {
+    "id": "melbourne-3000",
+    "name": "Melbourne",
+    "postcode": "3000",
+    "council": "Melbourne City Council",
+    "lat": -37.81443733,
+    "lng": 144.9825846,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "east-melbourne-3002",
+    "name": "East Melbourne",
+    "postcode": "3002",
+    "council": "Melbourne City Council",
+    "lat": -37.81443733,
+    "lng": 144.9825846,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "west-melbourne-3003",
+    "name": "West Melbourne",
+    "postcode": "3003",
+    "council": "Melbourne City Council",
+    "lat": -37.810871,
+    "lng": 144.949592,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "west-footscray-3012",
+    "name": "West Footscray",
+    "postcode": "3012",
+    "council": "Maribyrnong City Council",
+    "lat": -37.807135,
+    "lng": 144.861162,
+    "numRoomingHouses": 15
+  },
+  {
+    "id": "yarraville-3013",
+    "name": "Yarraville",
+    "postcode": "3013",
+    "council": "Maribyrnong City Council",
+    "lat": -37.814183,
+    "lng": 144.888686,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "newport-3015",
+    "name": "Newport",
+    "postcode": "3015",
+    "council": "Hobsons Bay City Council",
+    "lat": -37.838242,
+    "lng": 144.880556,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "williamstown-north-3016",
+    "name": "Williamstown North",
+    "postcode": "3016",
+    "council": "Hobsons Bay City Council",
+    "lat": -37.863743,
+    "lng": 144.888461,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "braybrook-3019",
+    "name": "Braybrook",
+    "postcode": "3019",
+    "council": "Maribyrnong City Council",
+    "lat": -37.784683,
+    "lng": 144.854014,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "ardeer-3022",
+    "name": "Ardeer",
+    "postcode": "3022",
+    "council": "Brimbank City Council",
+    "lat": -37.795937,
+    "lng": 144.793961,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "deer-park-3023",
+    "name": "Deer Park",
+    "postcode": "3023",
+    "council": "Brimbank City Council",
+    "lat": -37.78272,
+    "lng": 144.770641,
+    "numRoomingHouses": 8
+  },
+  {
+    "id": "wyndham-vale-3024",
+    "name": "Wyndham Vale",
+    "postcode": "3024",
+    "council": "Wyndham City Council",
+    "lat": -37.899873,
+    "lng": 144.556552,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "altona-north-3025",
+    "name": "Altona North",
+    "postcode": "3025",
+    "council": "Hobsons Bay City Council",
+    "lat": -37.835562,
+    "lng": 144.839704,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "derrimut-3026",
+    "name": "Derrimut",
+    "postcode": "3026",
+    "council": "Brimbank City Council",
+    "lat": -37.91624,
+    "lng": 144.64209,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "williams-landing-3027",
+    "name": "Williams Landing",
+    "postcode": "3027",
+    "council": "Wyndham City Council",
+    "lat": -37.86199812,
+    "lng": 144.7430155,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "laverton-3028",
+    "name": "Laverton",
+    "postcode": "3028",
+    "council": "Hobsons Bay City Council",
+    "lat": -37.875066,
+    "lng": 144.777165,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "hoppers-crossing-3029",
+    "name": "Hoppers Crossing",
+    "postcode": "3029",
+    "council": "Wyndham City Council",
+    "lat": -37.837165,
+    "lng": 144.705831,
+    "numRoomingHouses": 33
+  },
+  {
+    "id": "flemington-3031",
+    "name": "Flemington",
+    "postcode": "3031",
+    "council": "Moonee Valley City Council",
+    "lat": -37.79119,
+    "lng": 144.923403,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "ascot-vale-3032",
+    "name": "Ascot Vale",
+    "postcode": "3032",
+    "council": "Moonee Valley City Council",
+    "lat": -37.774486,
+    "lng": 144.897221,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "sydenham-3037",
+    "name": "Sydenham",
+    "postcode": "3037",
+    "council": "Brimbank City Council",
+    "lat": -37.715579,
+    "lng": 144.780474,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "keilor-downs-3038",
+    "name": "Keilor Downs",
+    "postcode": "3038",
+    "council": "Brimbank City Council",
+    "lat": -37.700454,
+    "lng": 144.766873,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "moonee-ponds-3039",
+    "name": "Moonee Ponds",
+    "postcode": "3039",
+    "council": "Moonee Valley City Council",
+    "lat": -37.766184,
+    "lng": 144.922995,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "essendon-3040",
+    "name": "Essendon",
+    "postcode": "3040",
+    "council": "Moonee Valley City Council",
+    "lat": -37.751845,
+    "lng": 144.902556,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "royal-ave-essendon-north-3041",
+    "name": "Royal Ave Essendon North",
+    "postcode": "3041",
+    "council": "Moonee Valley City Council",
+    "lat": -37.731464,
+    "lng": 144.904815,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "gladstone-park-3043",
+    "name": "Gladstone Park",
+    "postcode": "3043",
+    "council": "Hume City Council",
+    "lat": -37.691916,
+    "lng": 144.888368,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "glenroy-3046",
+    "name": "Glenroy",
+    "postcode": "3046",
+    "council": "Mildur Rural City Council",
+    "lat": -37.706578,
+    "lng": 144.927968,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "meadow-heights-3048",
+    "name": "Meadow Heights",
+    "postcode": "3048",
+    "council": "Hume City Council",
+    "lat": -37.653917,
+    "lng": 144.923609,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "westmeadows-3049",
+    "name": "Westmeadows",
+    "postcode": "3049",
+    "council": "Hume City Council",
+    "lat": -37.673182,
+    "lng": 144.888492,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "north-melbourne-3051",
+    "name": "North Melbourne",
+    "postcode": "3051",
+    "council": "Melbourne City Council",
+    "lat": -37.8006,
+    "lng": 144.943559,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "carlton-3053",
+    "name": "Carlton",
+    "postcode": "3053",
+    "council": "Melbourne City Council",
+    "lat": -37.803569,
+    "lng": 144.966112,
+    "numRoomingHouses": 20
+  },
+  {
+    "id": "carlton-north-3054",
+    "name": "Carlton North",
+    "postcode": "3054",
+    "council": "Yarra City Council",
+    "lat": -37.786971,
+    "lng": 144.96724,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "brunswick-west-3055",
+    "name": "Brunswick West",
+    "postcode": "3055",
+    "council": "Mildur Rural City Council",
+    "lat": -37.763584,
+    "lng": 144.942222,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "brunswick-3056",
+    "name": "Brunswick",
+    "postcode": "3056",
+    "council": "Mildur Rural City Council",
+    "lat": -37.766292,
+    "lng": 144.960108,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "brunswick-east-3057",
+    "name": "Brunswick East",
+    "postcode": "3057",
+    "council": "Mildur Rural City Council",
+    "lat": -37.770012,
+    "lng": 144.97728,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "coburg-3058",
+    "name": "Coburg",
+    "postcode": "3058",
+    "council": "Mildur Rural City Council",
+    "lat": -37.739901,
+    "lng": 144.964524,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "greenvale-3059",
+    "name": "Greenvale",
+    "postcode": "3059",
+    "council": "Hume City Council",
+    "lat": -37.639887,
+    "lng": 144.879626,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "campbellfield-3061",
+    "name": "Campbellfield",
+    "postcode": "3061",
+    "council": "Hume City Council",
+    "lat": -37.666265,
+    "lng": 144.956763,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "craigieburn-3064",
+    "name": "Craigieburn",
+    "postcode": "3064",
+    "council": "Hume City Council",
+    "lat": -37.546522,
+    "lng": 144.942199,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "fitzroy-3065",
+    "name": "Fitzroy",
+    "postcode": "3065",
+    "council": "Yarra City Council",
+    "lat": -37.802608,
+    "lng": 144.977795,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "collingwood-3066",
+    "name": "Collingwood",
+    "postcode": "3066",
+    "council": "Yarra City Council",
+    "lat": -37.804846,
+    "lng": 144.986906,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "abbotsford-3067",
+    "name": "Abbotsford",
+    "postcode": "3067",
+    "council": "Yarra City Council",
+    "lat": -37.803515,
+    "lng": 144.998203,
+    "numRoomingHouses": 9
+  },
+  {
+    "id": "northcote-3070",
+    "name": "Northcote",
+    "postcode": "3070",
+    "council": "Darebin City Council",
+    "lat": -37.774064,
+    "lng": 144.999745,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "thornbury-3071",
+    "name": "Thornbury",
+    "postcode": "3071",
+    "council": "Darebin City Council",
+    "lat": -37.759426,
+    "lng": 145.007006,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "preston-3072",
+    "name": "Preston",
+    "postcode": "3072",
+    "council": "Darebin City Council",
+    "lat": -37.74247,
+    "lng": 145.005702,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "thomastown-3074",
+    "name": "Thomastown",
+    "postcode": "3074",
+    "council": "Whittlesea City Council",
+    "lat": -37.684684,
+    "lng": 145.006644,
+    "numRoomingHouses": 9
+  },
+  {
+    "id": "lalor-3075",
+    "name": "Lalor",
+    "postcode": "3075",
+    "council": "Whittlesea City Council",
+    "lat": -37.66607,
+    "lng": 145.002679,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "epping-3076",
+    "name": "Epping",
+    "postcode": "3076",
+    "council": "Whittlesea City Council",
+    "lat": -37.643598,
+    "lng": 145.022137,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "alphington-3078",
+    "name": "Alphington",
+    "postcode": "3078",
+    "council": "Darebin City Council",
+    "lat": -37.778298,
+    "lng": 145.025853,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "ivanhoe-3079",
+    "name": "Ivanhoe",
+    "postcode": "3079",
+    "council": "Banyule City Council",
+    "lat": -37.772675,
+    "lng": 145.048573,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "heidelberg-west-3081",
+    "name": "Heidelberg West",
+    "postcode": "3081",
+    "council": "Banyule City Council",
+    "lat": -37.743008,
+    "lng": 145.046401,
+    "numRoomingHouses": 24
+  },
+  {
+    "id": "mill-park-3082",
+    "name": "Mill Park",
+    "postcode": "3082",
+    "council": "Whittlesea City Council",
+    "lat": -37.664858,
+    "lng": 145.065658,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "bundoora-3083",
+    "name": "Bundoora",
+    "postcode": "3083",
+    "council": "Darebin City Council",
+    "lat": -37.701346,
+    "lng": 145.056223,
+    "numRoomingHouses": 41
+  },
+  {
+    "id": "rosanna-3084",
+    "name": "Rosanna",
+    "postcode": "3084",
+    "council": "Banyule City Council",
+    "lat": -37.744406,
+    "lng": 145.082685,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "greensborough-3088",
+    "name": "Greensborough",
+    "postcode": "3088",
+    "council": "Banyule City Council",
+    "lat": -37.700175,
+    "lng": 145.108339,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "kew-3101",
+    "name": "Kew",
+    "postcode": "3101",
+    "council": "Boroondara City Council",
+    "lat": -37.807397,
+    "lng": 145.036575,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "balwyn-north-3104",
+    "name": "Balwyn North",
+    "postcode": "3104",
+    "council": "Boroondara City Council",
+    "lat": -37.793695,
+    "lng": 145.081714,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "templestowe-lower-3107",
+    "name": "Templestowe Lower",
+    "postcode": "3107",
+    "council": "Manningham City Council",
+    "lat": -37.765225,
+    "lng": 145.110677,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "doncaster-3108",
+    "name": "Doncaster",
+    "postcode": "3108",
+    "council": "Manningham City Council",
+    "lat": -37.786429,
+    "lng": 145.125797,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "doncaster-east-3109",
+    "name": "Doncaster East",
+    "postcode": "3109",
+    "council": "Manningham City Council",
+    "lat": -37.784786,
+    "lng": 145.161649,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "richmond-3121",
+    "name": "Richmond",
+    "postcode": "3121",
+    "council": "Yarra City Council",
+    "lat": -37.823303,
+    "lng": 145.001788,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "hawthorn-3122",
+    "name": "Hawthorn",
+    "postcode": "3122",
+    "council": "Boroondara City Council",
+    "lat": -37.822725,
+    "lng": 145.030602,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "hawthorn-east-3123",
+    "name": "Hawthorn East",
+    "postcode": "3123",
+    "council": "Boroondara City Council",
+    "lat": -37.829752,
+    "lng": 145.049415,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "burwood-3125",
+    "name": "Burwood",
+    "postcode": "3125",
+    "council": "Whitehorse City Council",
+    "lat": -37.851305,
+    "lng": 145.101,
+    "numRoomingHouses": 68
+  },
+  {
+    "id": "surrey-hills-3127",
+    "name": "Surrey Hills",
+    "postcode": "3127",
+    "council": "Boroondara City Council",
+    "lat": -37.825173,
+    "lng": 145.097236,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "box-hill-south-3128",
+    "name": "Box Hill South",
+    "postcode": "3128",
+    "council": "Whitehorse City Council",
+    "lat": -37.828866,
+    "lng": 145.122393,
+    "numRoomingHouses": 19
+  },
+  {
+    "id": "box-hill-north-3129",
+    "name": "Box Hill North",
+    "postcode": "3129",
+    "council": "Whitehorse City Council",
+    "lat": -37.806965,
+    "lng": 145.125084,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "blackburn-south-3130",
+    "name": "Blackburn South",
+    "postcode": "3130",
+    "council": "Whitehorse City Council",
+    "lat": -37.81805,
+    "lng": 145.149653,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "nunawading-3131",
+    "name": "Nunawading",
+    "postcode": "3131",
+    "council": "Whitehorse City Council",
+    "lat": -37.817798,
+    "lng": 145.174489,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "mitcham-3132",
+    "name": "Mitcham",
+    "postcode": "3132",
+    "council": "Whitehorse City Council",
+    "lat": -37.819222,
+    "lng": 145.196686,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "vermont-3133",
+    "name": "Vermont",
+    "postcode": "3133",
+    "council": "Whitehorse City Council",
+    "lat": -37.848786,
+    "lng": 145.192303,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "ringwood-3134",
+    "name": "Ringwood",
+    "postcode": "3134",
+    "council": "Maroondah City Council",
+    "lat": -37.796091,
+    "lng": 145.232557,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "ringwood-east-3135",
+    "name": "Ringwood East",
+    "postcode": "3135",
+    "council": "Maroondah City Council",
+    "lat": -37.819594,
+    "lng": 145.248209,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "croydon-3136",
+    "name": "Croydon",
+    "postcode": "3136",
+    "council": "Maroondah City Council",
+    "lat": -37.779876,
+    "lng": 145.282396,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "mooroolbark-3138",
+    "name": "Mooroolbark",
+    "postcode": "3138",
+    "council": "Yarra Ranges Shire Council",
+    "lat": -37.78391,
+    "lng": 145.322794,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "lilydale-3140",
+    "name": "Lilydale",
+    "postcode": "3140",
+    "council": "Yarra Ranges Shire Council",
+    "lat": -37.759154,
+    "lng": 145.363185,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "south-yarra-3141",
+    "name": "South Yarra",
+    "postcode": "3141",
+    "council": "Stonnington City Council",
+    "lat": -37.840679,
+    "lng": 144.991264,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "toorak-3142",
+    "name": "Toorak",
+    "postcode": "3142",
+    "council": "Stonnington City Council",
+    "lat": -37.84411,
+    "lng": 145.017732,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "armadale-3143",
+    "name": "Armadale",
+    "postcode": "3143",
+    "council": "Stonnington City Council",
+    "lat": -37.858918,
+    "lng": 145.019393,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "malvern-east-3145",
+    "name": "Malvern East",
+    "postcode": "3145",
+    "council": "Stonnington City Council",
+    "lat": -37.873557,
+    "lng": 145.049328,
+    "numRoomingHouses": 23
+  },
+  {
+    "id": "glen-iris-3146",
+    "name": "Glen Iris",
+    "postcode": "3146",
+    "council": "Boroondara City Council",
+    "lat": -37.857116,
+    "lng": 145.057833,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "chadstone-3148",
+    "name": "Chadstone",
+    "postcode": "3148",
+    "council": "Monash City Council",
+    "lat": -37.882562,
+    "lng": 145.090149,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "mount-waverley-3149",
+    "name": "Mount Waverley",
+    "postcode": "3149",
+    "council": "Monash City Council",
+    "lat": -37.880748,
+    "lng": 145.128118,
+    "numRoomingHouses": 17
+  },
+  {
+    "id": "glen-waverley-3150",
+    "name": "Glen Waverley",
+    "postcode": "3150",
+    "council": "Monash City Council",
+    "lat": -37.876968,
+    "lng": 145.170841,
+    "numRoomingHouses": 19
+  },
+  {
+    "id": "burwood-east-3151",
+    "name": "Burwood East",
+    "postcode": "3151",
+    "council": "Whitehorse City Council",
+    "lat": -37.85523,
+    "lng": 145.151119,
+    "numRoomingHouses": 11
+  },
+  {
+    "id": "wantirna-3152",
+    "name": "Wantirna",
+    "postcode": "3152",
+    "council": "Knox City Council",
+    "lat": -37.864951,
+    "lng": 145.221695,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "bayswater-3153",
+    "name": "Bayswater",
+    "postcode": "3153",
+    "council": "Knox City Council",
+    "lat": -37.845116,
+    "lng": 145.270141,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "boronia-3155",
+    "name": "Boronia",
+    "postcode": "3155",
+    "council": "Knox City Council",
+    "lat": -37.861799,
+    "lng": 145.284418,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "ferntree-gully-3156",
+    "name": "Ferntree Gully",
+    "postcode": "3156",
+    "council": "Knox City Council",
+    "lat": -37.917932,
+    "lng": 145.292895,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "caulfield-north-3161",
+    "name": "Caulfield North",
+    "postcode": "3161",
+    "council": "Glen Eira City Council",
+    "lat": -37.873733,
+    "lng": 145.019929,
+    "numRoomingHouses": 10
+  },
+  {
+    "id": "caulfield-south-3162",
+    "name": "Caulfield South",
+    "postcode": "3162",
+    "council": "Glen Eira City Council",
+    "lat": -37.892139,
+    "lng": 145.023394,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "carnegie-3163",
+    "name": "Carnegie",
+    "postcode": "3163",
+    "council": "Glen Eira City Council",
+    "lat": -37.896497,
+    "lng": 145.057237,
+    "numRoomingHouses": 11
+  },
+  {
+    "id": "bentleigh-east-3165",
+    "name": "Bentleigh East",
+    "postcode": "3165",
+    "council": "Glen Eira City Council",
+    "lat": -37.922369,
+    "lng": 145.059426,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "oakleigh-east-3166",
+    "name": "Oakleigh East",
+    "postcode": "3166",
+    "council": "Monash City Council",
+    "lat": -37.902805,
+    "lng": 145.089719,
+    "numRoomingHouses": 27
+  },
+  {
+    "id": "oakleigh-south-3167",
+    "name": "Oakleigh South",
+    "postcode": "3167",
+    "council": "Monash City Council",
+    "lat": -37.923345,
+    "lng": 145.087614,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "clayton-south-3169",
+    "name": "Clayton South",
+    "postcode": "3169",
+    "council": "Kingston City Council",
+    "lat": -37.945149,
+    "lng": 145.115271,
+    "numRoomingHouses": 13
+  },
+  {
+    "id": "mulgrave-3170",
+    "name": "Mulgrave",
+    "postcode": "3170",
+    "council": "Monash City Council",
+    "lat": -37.920945,
+    "lng": 145.167859,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "springvale-south-3172",
+    "name": "Springvale South",
+    "postcode": "3172",
+    "council": "Greater Dandenong City Council",
+    "lat": -37.975981,
+    "lng": 145.13465,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "noble-park-3174",
+    "name": "Noble Park",
+    "postcode": "3174",
+    "council": "Greater Dandenong City Council",
+    "lat": -37.966218,
+    "lng": 145.17877,
+    "numRoomingHouses": 32
+  },
+  {
+    "id": "doveton-3177",
+    "name": "Doveton",
+    "postcode": "3177",
+    "council": "Casey City Council",
+    "lat": -37.990985,
+    "lng": 145.237462,
+    "numRoomingHouses": 8
+  },
+  {
+    "id": "rowville-3178",
+    "name": "Rowville",
+    "postcode": "3178",
+    "council": "Knox City Council",
+    "lat": -37.924431,
+    "lng": 145.241589,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "knoxfield-3180",
+    "name": "Knoxfield",
+    "postcode": "3180",
+    "council": "Knox City Council",
+    "lat": -37.893263,
+    "lng": 145.246731,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "windsor-3181",
+    "name": "Windsor",
+    "postcode": "3181",
+    "council": "Stonnington City Council",
+    "lat": -37.854683,
+    "lng": 144.995504,
+    "numRoomingHouses": 9
+  },
+  {
+    "id": "st-kilda-3182",
+    "name": "St Kilda",
+    "postcode": "3182",
+    "council": "Port Phillip City Council",
+    "lat": -37.865322,
+    "lng": 144.979478,
+    "numRoomingHouses": 30
+  },
+  {
+    "id": "balaclava-3183",
+    "name": "Balaclava",
+    "postcode": "3183",
+    "council": "Port Phillip City Council",
+    "lat": -37.869072,
+    "lng": 144.999026,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "elwood-3184",
+    "name": "Elwood",
+    "postcode": "3184",
+    "council": "Port Phillip City Council",
+    "lat": -37.881414,
+    "lng": 144.984034,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "brighton-3186",
+    "name": "Brighton",
+    "postcode": "3186",
+    "council": "Bayside City Council",
+    "lat": -37.915066,
+    "lng": 144.996329,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "brighton-east-3187",
+    "name": "Brighton East",
+    "postcode": "3187",
+    "council": "Bayside City Council",
+    "lat": -37.925371,
+    "lng": 145.013593,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "moorabbin-3189",
+    "name": "Moorabbin",
+    "postcode": "3189",
+    "council": "Kingston City Council",
+    "lat": -37.942021,
+    "lng": 145.047802,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "highett-3190",
+    "name": "Highett",
+    "postcode": "3190",
+    "council": "Bayside City Council",
+    "lat": -37.951394,
+    "lng": 145.038147,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "cheltenham-3192",
+    "name": "Cheltenham",
+    "postcode": "3192",
+    "council": "Kingston City Council",
+    "lat": -37.965655,
+    "lng": 145.0623,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "parkdale-3195",
+    "name": "Parkdale",
+    "postcode": "3195",
+    "council": "Kingston City Council",
+    "lat": -38.007024,
+    "lng": 145.104105,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "edithvale-3196",
+    "name": "Edithvale",
+    "postcode": "3196",
+    "council": "Kingston City Council",
+    "lat": -38.046479,
+    "lng": 145.122762,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "carrum-3197",
+    "name": "Carrum",
+    "postcode": "3197",
+    "council": "Kingston City Council",
+    "lat": -38.072748,
+    "lng": 145.134111,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "seaford-3198",
+    "name": "Seaford",
+    "postcode": "3198",
+    "council": "Frankston City Council",
+    "lat": -38.103194,
+    "lng": 145.137811,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "frankston-north-3200",
+    "name": "Frankston North",
+    "postcode": "3200",
+    "council": "Frankston City Council",
+    "lat": -38.126458,
+    "lng": 145.157574,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "carrum-downs-3201",
+    "name": "Carrum Downs",
+    "postcode": "3201",
+    "council": "Frankston City Council",
+    "lat": -38.092874,
+    "lng": 145.177905,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "bentleigh-3204",
+    "name": "Bentleigh",
+    "postcode": "3204",
+    "council": "Glen Eira City Council",
+    "lat": -37.916956,
+    "lng": 145.036783,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "south-melbourne-3205",
+    "name": "South Melbourne",
+    "postcode": "3205",
+    "council": "Port Phillip City Council",
+    "lat": -37.831693,
+    "lng": 144.958176,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "port-melbourne-3207",
+    "name": "Port Melbourne",
+    "postcode": "3207",
+    "council": "Port Phillip City Council",
+    "lat": -37.832179,
+    "lng": 144.918044,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "lara-3212",
+    "name": "Lara",
+    "postcode": "3212",
+    "council": "Greater Geelong City Council",
+    "lat": -38.039958,
+    "lng": 144.422666,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "norlane-3214",
+    "name": "Norlane",
+    "postcode": "3214",
+    "council": "Greater Geelong City Council",
+    "lat": -38.084781,
+    "lng": 144.352385,
+    "numRoomingHouses": 14
+  },
+  {
+    "id": "hamlyn-heights-3215",
+    "name": "Hamlyn Heights",
+    "postcode": "3215",
+    "council": "Greater Geelong City Council",
+    "lat": -38.111002,
+    "lng": 144.33452,
+    "numRoomingHouses": 8
+  },
+  {
+    "id": "highton-3216",
+    "name": "Highton",
+    "postcode": "3216",
+    "council": "Greater Geelong City Council",
+    "lat": -38.215906,
+    "lng": 144.334005,
+    "numRoomingHouses": 126
+  },
+  {
+    "id": "charlemont-3217",
+    "name": "Charlemont",
+    "postcode": "3217",
+    "council": "Greater Geelong City Council",
+    "lat": -38.21558906,
+    "lng": 144.3683696,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "geelong-west-3218",
+    "name": "Geelong West",
+    "postcode": "3218",
+    "council": "Greater Geelong City Council",
+    "lat": -38.138728,
+    "lng": 144.330986,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "newcomb-3219",
+    "name": "Newcomb",
+    "postcode": "3219",
+    "council": "Greater Geelong City Council",
+    "lat": -38.17277,
+    "lng": 144.389533,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "geelong-3220",
+    "name": "Geelong",
+    "postcode": "3220",
+    "council": "Greater Geelong City Council",
+    "lat": -38.157038,
+    "lng": 144.34652,
+    "numRoomingHouses": 9
+  },
+  {
+    "id": "curlewis-3222",
+    "name": "Curlewis",
+    "postcode": "3222",
+    "council": "Greater Geelong City Council",
+    "lat": -38.209921,
+    "lng": 144.572989,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "leopold-3224",
+    "name": "Leopold",
+    "postcode": "3224",
+    "council": "Greater Geelong City Council",
+    "lat": -38.202905,
+    "lng": 144.462401,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "torquay-3228",
+    "name": "Torquay",
+    "postcode": "3228",
+    "council": "Surf Coast Shire Council",
+    "lat": -38.307545,
+    "lng": 144.299978,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "warrnambool-3280",
+    "name": "Warrnambool",
+    "postcode": "3280",
+    "council": "Warrnamboo City Council",
+    "lat": -38.37884,
+    "lng": 142.482889,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "rockbank-3335",
+    "name": "Rockbank",
+    "postcode": "3335",
+    "council": "Melton City Council",
+    "lat": -37.724141,
+    "lng": 144.699671,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "deanside-3336",
+    "name": "Deanside",
+    "postcode": "3336",
+    "council": "Melton City Council",
+    "lat": -37.7332,
+    "lng": 144.7041,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "melton-3337",
+    "name": "Melton",
+    "postcode": "3337",
+    "council": "Melton City Council",
+    "lat": -37.656057,
+    "lng": 144.571458,
+    "numRoomingHouses": 5
+  },
+  {
+    "id": "melton-south-3338",
+    "name": "Melton South",
+    "postcode": "3338",
+    "council": "Melton City Council",
+    "lat": -37.705529,
+    "lng": 144.571033,
+    "numRoomingHouses": 8
+  },
+  {
+    "id": "ballarat-east-3350",
+    "name": "Ballarat East",
+    "postcode": "3350",
+    "council": "Ballarat City Council",
+    "lat": -37.571941,
+    "lng": 143.864505,
+    "numRoomingHouses": 19
+  },
+  {
+    "id": "bonshaw-3352",
+    "name": "Bonshaw",
+    "postcode": "3352",
+    "council": "Ballarat City Council",
+    "lat": -37.60335408,
+    "lng": 143.813696,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "wendouree-3355",
+    "name": "Wendouree",
+    "postcode": "3355",
+    "council": "Ballarat City Council",
+    "lat": -37.530285,
+    "lng": 143.82561,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "sebastopol-3356",
+    "name": "Sebastopol",
+    "postcode": "3356",
+    "council": "Ballarat City Council",
+    "lat": -37.592283,
+    "lng": 143.82846,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "buninyong-3357",
+    "name": "Buninyong",
+    "postcode": "3357",
+    "council": "Ballarat City Council",
+    "lat": -37.653945,
+    "lng": 143.883416,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "winter-valley-3358",
+    "name": "Winter Valley",
+    "postcode": "3358",
+    "council": "Ballarat City Council",
+    "lat": -37.58012926,
+    "lng": 143.7928013,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "great-western-3374",
+    "name": "Great Western",
+    "postcode": "3374",
+    "council": "Northern Grampians Shire Counc Port Phillip City Council",
+    "lat": -37.231524,
+    "lng": 142.956916,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "stawell-3380",
+    "name": "Stawell",
+    "postcode": "3380",
+    "council": "Northern Grampians Shire Counc Port Phillip City Council",
+    "lat": -37.0666,
+    "lng": 142.771159,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "sunbury-3429",
+    "name": "Sunbury",
+    "postcode": "3429",
+    "council": "Hume City Council",
+    "lat": -37.56762,
+    "lng": 144.728973,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "campbells-creek-3451",
+    "name": "Campbells Creek",
+    "postcode": "3451",
+    "council": "Mount Alexander Shire Council",
+    "lat": -37.125338,
+    "lng": 144.21419,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "irymple-3498",
+    "name": "Irymple",
+    "postcode": "3498",
+    "council": "Mildur Rural City Council",
+    "lat": -34.238385,
+    "lng": 142.172516,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "mildura-3500",
+    "name": "Mildura",
+    "postcode": "3500",
+    "council": "Mildur Rural City Council",
+    "lat": -34.1931,
+    "lng": 142.154161,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "merbein-3505",
+    "name": "Merbein",
+    "postcode": "3505",
+    "council": "Mildur Rural City Council",
+    "lat": -34.180532,
+    "lng": 142.004192,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "tol-tol-3549",
+    "name": "Tol Tol",
+    "postcode": "3549",
+    "council": "Swan Hill Rural Cit Swan Hill Rural City Council",
+    "lat": -34.766049,
+    "lng": 142.820973,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "flora-hill-3550",
+    "name": "Flora Hill",
+    "postcode": "3550",
+    "council": "Greater Bendigo City Council",
+    "lat": -36.764269,
+    "lng": 144.285267,
+    "numRoomingHouses": 20
+  },
+  {
+    "id": "huntly-3551",
+    "name": "Huntly",
+    "postcode": "3551",
+    "council": "Greater Bendigo City Council",
+    "lat": -36.78137,
+    "lng": 144.457937,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "kangaroo-flat-3555",
+    "name": "Kangaroo Flat",
+    "postcode": "3555",
+    "council": "Greater Bendigo City Council",
+    "lat": -36.777226,
+    "lng": 144.245239,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "california-gully-3556",
+    "name": "California Gully",
+    "postcode": "3556",
+    "council": "Greater Bendigo City Council",
+    "lat": -36.656422,
+    "lng": 144.178282,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "swan-hill-3585",
+    "name": "Swan Hill",
+    "postcode": "3585",
+    "council": "Swan Hill Rural Cit Wangaratta Rural City Council",
+    "lat": -35.348388,
+    "lng": 143.336906,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "mooroopna-3629",
+    "name": "Mooroopna",
+    "postcode": "3629",
+    "council": "Greater Shepparton City Council",
+    "lat": -36.287306,
+    "lng": 145.260653,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "shepparton-3630",
+    "name": "Shepparton",
+    "postcode": "3630",
+    "council": "Greater Shepparton City Council",
+    "lat": -36.380853,
+    "lng": 145.403176,
+    "numRoomingHouses": 22
+  },
+  {
+    "id": "seymour-3660",
+    "name": "Seymour",
+    "postcode": "3660",
+    "council": "Mitchell shire Moira Shire Council",
+    "lat": -37.035925,
+    "lng": 145.257867,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "wangaratta-3677",
+    "name": "Wangaratta",
+    "postcode": "3677",
+    "council": "Wangaratta Rural City Council",
+    "lat": -36.358017,
+    "lng": 146.330564,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "wodonga-3690",
+    "name": "Wodonga",
+    "postcode": "3690",
+    "council": "Wodonga City Council",
+    "lat": -36.135717,
+    "lng": 146.864361,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "baranduda-3691",
+    "name": "Baranduda",
+    "postcode": "3691",
+    "council": "Wodonga City Council",
+    "lat": -36.027154,
+    "lng": 147.880991,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "yarrawonga-3730",
+    "name": "Yarrawonga",
+    "postcode": "3730",
+    "council": "Moira Shire Council",
+    "lat": -36.051782,
+    "lng": 145.974755,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "wollert-3750",
+    "name": "Wollert",
+    "postcode": "3750",
+    "council": "Whittlesea City Council",
+    "lat": -37.596078,
+    "lng": 145.005578,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "mernda-3754",
+    "name": "Mernda",
+    "postcode": "3754",
+    "council": "Whittlesea City Council",
+    "lat": -37.593554,
+    "lng": 145.112985,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "wallan-3756",
+    "name": "Wallan",
+    "postcode": "3756",
+    "council": "Mitchell shire Moira Shire Council",
+    "lat": -37.41233,
+    "lng": 144.956641,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "kilmore-3764",
+    "name": "Kilmore",
+    "postcode": "3764",
+    "council": "Mitchell shire Moira Shire Council",
+    "lat": -37.263736,
+    "lng": 144.900644,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "mount-evelyn-3796",
+    "name": "Mount Evelyn",
+    "postcode": "3796",
+    "council": "Yarra Ranges Shire Council",
+    "lat": -37.786977,
+    "lng": 145.384922,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "endeavour-hills-3802",
+    "name": "Endeavour Hills",
+    "postcode": "3802",
+    "council": "Casey City Council",
+    "lat": -37.971763,
+    "lng": 145.255599,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "hallam-3803",
+    "name": "Hallam",
+    "postcode": "3803",
+    "council": "Casey City Council",
+    "lat": -38.009435,
+    "lng": 145.265524,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "narre-warren-3805",
+    "name": "Narre Warren",
+    "postcode": "3805",
+    "council": "Casey City Council",
+    "lat": -38.037026,
+    "lng": 145.304198,
+    "numRoomingHouses": 14
+  },
+  {
+    "id": "berwick-3806",
+    "name": "Berwick",
+    "postcode": "3806",
+    "council": "Casey City Council",
+    "lat": -38.025018,
+    "lng": 145.349488,
+    "numRoomingHouses": 17
+  },
+  {
+    "id": "beaconsfield-3807",
+    "name": "Beaconsfield",
+    "postcode": "3807",
+    "council": "Casey City Council",
+    "lat": -38.048316,
+    "lng": 145.371635,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "officer-3809",
+    "name": "Officer",
+    "postcode": "3809",
+    "council": "Cardinia Shire Council",
+    "lat": -38.069094,
+    "lng": 145.406887,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "pakenham-3810",
+    "name": "Pakenham",
+    "postcode": "3810",
+    "council": "Cardinia Shire Council",
+    "lat": -38.04658,
+    "lng": 145.472514,
+    "numRoomingHouses": 15
+  },
+  {
+    "id": "drouin-3818",
+    "name": "Drouin",
+    "postcode": "3818",
+    "council": "Baw Baw Shire Council",
+    "lat": -38.096289,
+    "lng": 145.867337,
+    "numRoomingHouses": 8
+  },
+  {
+    "id": "warragul-3820",
+    "name": "Warragul",
+    "postcode": "3820",
+    "council": "Baw Baw Shire Council",
+    "lat": -38.207476,
+    "lng": 145.922212,
+    "numRoomingHouses": 15
+  },
+  {
+    "id": "trafalgar-3824",
+    "name": "Trafalgar",
+    "postcode": "3824",
+    "council": "Baw Baw Shire Council",
+    "lat": -38.245649,
+    "lng": 146.16397,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "moe-3825",
+    "name": "Moe",
+    "postcode": "3825",
+    "council": "Latrobe City Council",
+    "lat": -37.978862,
+    "lng": 146.342932,
+    "numRoomingHouses": 11
+  },
+  {
+    "id": "morwell-3840",
+    "name": "Morwell",
+    "postcode": "3840",
+    "council": "Latrobe City Council",
+    "lat": -38.245215,
+    "lng": 146.424457,
+    "numRoomingHouses": 19
+  },
+  {
+    "id": "churchill-3842",
+    "name": "Churchill",
+    "postcode": "3842",
+    "council": "Latrobe City Council",
+    "lat": -38.315452,
+    "lng": 146.414358,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "traralgon-3844",
+    "name": "Traralgon",
+    "postcode": "3844",
+    "council": "Latrobe City Council",
+    "lat": -38.316869,
+    "lng": 146.607101,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "rosedale-3847",
+    "name": "Rosedale",
+    "postcode": "3847",
+    "council": "Wellington Shire Council",
+    "lat": -38.166213,
+    "lng": 146.772991,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "sale-3850",
+    "name": "Sale",
+    "postcode": "3850",
+    "council": "Wellington Shire Council",
+    "lat": -38.224191,
+    "lng": 147.106181,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "giffard-west-3851",
+    "name": "Giffard West",
+    "postcode": "3851",
+    "council": "Wellington Shire Council",
+    "lat": -38.035548,
+    "lng": 147.084398,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "lindenow-3865",
+    "name": "Lindenow",
+    "postcode": "3865",
+    "council": "East Gippsland Shire Council",
+    "lat": -37.796743,
+    "lng": 147.455946,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "bairnsdale-3875",
+    "name": "Bairnsdale",
+    "postcode": "3875",
+    "council": "East Gippsland Shire Council",
+    "lat": -37.826032,
+    "lng": 147.63201,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "langwarrin-3910",
+    "name": "Langwarrin",
+    "postcode": "3910",
+    "council": "Frankston City Council",
+    "lat": -38.156369,
+    "lng": 145.198328,
+    "numRoomingHouses": 3
+  },
+  {
+    "id": "baxter-3911",
+    "name": "Baxter",
+    "postcode": "3911",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.196908,
+    "lng": 145.169556,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "somerville-3912",
+    "name": "Somerville",
+    "postcode": "3912",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.217991,
+    "lng": 145.227373,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "hastings-3915",
+    "name": "Hastings",
+    "postcode": "3915",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.305806,
+    "lng": 145.136622,
+    "numRoomingHouses": 6
+  },
+  {
+    "id": "sunset-strip-3922",
+    "name": "Sunset Strip",
+    "postcode": "3922",
+    "council": "Bass Coast Shire Council",
+    "lat": -38.482182,
+    "lng": 145.231974,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "mount-eliza-3930",
+    "name": "Mount Eliza",
+    "postcode": "3930",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.195017,
+    "lng": 145.093743,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "mornington-3931",
+    "name": "Mornington",
+    "postcode": "3931",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.230038,
+    "lng": 145.049503,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "mount-martha-3934",
+    "name": "Mount Martha",
+    "postcode": "3934",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.2783,
+    "lng": 145.031598,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "rosebud-3939",
+    "name": "Rosebud",
+    "postcode": "3939",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.42776,
+    "lng": 144.900413,
+    "numRoomingHouses": 4
+  },
+  {
+    "id": "rosebud-west-3940",
+    "name": "Rosebud West",
+    "postcode": "3940",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.383367,
+    "lng": 144.873115,
+    "numRoomingHouses": 2
+  },
+  {
+    "id": "sorrento-3943",
+    "name": "Sorrento",
+    "postcode": "3943",
+    "council": "Mornington Peninsula Shire Council",
+    "lat": -38.345527,
+    "lng": 144.739101,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "lynbrook-3975",
+    "name": "Lynbrook",
+    "postcode": "3975",
+    "council": "Casey City Council",
+    "lat": -38.05354,
+    "lng": 145.231114,
+    "numRoomingHouses": 1
+  },
+  {
+    "id": "hampton-park-3976",
+    "name": "Hampton Park",
+    "postcode": "3976",
+    "council": "Casey City Council",
+    "lat": -38.043995,
+    "lng": 145.264296,
+    "numRoomingHouses": 7
+  },
+  {
+    "id": "cranbourne-3977",
+    "name": "Cranbourne",
+    "postcode": "3977",
+    "council": "Casey City Council",
+    "lat": -38.135253,
+    "lng": 145.268888,
+    "numRoomingHouses": 37
+  },
+  {
+    "id": "clyde-north-3978",
+    "name": "Clyde North",
+    "postcode": "3978",
+    "council": "Casey City Council",
+    "lat": -38.135009,
+    "lng": 145.384606,
+    "numRoomingHouses": 12
+  },
+  {
+    "id": "melbourne-8001",
+    "name": "Melbourne",
+    "postcode": "8001",
+    "council": "Melbourne City Council",
+    "lat": -37.81443733,
+    "lng": 144.9825846,
+    "numRoomingHouses": 2
+  }
+]
