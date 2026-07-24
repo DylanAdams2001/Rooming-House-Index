@@ -12,7 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 const demandRank: Record<Suburb["demandLevel"], number> = { Low: 0, Medium: 1, High: 2 };
 
@@ -115,6 +116,7 @@ export default function MarketOverviewPage() {
                   <th className="px-6 py-3 font-medium">Demand</th>
                   <th className="px-6 py-3 font-medium">Avg. Rate</th>
                   <th className="px-6 py-3 font-medium">Rooming Houses</th>
+                  <th className="px-6 py-3 font-medium">Listings</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,6 +136,16 @@ export default function MarketOverviewPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-body">{s.numRoomingHouses}</td>
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/listings?suburb=${s.id}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1 text-sm text-ink underline underline-offset-4 hover:text-body"
+                      >
+                        Explore listings
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

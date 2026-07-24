@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSuburbById, suburbs } from "@/lib/mock-data";
 import { DemandBadge } from "@/components/demand-badge";
@@ -5,6 +6,8 @@ import { SaveSuburbButton } from "@/components/save-suburb-button";
 import { RentalTrendChart } from "@/components/charts/rental-trend-chart";
 import { SupplyGrowthChart } from "@/components/charts/supply-growth-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 export function generateStaticParams() {
   return suburbs.map((s) => ({ id: s.id }));
@@ -26,7 +29,15 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
           </p>
           <h1 className="mt-1 font-display text-4xl text-ink">{suburb.name}</h1>
         </div>
-        <SaveSuburbButton suburbId={suburb.id} />
+        <div className="flex flex-wrap gap-3">
+          <Button asChild variant="outline">
+            <Link href={`/listings?suburb=${suburb.id}`} target="_blank">
+              Explore current listings
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+          <SaveSuburbButton suburbId={suburb.id} />
+        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">

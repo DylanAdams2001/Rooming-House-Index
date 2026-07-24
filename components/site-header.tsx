@@ -12,6 +12,9 @@ export function SiteHeader() {
           <a href="#features" className="hover:text-ink">
             Platform
           </a>
+          <Link href="/listings" className="hover:text-ink">
+            Room Listings
+          </Link>
           <a href="#access" className="hover:text-ink">
             Early Access
           </a>
