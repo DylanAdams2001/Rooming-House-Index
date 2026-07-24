@@ -10,6 +10,10 @@ create table if not exists public.users (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null,
   full_name text,
+  -- 'investor': default platform user (suburb data, saved suburbs).
+  -- 'provider': runs one or more service_providers listings (insurance, legal, etc.) and chats with investors.
+  -- 'admin': platform owner — can see every conversation across every provider, for payment/compliance oversight.
+  role text not null default 'investor' check (role in ('investor', 'provider', 'admin')),
   created_at timestamptz not null default now()
 );
 
@@ -94,3 +98,169 @@ create policy "Users can remove their own saved suburbs"
 create index if not exists saved_suburbs_user_id_idx on public.saved_suburbs (user_id);
 create index if not exists suburbs_demand_level_idx on public.suburbs (demand_level);
 create index if not exists suburbs_postcode_idx on public.suburbs (postcode);
+
+-- ─────────────────────────────────────────────────────────────
+-- service_providers
+-- One generic table for every provider marketplace category (insurance,
+-- conveyancing/legal, inspectors, maintenance, and — later — building,
+-- property management, furnishing). `category` is what filters the
+-- directory; `credentials` holds the compliance fields that differ per
+-- category (AFSL number + insurers represented for insurance, practising
+-- certificate number for legal, trade licence for maintenance, etc.) so
+-- the schema doesn't need to change every time a new category goes live.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.service_providers (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.users (id) on delete cascade,
+  category text not null check (category in (
+    'insurance', 'conveyancing_legal', 'inspectors', 'maintenance',
+    'building', 'property_management', 'furnishing'
+  )),
+  business_name text not null,
+  description text,
+  logo_url text,
+  contact_email text not null,
+  contact_phone text,
+  coverage_areas text[] not null default '{}',
+  license_number text,
+  -- Category-specific compliance fields, e.g.
+  -- insurance: {"afsl_number": "...", "insurers_represented": ["...", "..."]}
+  -- conveyancing_legal: {"practising_certificate_number": "..."}
+  credentials jsonb not null default '{}',
+  -- New listings start 'pending' so you can review before they appear in the
+  -- public directory — approve/reject from an admin view (not built yet).
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.service_providers enable row level security;
+
+create policy "Anyone can view approved providers"
+  on public.service_providers for select
+  to authenticated
+  using (status = 'approved');
+
+create policy "Providers can view and manage their own listing"
+  on public.service_providers for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Admins can view every provider listing"
+  on public.service_providers for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists service_providers_category_idx on public.service_providers (category);
+create index if not exists service_providers_user_id_idx on public.service_providers (user_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- conversations
+-- One thread per investor/provider pair, across any category.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  investor_id uuid not null references public.users (id) on delete cascade,
+  provider_id uuid not null references public.service_providers (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now(),
+
+  unique (investor_id, provider_id)
+);
+
+alter table public.conversations enable row level security;
+
+create policy "Participants can view their conversations"
+  on public.conversations for select
+  using (
+    auth.uid() = investor_id
+    or auth.uid() in (
+      select user_id from public.service_providers where id = provider_id
+    )
+  );
+
+create policy "Investors can start a conversation"
+  on public.conversations for insert
+  with check (auth.uid() = investor_id);
+
+create policy "Admins can view every conversation"
+  on public.conversations for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+-- ─────────────────────────────────────────────────────────────
+-- messages
+-- Individual chat messages within a conversation. Kept for as long as the
+-- conversation exists — this table IS the compliance record, so nothing
+-- should ever hard-delete from it outside of a defined retention policy.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.conversations (id) on delete cascade,
+  sender_id uuid not null references public.users (id) on delete cascade,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.messages enable row level security;
+
+create policy "Participants can view messages in their conversations"
+  on public.messages for select
+  using (
+    exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id
+        and (
+          c.investor_id = auth.uid()
+          or auth.uid() in (
+            select user_id from public.service_providers where id = c.provider_id
+          )
+        )
+    )
+  );
+
+create policy "Participants can send messages in their conversations"
+  on public.messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id
+        and (
+          c.investor_id = auth.uid()
+          or auth.uid() in (
+            select user_id from public.service_providers where id = c.provider_id
+          )
+        )
+    )
+  );
+
+create policy "Admins can view every message"
+  on public.messages for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists messages_conversation_id_idx on public.messages (conversation_id);
+create index if not exists conversations_investor_id_idx on public.conversations (investor_id);
+create index if not exists conversations_provider_id_idx on public.conversations (provider_id);
+
+-- Keep conversations.last_message_at current so inbox views can sort by recency.
+create or replace function public.handle_new_message()
+returns trigger as $$
+begin
+  update public.conversations
+  set last_message_at = new.created_at
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_message_inserted
+  after insert on public.messages
+  for each row execute procedure public.handle_new_message();
+
+-- Enable Realtime so chat UIs can subscribe to new messages as they arrive.
+alter publication supabase_realtime add table public.messages;

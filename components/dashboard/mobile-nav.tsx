@@ -71,19 +71,35 @@ export function MobileNav() {
                       </button>
                       {isOpen && (
                         <div className="ml-4 mt-1 space-y-1 border-l border-line pl-4">
-                          {item.children.map((child) => (
-                            <div
-                              key={child.label}
-                              className="flex items-center justify-between gap-2 rounded-btn px-3 py-2 text-sm text-muted"
-                            >
-                              <span>{child.label}</span>
-                              {child.comingSoon && (
-                                <span className="whitespace-nowrap rounded-full border border-line bg-white px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
-                                  Coming Soon
-                                </span>
-                              )}
-                            </div>
-                          ))}
+                          {item.children.map((child) =>
+                            child.href ? (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                onClick={() => setOpen(false)}
+                                className={cn(
+                                  "flex items-center justify-between gap-2 rounded-btn px-3 py-2 text-sm transition-colors",
+                                  pathname.startsWith(child.href)
+                                    ? "bg-ink text-white"
+                                    : "text-body hover:bg-linen hover:text-ink"
+                                )}
+                              >
+                                <span>{child.label}</span>
+                              </Link>
+                            ) : (
+                              <div
+                                key={child.label}
+                                className="flex items-center justify-between gap-2 rounded-btn px-3 py-2 text-sm text-muted"
+                              >
+                                <span>{child.label}</span>
+                                {child.comingSoon && (
+                                  <span className="whitespace-nowrap rounded-full border border-line bg-white px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                                    Coming Soon
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          )}
                         </div>
                       )}
                     </div>

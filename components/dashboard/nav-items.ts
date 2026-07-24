@@ -1,10 +1,11 @@
 import { Compass, Bookmark, LineChart, Settings, Wrench, type LucideIcon } from "lucide-react";
+import { serviceCategories } from "@/lib/service-categories";
 
 export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
-  children?: { label: string; comingSoon?: boolean }[];
+  children?: { label: string; href?: string; comingSoon?: boolean }[];
 };
 
 export const navItems: NavItem[] = [
@@ -15,14 +16,11 @@ export const navItems: NavItem[] = [
     href: "/dashboard/services",
     label: "Services",
     icon: Wrench,
-    children: [
-      { label: "Building", comingSoon: true },
-      { label: "Maintenance", comingSoon: true },
-      { label: "Conveyancing / Legal", comingSoon: true },
-      { label: "Property Management", comingSoon: true },
-      { label: "Inspectors", comingSoon: true },
-      { label: "Furnishing", comingSoon: true },
-    ],
+    children: serviceCategories.map((c) => ({
+      label: c.label,
+      href: c.comingSoon ? undefined : `/dashboard/services/${c.slug}`,
+      comingSoon: c.comingSoon,
+    })),
   },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
