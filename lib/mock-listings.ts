@@ -6,10 +6,12 @@ export type RoomListing = {
   id: string;
   suburbId: string; // matches Suburb.id in lib/mock-data.ts
   suburbName: string;
+  address?: string; // street address, only set for listings with real photos
   roomType: "Single" | "Shared";
   weeklyRate: number;
   availableFrom: string;
   description: string;
+  photos?: string[]; // real photos, in display order — first is the room itself, not the house
 };
 
 export const mockListings: RoomListing[] = [
@@ -71,10 +73,13 @@ export const mockListings: RoomListing[] = [
     id: "listing-st-albans-1",
     suburbId: "st-albans-3021",
     suburbName: "St Albans",
+    address: "15 Grace Street, St Albans",
     roomType: "Single",
-    weeklyRate: 190,
-    availableFrom: "Available 1 Sep",
-    description: "Quiet single room close to St Albans station and Chinatown shops.",
+    weeklyRate: 380,
+    availableFrom: "Available now",
+    description:
+      "Immaculately presented studio room in a near-new, purpose-built rooming house — a rare standard for the area. This light-filled room is fully self-contained with its own kitchenette, reverse-cycle split-system air conditioning, built-in mirrored robe, and a private study nook, all finished with quality laminate flooring throughout. Residents also enjoy a large shared kitchen and dining space, perfect for entertaining or unwinding after work. Positioned in a quiet, well-maintained street close to St Albans station, Chinatown's shops and eateries, and local bus routes. Presented in outstanding condition and available now — inspections highly recommended, this one won't last.",
+    photos: ["/listings/st-albans-example/room.jpg", "/listings/st-albans-example/kitchen.jpg"],
   },
   {
     id: "listing-dandenong-1",
