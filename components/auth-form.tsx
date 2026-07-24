@@ -27,6 +27,21 @@ export function AuthForm({
 
   const destination = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
 
+  async function handleGoogleAuth() {
+    setError(null);
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("redirectTo", destination);
+    if (mode === "signup" && role) {
+      callbackUrl.searchParams.set("role", role);
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: callbackUrl.toString() },
+    });
+    if (error) setError(error.message);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -64,7 +79,24 @@ export function AuthForm({
   const loginHref = redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : "/login";
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
+    <div className="w-full max-w-sm space-y-5">
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full"
+        onClick={handleGoogleAuth}
+      >
+        <GoogleIcon className="mr-2 h-4 w-4" />
+        Continue with Google
+      </Button>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-line" />
+        <span className="text-xs uppercase tracking-wide text-muted">Or</span>
+        <div className="h-px flex-1 bg-line" />
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -113,6 +145,30 @@ export function AuthForm({
           </>
         )}
       </p>
-    </form>
+      </form>
+    </div>
+  );
+}
+
+function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...props}>
+      <path
+        fill="#4285F4"
+        d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.89c2.28-2.1 3.56-5.2 3.56-8.82Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.89-3c-1.08.73-2.46 1.16-4.04 1.16-3.1 0-5.73-2.1-6.67-4.92H1.32v3.09A12 12 0 0 0 12 24Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.33 14.33A7.2 7.2 0 0 1 4.95 12c0-.81.14-1.6.38-2.33V6.58H1.32A12 12 0 0 0 0 12c0 1.94.46 3.77 1.32 5.42l4.01-3.09Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.32 6.58l4.01 3.09C6.27 6.85 8.9 4.75 12 4.75Z"
+      />
+    </svg>
   );
 }

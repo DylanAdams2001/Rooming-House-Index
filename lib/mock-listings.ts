@@ -90,3 +90,7 @@ export const mockListings: RoomListing[] = [
 export function getListingsBySuburb(suburbId: string) {
   return mockListings.filter((l) => l.suburbId === suburbId);
 }
+
+export function getListingById(id: string) {
+  return mockListings.find((l) => l.id === id);
+}

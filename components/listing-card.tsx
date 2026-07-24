@@ -1,39 +1,14 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { ListingPhoto } from "@/components/listing-photo";
 import type { RoomListing } from "@/lib/mock-listings";
 
 export function ListingCard({ listing }: { listing: RoomListing }) {
-  const router = useRouter();
-  const supabase = createClient();
-  const [loading, setLoading] = useState(false);
-  const [enquired, setEnquired] = useState(false);
-
-  async function handleEnquire() {
-    setLoading(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      const redirectTo = `/listings?suburb=${listing.suburbId}`;
-      router.push(`/signup?redirectTo=${encodeURIComponent(redirectTo)}&role=tenant`);
-      return;
-    }
-
-    // No enquiry backend yet — a real profile is the gate we care about right now.
-    setEnquired(true);
-    setLoading(false);
-  }
-
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col overflow-hidden">
+      <ListingPhoto seed={listing.id} className="h-40 w-full" />
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-2">
           <div>
@@ -48,15 +23,9 @@ export function ListingCard({ listing }: { listing: RoomListing }) {
           <p className="font-display text-2xl text-ink">${listing.weeklyRate}/wk</p>
           <p className="mt-2 text-sm text-body">{listing.description}</p>
         </div>
-        {enquired ? (
-          <p className="text-center text-sm text-body">
-            Enquiry sent — the operator will be in touch.
-          </p>
-        ) : (
-          <Button className="w-full" onClick={handleEnquire} disabled={loading}>
-            {loading ? "Please wait…" : "Enquire"}
-          </Button>
-        )}
+        <Button asChild className="w-full">
+          <Link href={`/listings/${listing.id}`}>See Listing</Link>
+        </Button>
       </CardContent>
     </Card>
   );
