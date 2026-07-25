@@ -21,7 +21,8 @@ const INCOME_RANGES = ["Under $800/wk", "$800-1000/wk", "$1000-1200/wk", "$1200-
 function TenantDetailsForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+  // This step only ever runs for role='tenant', so the fallback is /account, not /dashboard.
+  const redirectTo = searchParams.get("redirectTo") ?? "/account";
   const supabase = createClient();
 
   const [employmentStatus, setEmploymentStatus] = useState("");

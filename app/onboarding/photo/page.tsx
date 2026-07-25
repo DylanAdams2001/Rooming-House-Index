@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { defaultDestinationForRole } from "@/lib/onboarding";
 import { StepHeader } from "@/components/onboarding/step-header";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
@@ -10,11 +11,12 @@ import { User } from "lucide-react";
 function PhotoForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+  const explicitRedirectTo = searchParams.get("redirectTo");
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [roleLoaded, setRoleLoaded] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,10 +33,12 @@ function PhotoForm() {
         .maybeSingle();
       setRole(profile?.role ?? "investor");
       if (profile?.avatar_url) setPreview(profile.avatar_url);
+      setRoleLoaded(true);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function nextStepPath() {
+    const redirectTo = explicitRedirectTo ?? defaultDestinationForRole(role);
     return role === "tenant"
       ? `/onboarding/tenant-details?redirectTo=${encodeURIComponent(redirectTo)}`
       : redirectTo;
@@ -111,15 +115,16 @@ function PhotoForm() {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="mt-4 flex w-full flex-col gap-3">
-          <Button onClick={handleUpload} disabled={!file || loading} className="w-full">
+          <Button onClick={handleUpload} disabled={!file || loading || !roleLoaded} className="w-full">
             {loading ? "Uploading…" : "Save and continue"}
           </Button>
           <Button
             variant="outline"
             className="w-full"
+            disabled={!roleLoaded}
             onClick={() => advance(role === "tenant" ? "tenant_details" : "complete")}
           >
-            Skip for now
+            {roleLoaded ? "Skip for now" : "Loading…"}
           </Button>
         </div>
       </div>

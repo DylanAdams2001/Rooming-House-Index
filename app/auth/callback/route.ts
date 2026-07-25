@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { buildOnboardingUrl } from "@/lib/onboarding";
+import { buildOnboardingUrl, defaultDestinationForRole } from "@/lib/onboarding";
 
 // Supabase redirects here after a successful Google OAuth login (see
 // supabase.auth.signInWithOAuth in components/auth-form.tsx). Exchanges the
@@ -9,8 +9,9 @@ import { buildOnboardingUrl } from "@/lib/onboarding";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const redirectTo = searchParams.get("redirectTo");
-  const destination = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+  const redirectToParam = searchParams.get("redirectTo");
+  const explicitDestination =
+    redirectToParam && redirectToParam.startsWith("/") ? redirectToParam : null;
 
   if (code) {
     const supabase = createClient();
@@ -31,16 +32,15 @@ export async function GET(request: Request) {
     if (data.user) {
       const { data: profile } = await supabase
         .from("users")
-        .select("onboarding_step")
+        .select("onboarding_step, role")
         .eq("id", data.user.id)
         .maybeSingle();
 
+      const destination = explicitDestination ?? defaultDestinationForRole(profile?.role);
       const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
-      if (onboardingUrl) {
-        return NextResponse.redirect(`${origin}${onboardingUrl}`);
-      }
+      return NextResponse.redirect(`${origin}${onboardingUrl ?? destination}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}${destination}`);
+  return NextResponse.redirect(`${origin}${explicitDestination ?? "/dashboard"}`);
 }

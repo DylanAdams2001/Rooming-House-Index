@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { buildOnboardingUrl } from "@/lib/onboarding";
+import { buildOnboardingUrl, defaultDestinationForRole } from "@/lib/onboarding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,17 +26,20 @@ export function AuthForm({
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const destination = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+  const explicitDestination = redirectTo && redirectTo.startsWith("/") ? redirectTo : null;
 
   // Send the user to wherever they actually need to go next: resume onboarding if
-  // it isn't finished yet, otherwise their real destination (e.g. back to a listing).
+  // it isn't finished yet, otherwise their real destination — an explicit one (e.g.
+  // back to a listing) if we have it, else the right home for their role (tenants
+  // get /account, everyone else gets /dashboard — never a hardcoded guess).
   async function routeAfterAuth(userId: string) {
     const { data: profile } = await supabase
       .from("users")
-      .select("onboarding_step")
+      .select("onboarding_step, role")
       .eq("id", userId)
       .maybeSingle();
 
+    const destination = explicitDestination ?? defaultDestinationForRole(profile?.role);
     const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
     router.push(onboardingUrl ?? destination);
     router.refresh();
@@ -45,7 +48,9 @@ export function AuthForm({
   async function handleGoogleAuth() {
     setError(null);
     const callbackUrl = new URL("/auth/callback", window.location.origin);
-    callbackUrl.searchParams.set("redirectTo", destination);
+    if (explicitDestination) {
+      callbackUrl.searchParams.set("redirectTo", explicitDestination);
+    }
     if (mode === "signup" && role) {
       callbackUrl.searchParams.set("role", role);
     }
