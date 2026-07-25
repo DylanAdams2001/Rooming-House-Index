@@ -9,7 +9,9 @@ export default function JoinServiceCategoryPage({
 }) {
   const category = getServiceCategory(params.category);
 
-  if (!category || category.comingSoon) {
+  // Quote-based categories are run in-house as a request flow, not a
+  // self-serve directory — there's nothing to "list" for them.
+  if (!category || category.comingSoon || category.quoteBased) {
     notFound();
   }
 

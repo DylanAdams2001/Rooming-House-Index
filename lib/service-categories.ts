@@ -16,6 +16,9 @@ export type ServiceCategory = {
   comingSoon: boolean;
   description: string;
   credentialFields: CredentialField[];
+  // Run in-house as a "submit once, we bring back multiple quotes" flow instead
+  // of a self-serve provider directory — see app/dashboard/services/[category]/page.tsx.
+  quoteBased?: boolean;
 };
 
 export const serviceCategories: ServiceCategory[] = [
@@ -24,7 +27,8 @@ export const serviceCategories: ServiceCategory[] = [
     dbCategory: "insurance",
     label: "Insurance",
     comingSoon: false,
-    description: "Landlord and rooming house insurance providers.",
+    description: "Tell us about your rooming house and we'll bring back multiple insurance quotes.",
+    quoteBased: true,
     credentialFields: [
       { key: "afslNumber", label: "AFSL Number", placeholder: "AFSL 123456" },
       {
@@ -76,25 +80,40 @@ export const serviceCategories: ServiceCategory[] = [
     slug: "building",
     dbCategory: "building",
     label: "Building",
-    comingSoon: true,
+    comingSoon: false,
     description: "Builders and renovators for rooming house conversions.",
-    credentialFields: [],
+    credentialFields: [
+      { key: "buildingPractitionerNumber", label: "Building Practitioner Number", placeholder: "BP-U 12345" },
+    ],
+  },
+  {
+    slug: "finance",
+    dbCategory: "finance",
+    label: "Finance",
+    comingSoon: false,
+    description: "Accredited brokers experienced in rooming house finance.",
+    credentialFields: [
+      { key: "creditLicenceNumber", label: "Credit Licence Number", placeholder: "ACL 123456" },
+    ],
   },
   {
     slug: "property-management",
     dbCategory: "property_management",
     label: "Property Management",
-    comingSoon: true,
-    description: "Managing agents specialising in rooming houses.",
+    comingSoon: false,
+    description: "Tell us about your property and we'll bring back multiple quotes from managing agents.",
+    quoteBased: true,
     credentialFields: [],
   },
   {
     slug: "furnishing",
     dbCategory: "furnishing",
     label: "Furnishing",
-    comingSoon: true,
-    description: "Room furnishing and fit-out suppliers.",
-    credentialFields: [],
+    comingSoon: false,
+    description: "Room furnishing and fit-out suppliers for rooming houses.",
+    credentialFields: [
+      { key: "abn", label: "ABN", placeholder: "12 345 678 901" },
+    ],
   },
 ];
 

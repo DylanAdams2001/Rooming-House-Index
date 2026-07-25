@@ -33,7 +33,10 @@ export default function ServicesPage() {
               </CardHeader>
               <CardContent className="flex flex-1 flex-col justify-between gap-4 pt-0">
                 <p className="text-sm text-body">{category.description}</p>
-                {!category.comingSoon && (
+                {!category.comingSoon && category.quoteBased && (
+                  <p className="text-xs text-muted">Submit your details, get quotes back</p>
+                )}
+                {!category.comingSoon && !category.quoteBased && (
                   <p className="text-xs text-muted">
                     {count} provider{count === 1 ? "" : "s"} listed
                   </p>

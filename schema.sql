@@ -166,7 +166,7 @@ create table if not exists public.service_providers (
   slug text unique,
   category text not null check (category in (
     'insurance', 'conveyancing_legal', 'inspectors', 'maintenance',
-    'building', 'property_management', 'furnishing'
+    'building', 'property_management', 'furnishing', 'finance'
   )),
   business_name text not null,
   description text,
@@ -540,3 +540,74 @@ create policy "Users can upload their own profile photo"
 create policy "Users can update their own profile photo"
   on storage.objects for update
   using (bucket_id = 'profile-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ─────────────────────────────────────────────────────────────
+-- service_quote_requests / service_quote_quotes
+-- Shared table for every "run in-house" service category (Property
+-- Management, Insurance, ...) rather than a self-serve provider directory: an
+-- investor submits their details once, tagged with `category`, and Rooming
+-- House Index sources multiple quotes and enters them back in — a
+-- comparison-site model instead of a marketplace listing. No provider-facing
+-- UI for quotes yet, so they're added directly (e.g. via the Supabase table
+-- editor) once actually sourced.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.service_quote_requests (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.users (id) on delete cascade,
+  category text not null check (category in ('property_management', 'insurance')),
+  property_address text not null,
+  number_of_rooms integer,
+  current_arrangement text,
+  notes text,
+  status text not null default 'pending' check (status in ('pending', 'quoted', 'closed')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.service_quote_requests enable row level security;
+
+create policy "Investors can view and manage their own quote requests"
+  on public.service_quote_requests for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Admins can view every quote request"
+  on public.service_quote_requests for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists service_quote_requests_user_id_idx
+  on public.service_quote_requests (user_id);
+
+create table if not exists public.service_quote_quotes (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references public.service_quote_requests (id) on delete cascade,
+  provider_name text not null,
+  monthly_fee_pct numeric,
+  flat_fee text,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.service_quote_quotes enable row level security;
+
+create policy "Investors can view quotes for their own requests"
+  on public.service_quote_quotes for select
+  using (
+    exists (
+      select 1 from public.service_quote_requests r
+      where r.id = service_quote_quotes.request_id and r.user_id = auth.uid()
+    )
+  );
+
+create policy "Admins can manage every quote"
+  on public.service_quote_quotes for all
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ))
+  with check (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists service_quote_quotes_request_id_idx
+  on public.service_quote_quotes (request_id);
