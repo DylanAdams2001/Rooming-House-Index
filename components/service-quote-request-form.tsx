@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AddressAutocompleteInput } from "@/components/address-autocomplete-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -37,8 +38,6 @@ export function ServiceQuoteRequestForm({
   const lockRef = useRef(false);
 
   const [propertyAddress, setPropertyAddress] = useState("");
-  const [addressBook, setAddressBook] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [numberOfRooms, setNumberOfRooms] = useState("");
   const [currentArrangement, setCurrentArrangement] = useState("");
   const [notes, setNotes] = useState("");
@@ -61,29 +60,9 @@ export function ServiceQuoteRequestForm({
     setHasPending(!!data);
   }
 
-  // Address book: the account's own previously-submitted addresses (any
-  // category) — suggested as they type instead of a third-party lookup.
   useEffect(() => {
-    supabase
-      .from("service_quote_requests")
-      .select("property_address")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        const unique = Array.from(new Set((data ?? []).map((r) => r.property_address)));
-        setAddressBook(unique);
-      });
-
     checkPending();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const suggestions = useMemo(() => {
-    if (!propertyAddress.trim()) return [];
-    return addressBook
-      .filter((a) => a.toLowerCase().includes(propertyAddress.trim().toLowerCase()))
-      .filter((a) => a !== propertyAddress)
-      .slice(0, 5);
-  }, [addressBook, propertyAddress]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -148,32 +127,15 @@ export function ServiceQuoteRequestForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="relative space-y-2">
+      <div className="space-y-2">
         <Label htmlFor="propertyAddress">Property address</Label>
-        <Input
+        <AddressAutocompleteInput
           id="propertyAddress"
           required
-          autoComplete="off"
           value={propertyAddress}
-          onChange={(e) => setPropertyAddress(e.target.value)}
-          onFocus={() => setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          onChange={setPropertyAddress}
           placeholder="15 Grace Street, St Albans VIC 3021"
         />
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-btn border border-line bg-white shadow-lg">
-            {suggestions.map((a) => (
-              <button
-                key={a}
-                type="button"
-                onMouseDown={() => setPropertyAddress(a)}
-                className="block w-full px-4 py-2 text-left text-sm text-body hover:bg-linen hover:text-ink"
-              >
-                {a}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       <div className="space-y-2">
