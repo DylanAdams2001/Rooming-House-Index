@@ -16,9 +16,9 @@ export default async function AccountHomePage() {
 
   if (user) {
     const { count } = await supabase
-      .from("conversations")
+      .from("listing_conversations")
       .select("id", { count: "exact", head: true })
-      .eq("investor_id", user.id);
+      .eq("tenant_id", user.id);
     conversationCount = count ?? 0;
 
     const { data: tenantProfile } = await supabase
@@ -39,7 +39,7 @@ export default async function AccountHomePage() {
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">Welcome back</h1>
-      <p className="mt-2 text-body">Find a room, message operators, and manage your application.</p>
+      <p className="mt-2 text-body">Find a room, message the property team, and manage your application.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -64,6 +64,17 @@ export default async function AccountHomePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted">Find a Room</CardTitle>
+            <Search className="h-5 w-5 text-ink" />
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="sm" className="w-full">
+              <Link href="/listings">Browse Listings</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted">Investor Access</CardTitle>
             <TrendingUp className="h-5 w-5 text-ink" />
           </CardHeader>
@@ -75,17 +86,6 @@ export default async function AccountHomePage() {
                 <Link href="/account/upgrade">Unlock — $29/mo</Link>
               </Button>
             )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted">Find a Room</CardTitle>
-            <Search className="h-5 w-5 text-ink" />
-          </CardHeader>
-          <CardContent>
-            <Button asChild size="sm" className="w-full">
-              <Link href="/listings">Browse Listings</Link>
-            </Button>
           </CardContent>
         </Card>
       </div>

@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
 import { createClient } from "@/lib/supabase/client";
-import { Bookmark, FileText, LogOut, MessageCircle, Settings } from "lucide-react";
+import { Bookmark, FileText, LogOut, MessageCircle, User } from "lucide-react";
 
 const MENU_ITEMS = [
   { href: "/account/messages", label: "Messages", icon: MessageCircle },
-  { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
+  { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
   { href: "/account/application", label: "My Application", icon: FileText },
-  { href: "/account/settings", label: "Settings", icon: Settings },
+  { href: "/account/settings", label: "Profile", icon: User },
 ];
 
 export function HeaderAuthButton() {

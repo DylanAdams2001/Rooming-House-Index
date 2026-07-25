@@ -1,9 +1,9 @@
-import { ConversationView } from "@/components/messages/conversation-view";
+import { ListingConversationView } from "@/components/messages/listing-conversation-view";
 
 export default function AccountConversationPage({
   params,
 }: {
   params: { conversationId: string };
 }) {
-  return <ConversationView conversationId={params.conversationId} basePath="/account" />;
+  return <ListingConversationView conversationId={params.conversationId} />;
 }

@@ -19,11 +19,15 @@ export function ChatThread({
   currentUserId,
   otherPartyName,
   initialMessages,
+  table = "messages",
+  complianceNote = "All messages here are visible to Rooming House Index for payment and compliance purposes.",
 }: {
   conversationId: string;
   currentUserId: string;
   otherPartyName: string;
   initialMessages: Message[];
+  table?: "messages" | "listing_messages";
+  complianceNote?: string;
 }) {
   const supabase = createClient();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -33,13 +37,13 @@ export function ChatThread({
 
   useEffect(() => {
     const channel = supabase
-      .channel(`messages:${conversationId}`)
+      .channel(`${table}:${conversationId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
-          table: "messages",
+          table,
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
@@ -54,7 +58,7 @@ export function ChatThread({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, supabase]);
+  }, [conversationId, table, supabase]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,7 +71,7 @@ export function ChatThread({
     setDraft("");
 
     const { data, error } = await supabase
-      .from("messages")
+      .from(table)
       .insert({ conversation_id: conversationId, sender_id: currentUserId, body })
       .select("id, sender_id, body, created_at")
       .single();
@@ -83,10 +87,7 @@ export function ChatThread({
     <div className="flex flex-1 flex-col rounded-card border border-line bg-white">
       <div className="border-b border-line px-6 py-4">
         <p className="font-display text-lg text-ink">{otherPartyName}</p>
-        <p className="text-xs text-muted">
-          All messages here are visible to Rooming House Index for payment and compliance
-          purposes.
-        </p>
+        <p className="text-xs text-muted">{complianceNote}</p>
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-6 py-4">

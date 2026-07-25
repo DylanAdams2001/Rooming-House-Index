@@ -1,5 +1,5 @@
-import { MessagesInbox } from "@/components/messages/messages-inbox";
+import { ListingMessagesInbox } from "@/components/messages/listing-messages-inbox";
 
 export default function AccountMessagesPage() {
-  return <MessagesInbox basePath="/account" />;
+  return <ListingMessagesInbox />;
 }

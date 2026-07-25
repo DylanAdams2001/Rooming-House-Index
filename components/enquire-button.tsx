@@ -1,18 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
-export function EnquireButton({ listingId }: { listingId: string }) {
+export function EnquireButton({
+  listingId,
+  listingTitle,
+  inspectionTime,
+}: {
+  listingId: string;
+  listingTitle: string;
+  inspectionTime?: string;
+}) {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
-  const [enquired, setEnquired] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleEnquire() {
     setLoading(true);
+    setError(null);
 
     const {
       data: { user },
@@ -27,22 +38,41 @@ export function EnquireButton({ listingId }: { listingId: string }) {
       return;
     }
 
-    // No enquiry backend yet — a real profile is the gate we care about right now.
-    setEnquired(true);
+    // Creates (or reuses) a real conversation with the property team, seeded with an
+    // opening message confirming the inspection time — not just a "message sent" toast.
+    const { data, error: rpcError } = await supabase.rpc("enquire_on_listing", {
+      p_listing_id: listingId,
+      p_listing_title: listingTitle,
+      p_inspection_time: inspectionTime ?? null,
+    });
+
     setLoading(false);
+
+    if (rpcError) {
+      setError("Couldn't send your enquiry — this needs a live Supabase project connected.");
+      return;
+    }
+
+    setConversationId(data as string);
   }
 
-  if (enquired) {
+  if (conversationId) {
     return (
-      <p className="text-center text-sm text-body">
-        Enquiry sent — the operator will be in touch.
-      </p>
+      <div className="space-y-3 text-center">
+        <p className="text-sm text-body">Enquiry sent — the property team will be in touch.</p>
+        <Button asChild variant="outline" className="w-full">
+          <Link href={`/account/messages/${conversationId}`}>View conversation</Link>
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Button className="w-full" size="lg" onClick={handleEnquire} disabled={loading}>
-      {loading ? "Please wait…" : "Enquire"}
-    </Button>
+    <div className="space-y-2">
+      <Button className="w-full" size="lg" onClick={handleEnquire} disabled={loading}>
+        {loading ? "Please wait…" : "Enquire"}
+      </Button>
+      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+    </div>
   );
 }

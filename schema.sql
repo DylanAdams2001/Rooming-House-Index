@@ -337,6 +337,144 @@ create trigger on_message_inserted
 alter publication supabase_realtime add table public.messages;
 
 -- ─────────────────────────────────────────────────────────────
+-- listing_conversations / listing_messages
+-- Messaging for room enquiries — deliberately separate from conversations/messages
+-- above, which is the investor <-> service_provider marketplace. A tenant enquiring
+-- on a listing is talking to "the property team" about that specific room (confirming
+-- an inspection, asking questions), not a service provider, so it gets its own table
+-- rather than overloading the marketplace schema.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.listing_conversations (
+  id uuid primary key default gen_random_uuid(),
+  listing_id text not null,
+  tenant_id uuid not null references public.users (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now(),
+
+  unique (listing_id, tenant_id)
+);
+
+alter table public.listing_conversations enable row level security;
+
+create policy "Tenants can view their own listing conversations"
+  on public.listing_conversations for select
+  using (auth.uid() = tenant_id);
+
+create policy "Admins can view every listing conversation"
+  on public.listing_conversations for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create table if not exists public.listing_messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.listing_conversations (id) on delete cascade,
+  -- null + is_manager=true is the auto-attributed "Property Team" reply, sent only via
+  -- the enquire_on_listing() function below — no live manager-reply UI exists yet.
+  sender_id uuid references public.users (id) on delete set null,
+  is_manager boolean not null default false,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.listing_messages enable row level security;
+
+create policy "Tenants can view messages in their own listing conversations"
+  on public.listing_messages for select
+  using (exists (
+    select 1 from public.listing_conversations c
+    where c.id = conversation_id and c.tenant_id = auth.uid()
+  ));
+
+create policy "Tenants can send messages in their own listing conversations"
+  on public.listing_messages for insert
+  with check (
+    auth.uid() = sender_id
+    and is_manager = false
+    and exists (
+      select 1 from public.listing_conversations c
+      where c.id = conversation_id and c.tenant_id = auth.uid()
+    )
+  );
+
+create policy "Admins can view every listing message"
+  on public.listing_messages for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists listing_messages_conversation_id_idx on public.listing_messages (conversation_id);
+create index if not exists listing_conversations_tenant_id_idx on public.listing_conversations (tenant_id);
+
+create or replace function public.handle_new_listing_message()
+returns trigger as $$
+begin
+  update public.listing_conversations
+  set last_message_at = new.created_at
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_listing_message_inserted
+  after insert on public.listing_messages
+  for each row execute procedure public.handle_new_listing_message();
+
+alter publication supabase_realtime add table public.listing_messages;
+
+-- Creates (or reuses) a tenant's conversation for a listing and seeds the opening
+-- "Property Team" message. security definer so it can insert the manager-attributed
+-- row (sender_id null, is_manager true) despite the insert policy above only ever
+-- allowing a tenant to insert their own messages — this function is the one
+-- controlled exception, not a general bypass.
+create or replace function public.enquire_on_listing(
+  p_listing_id text,
+  p_listing_title text,
+  p_inspection_time text default null
+)
+returns uuid
+language plpgsql
+security definer
+as $$
+declare
+  v_conversation_id uuid;
+  v_is_new boolean := false;
+begin
+  select id into v_conversation_id
+  from public.listing_conversations
+  where listing_id = p_listing_id and tenant_id = auth.uid();
+
+  if v_conversation_id is null then
+    insert into public.listing_conversations (listing_id, tenant_id)
+    values (p_listing_id, auth.uid())
+    returning id into v_conversation_id;
+    v_is_new := true;
+  end if;
+
+  if v_is_new then
+    insert into public.listing_messages (conversation_id, sender_id, is_manager, body)
+    values (
+      v_conversation_id,
+      null,
+      true,
+      case
+        when p_inspection_time is not null then
+          'Thanks for your interest in ' || p_listing_title || '. We''ll see you at the inspection: '
+            || p_inspection_time || '. Reply here if you have any questions or need to reschedule.'
+        else
+          'Thanks for your interest in ' || p_listing_title
+            || '. Reply here with any questions — we''ll be in touch about next steps.'
+      end
+    );
+  end if;
+
+  return v_conversation_id;
+end;
+$$;
+
+grant execute on function public.enquire_on_listing(text, text, text) to authenticated;
+
+-- ─────────────────────────────────────────────────────────────
 -- Storage: profile-photos
 -- Public bucket for onboarding profile pictures (users.avatar_url points here).
 -- ─────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ListingPhoto } from "@/components/listing-photo";
 import { ListingGallery } from "@/components/listing-gallery";
 import { EnquireButton } from "@/components/enquire-button";
+import { SaveListingButton } from "@/components/save-listing-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CalendarClock } from "lucide-react";
@@ -120,7 +121,12 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
                       <p className="text-ink">{listing.inspectionTime}</p>
                     </div>
                   )}
-                  <EnquireButton listingId={listing.id} />
+                  <EnquireButton
+                    listingId={listing.id}
+                    listingTitle={`${listing.roomType} room in ${listing.suburbName}`}
+                    inspectionTime={listing.inspectionTime}
+                  />
+                  <SaveListingButton listingId={listing.id} />
                 </CardContent>
               </Card>
             </div>

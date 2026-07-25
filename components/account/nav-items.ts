@@ -1,4 +1,4 @@
-import { MessageCircle, FileText, Settings, TrendingUp, type LucideIcon } from "lucide-react";
+import { Bookmark, MessageCircle, FileText, User, TrendingUp, type LucideIcon } from "lucide-react";
 
 export type AccountNavItem = {
   href: string;
@@ -8,7 +8,8 @@ export type AccountNavItem = {
 
 export const accountNavItems: AccountNavItem[] = [
   { href: "/account/messages", label: "Messages", icon: MessageCircle },
+  { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
   { href: "/account/application", label: "My Application", icon: FileText },
   { href: "/account/upgrade", label: "Investor Access", icon: TrendingUp },
-  { href: "/account/settings", label: "Settings", icon: Settings },
+  { href: "/account/settings", label: "Profile", icon: User },
 ];
