@@ -10,6 +10,13 @@ create table if not exists public.users (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null,
   full_name text,
+  phone text,
+  avatar_url text,
+  -- Tracks progress through the post-signup onboarding wizard (basics -> photo ->
+  -- tenant application questions for role='tenant'). Lets the UI resume/skip correctly
+  -- rather than re-showing steps someone already finished.
+  onboarding_step text not null default 'basics'
+    check (onboarding_step in ('basics', 'photo', 'tenant_details', 'complete')),
   -- 'investor': platform user browsing suburb data, saved suburbs, room listings as a landlord.
   -- 'tenant': signed up via the public /listings page to enquire about a room — the qualification
   --           step before an Uber/Airbnb-style trust rating gets built on top later.
@@ -53,6 +60,58 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ─────────────────────────────────────────────────────────────
+-- tenant_profiles
+-- The "easy application" data a landlord actually wants to see before approving a
+-- tenant — filled in during onboarding (role='tenant' only), one row per tenant.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.tenant_profiles (
+  user_id uuid primary key references public.users (id) on delete cascade,
+  employment_status text check (
+    employment_status in ('Full-time', 'Part-time', 'Casual', 'Student', 'Self-employed', 'Other')
+  ),
+  occupation text,
+  weekly_income_range text, -- e.g. "$800-1000" — a range, not an exact figure, by design
+  num_occupants integer not null default 1,
+  has_pets boolean not null default false,
+  pet_details text,
+  is_smoker boolean not null default false,
+  preferred_move_in_date date,
+  reference_name text,
+  reference_phone text,
+  additional_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.tenant_profiles enable row level security;
+
+create policy "Tenants can view and manage their own application profile"
+  on public.tenant_profiles for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- Providers/investors need to read a tenant's application details once that tenant has
+-- messaged them — mirrors the conversations visibility rule in the messaging section below.
+create policy "Conversation partners can view a tenant's application profile"
+  on public.tenant_profiles for select
+  using (
+    exists (
+      select 1 from public.conversations c
+      where c.investor_id = tenant_profiles.user_id
+        and (
+          auth.uid() = c.investor_id
+          or auth.uid() in (select user_id from public.service_providers where id = c.provider_id)
+        )
+    )
+  );
+
+create policy "Admins can view every tenant application profile"
+  on public.tenant_profiles for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
 
 -- ─────────────────────────────────────────────────────────────
 -- suburbs
@@ -277,3 +336,23 @@ create trigger on_message_inserted
 
 -- Enable Realtime so chat UIs can subscribe to new messages as they arrive.
 alter publication supabase_realtime add table public.messages;
+
+-- ─────────────────────────────────────────────────────────────
+-- Storage: profile-photos
+-- Public bucket for onboarding profile pictures (users.avatar_url points here).
+-- ─────────────────────────────────────────────────────────────
+insert into storage.buckets (id, name, public)
+values ('profile-photos', 'profile-photos', true)
+on conflict (id) do nothing;
+
+create policy "Anyone can view profile photos"
+  on storage.objects for select
+  using (bucket_id = 'profile-photos');
+
+create policy "Users can upload their own profile photo"
+  on storage.objects for insert
+  with check (bucket_id = 'profile-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Users can update their own profile photo"
+  on storage.objects for update
+  using (bucket_id = 'profile-photos' and (storage.foldername(name))[1] = auth.uid()::text);

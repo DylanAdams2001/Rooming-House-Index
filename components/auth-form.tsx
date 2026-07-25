@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { buildOnboardingUrl } from "@/lib/onboarding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,20 @@ export function AuthForm({
   const [message, setMessage] = useState<string | null>(null);
 
   const destination = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+
+  // Send the user to wherever they actually need to go next: resume onboarding if
+  // it isn't finished yet, otherwise their real destination (e.g. back to a listing).
+  async function routeAfterAuth(userId: string) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("onboarding_step")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
+    router.push(onboardingUrl ?? destination);
+    router.refresh();
+  }
 
   async function handleGoogleAuth() {
     setError(null);
@@ -56,20 +71,18 @@ export function AuthForm({
       });
       if (error) {
         setError(error.message);
-      } else if (data.session) {
+      } else if (data.session && data.user) {
         // Email confirmation disabled — user is already signed in.
-        router.push(destination);
-        router.refresh();
+        await routeAfterAuth(data.user.id);
       } else {
         setMessage("Check your email to confirm your account, then log in to continue.");
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setError(error.message);
-      } else {
-        router.push(destination);
-        router.refresh();
+      } else if (data.user) {
+        await routeAfterAuth(data.user.id);
       }
     }
     setLoading(false);
