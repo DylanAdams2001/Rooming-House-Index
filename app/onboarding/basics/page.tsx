@@ -51,7 +51,7 @@ function BasicsForm() {
 
     const { error: updateError } = await supabase
       .from("users")
-      .update({ full_name: fullName, phone, onboarding_step: "photo" })
+      .update({ full_name: fullName, phone, onboarding_step: "intent" })
       .eq("id", user.id);
 
     setLoading(false);
@@ -61,14 +61,14 @@ function BasicsForm() {
       return;
     }
 
-    router.push(`/onboarding/photo?redirectTo=${encodeURIComponent(redirectTo)}`);
+    router.push(`/onboarding/intent?redirectTo=${encodeURIComponent(redirectTo)}`);
   }
 
   return (
     <>
       <StepHeader
         step={1}
-        totalSteps={2}
+        totalSteps={3}
         title="Tell us about you"
         subtitle="Basic details for your profile."
       />

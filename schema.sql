@@ -12,12 +12,16 @@ create table if not exists public.users (
   full_name text,
   phone text,
   avatar_url text,
-  -- Tracks progress through the post-signup onboarding wizard (basics -> photo).
-  -- Deliberately just the essentials — both investors and room-seekers sign up here,
-  -- so the rental application (tenant_profiles, filled in from /account/application)
-  -- is never a signup requirement, only ever something a room-seeker fills in later.
+  -- Tracks progress through the post-signup onboarding wizard: basics -> intent ->
+  -- investor_details (only when signup_intent='investor') -> photo. Deliberately light
+  -- — the rental application (tenant_profiles, filled in from /account/application) is
+  -- never a signup requirement, only ever something a room-seeker fills in later.
   onboarding_step text not null default 'basics'
-    check (onboarding_step in ('basics', 'photo', 'complete')),
+    check (onboarding_step in ('basics', 'intent', 'investor_details', 'photo', 'complete')),
+  -- Self-reported at signup ("what brings you here?") — purely a data/segmentation
+  -- signal, not an access gate (investor_access above still controls /dashboard).
+  -- Feeds the investor_details onboarding questions and, later, per-audience landing pages.
+  signup_intent text check (signup_intent in ('investor', 'tenant')),
   -- 'member': the one account type everyone signs up as — browses/enquires on room listings,
   --           and can optionally unlock investor dashboard access (see investor_access below).
   -- 'provider': runs one or more service_providers listings (insurance, legal, etc.) and chats with members.
@@ -55,6 +59,33 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ─────────────────────────────────────────────────────────────
+-- investor_profiles
+-- Lead-quality data collected during onboarding when signup_intent='investor' —
+-- do they already run a rooming house, and what income does it generate. One row
+-- per account, filled in once at signup for now (no dedicated edit page yet).
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.investor_profiles (
+  user_id uuid primary key references public.users (id) on delete cascade,
+  has_rooming_house boolean,
+  current_property_income text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.investor_profiles enable row level security;
+
+create policy "Investors can view and manage their own investor profile"
+  on public.investor_profiles for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Admins can view every investor profile"
+  on public.investor_profiles for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
 
 -- ─────────────────────────────────────────────────────────────
 -- suburbs

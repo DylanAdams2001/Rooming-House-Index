@@ -1,7 +1,9 @@
-export type OnboardingStep = "basics" | "photo" | "complete";
+export type OnboardingStep = "basics" | "intent" | "investor_details" | "photo" | "complete";
 
 const STEP_PATH: Record<Exclude<OnboardingStep, "complete">, string> = {
   basics: "/onboarding/basics",
+  intent: "/onboarding/intent",
+  investor_details: "/onboarding/investor-details",
   photo: "/onboarding/photo",
 };
 

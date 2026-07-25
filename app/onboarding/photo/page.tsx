@@ -16,6 +16,7 @@ function PhotoForm() {
 
   const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [isInvestor, setIsInvestor] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,10 +28,11 @@ function PhotoForm() {
       setUserId(user.id);
       const { data: profile } = await supabase
         .from("users")
-        .select("avatar_url")
+        .select("avatar_url, signup_intent")
         .eq("id", user.id)
         .maybeSingle();
       if (profile?.avatar_url) setPreview(profile.avatar_url);
+      setIsInvestor(profile?.signup_intent === "investor");
       setLoaded(true);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -80,8 +82,8 @@ function PhotoForm() {
   return (
     <>
       <StepHeader
-        step={2}
-        totalSteps={2}
+        step={isInvestor ? 4 : 3}
+        totalSteps={isInvestor ? 4 : 3}
         title="Add a profile photo"
         subtitle="Helps landlords and providers recognise who they're talking to."
       />
