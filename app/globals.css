@@ -36,3 +36,16 @@
 .leaflet-container {
   font-family: system-ui, -apple-system, sans-serif;
 }
+
+/* Google's PlaceAutocompleteElement is a web component with its own shadow-DOM
+   styling — these custom properties are its supported theming hooks, tuned to
+   match the rest of the form (h-11 Input, rounded-btn, border-line/ink ring). */
+.rhi-address-autocomplete {
+  --gmpx-color-surface: #ffffff;
+  --gmpx-color-on-surface: #1a1a1a;
+  --gmpx-color-on-surface-variant: #6b6b6b;
+  --gmpx-color-primary: #1a1a1a;
+  --gmpx-font-family: inherit;
+  --gmpx-font-size-base: 0.875rem;
+  width: 100%;
+}

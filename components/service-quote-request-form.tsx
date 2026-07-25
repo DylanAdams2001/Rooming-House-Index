@@ -38,6 +38,10 @@ export function ServiceQuoteRequestForm({
   const lockRef = useRef(false);
 
   const [propertyAddress, setPropertyAddress] = useState("");
+  // Bumped after a successful submit to force AddressAutocompleteInput to
+  // remount — the Places widget owns its own internal text, so clearing
+  // propertyAddress alone wouldn't clear what's visibly typed in it.
+  const [addressFieldKey, setAddressFieldKey] = useState(0);
   const [numberOfRooms, setNumberOfRooms] = useState("");
   const [currentArrangement, setCurrentArrangement] = useState("");
   const [notes, setNotes] = useState("");
@@ -116,6 +120,7 @@ export function ServiceQuoteRequestForm({
     await new Promise((resolve) => setTimeout(resolve, 1100));
     router.refresh();
     setPropertyAddress("");
+    setAddressFieldKey((k) => k + 1);
     setNumberOfRooms("");
     setCurrentArrangement("");
     setNotes("");
@@ -130,6 +135,7 @@ export function ServiceQuoteRequestForm({
       <div className="space-y-2">
         <Label htmlFor="propertyAddress">Property address</Label>
         <AddressAutocompleteInput
+          key={addressFieldKey}
           id="propertyAddress"
           required
           value={propertyAddress}
