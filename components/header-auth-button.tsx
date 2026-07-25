@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
+import { AuthModal } from "@/components/auth-modal";
 import { createClient } from "@/lib/supabase/client";
 import {
   Bookmark,
@@ -39,6 +40,7 @@ export function HeaderAuthButton() {
   const [email, setEmail] = useState<string | null>(null);
   const [isInvestor, setIsInvestor] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -107,9 +109,21 @@ export function HeaderAuthButton() {
 
   if (!userId) {
     return (
-      <Button asChild size="sm">
-        <Link href="/login">Sign In</Link>
-      </Button>
+      <>
+        <Button size="sm" onClick={() => setShowAuthModal(true)}>
+          Sign In
+        </Button>
+        {showAuthModal && (
+          <AuthModal
+            initialMode="login"
+            onClose={() => setShowAuthModal(false)}
+            onAuthenticated={() => {
+              setShowAuthModal(false);
+              router.refresh();
+            }}
+          />
+        )}
+      </>
     );
   }
 

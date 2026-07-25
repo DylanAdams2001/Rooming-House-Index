@@ -43,8 +43,8 @@ function ListingsContent() {
             </p>
             <h1 className="font-display text-4xl text-ink md:text-5xl">Find Your Next Room</h1>
             <p className="mx-auto mt-4 max-w-xl text-body">
-              Browse available rooms in registered rooming houses across Victoria — no account
-              needed.
+              Browse self-contained studios and rooms in registered rooming houses across
+              Victoria — no account needed.
             </p>
           </div>
         </section>

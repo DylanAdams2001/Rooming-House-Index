@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ListingCard } from "@/components/listing-card";
 import { getFeaturedListings } from "@/lib/mock-listings";
-import { ArrowRight, Search, TrendingUp } from "lucide-react";
+import { ArrowRight, CalendarClock, MessageCircle, Search } from "lucide-react";
 
 export default function LandingPage() {
   const featuredListings = getFeaturedListings(6);
@@ -18,14 +18,14 @@ export default function LandingPage() {
         <section className="bg-offwhite">
           <div className="container-page flex flex-col items-center py-20 text-center md:py-28">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-muted">
-              Rooms across Victoria
+              Self-contained studios across Victoria
             </p>
             <h1 className="max-w-3xl font-display text-4xl leading-tight text-ink md:text-6xl">
               Find a Room, Not Just a Listing.
             </h1>
             <p className="mt-6 max-w-2xl text-base text-body md:text-lg">
-              Browse real rooming house rooms with photos, pricing, and inspection times —
-              enquire in a couple of clicks, no account needed to look around.
+              Browse self-contained studios and rooms with photos, pricing, and inspection
+              times — enquire in a couple of clicks, no account needed to look around.
             </p>
             <div className="mt-10">
               <Button asChild size="lg">
@@ -34,6 +34,39 @@ export default function LandingPage() {
                   Browse Rooms
                 </Link>
               </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className="border-y border-line bg-white py-14">
+          <div className="container-page grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-linen text-ink">
+                <Search className="h-5 w-5" />
+              </div>
+              <h3 className="font-display text-lg text-ink">Browse freely</h3>
+              <p className="mt-2 text-sm text-body">
+                See photos, pricing, and inspection times before creating an account.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-linen text-ink">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+              <h3 className="font-display text-lg text-ink">Message the property team</h3>
+              <p className="mt-2 text-sm text-body">
+                Enquire directly and confirm inspection times, all in one thread.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-linen text-ink">
+                <CalendarClock className="h-5 w-5" />
+              </div>
+              <h3 className="font-display text-lg text-ink">One application, every room</h3>
+              <p className="mt-2 text-sm text-body">
+                Fill in your details once — reuse the same application for every room you enquire on.
+              </p>
             </div>
           </div>
         </section>
@@ -60,27 +93,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Investor pitch (secondary) */}
-        <section className="border-t border-line bg-linen">
-          <div className="container-page flex flex-col items-center py-16 text-center">
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-white text-ink">
-              <TrendingUp className="h-6 w-6" />
-            </div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">
-              For property investors
-            </p>
-            <h2 className="max-w-xl font-display text-2xl text-ink md:text-3xl">
-              Unlock suburb-level market data — on the same account
-            </h2>
-            <p className="mt-4 max-w-lg text-body">
-              Demand data, registered supply, average room rates, and direct access to service
-              providers — free during early access.
-            </p>
-            <Button asChild size="lg" className="mt-8">
-              <Link href="/investors">Become an Investor</Link>
-            </Button>
-          </div>
-        </section>
       </main>
 
       <SiteFooter />

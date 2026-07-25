@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FunnelHeader } from "@/components/funnel-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -9,8 +10,34 @@ import {
   Building2,
   Check,
   Clock,
+  MapPin,
+  MessageCircle,
   TrendingUp,
 } from "lucide-react";
+
+const TOUR = [
+  {
+    icon: MapPin,
+    title: "Suburb Explorer",
+    description:
+      "Every tracked suburb on an interactive map — colour-coded by demand, filterable by room rate and postcode, with registered supply one click away.",
+    image: "/screenshots/dashboard-map.png",
+  },
+  {
+    icon: BarChart3,
+    title: "Market Overview",
+    description:
+      "Every suburb sortable by average room rate, demand level, and registered rooming house count — the whole state at a glance.",
+    image: "/screenshots/dashboard-market.png",
+  },
+  {
+    icon: MessageCircle,
+    title: "Provider marketplace",
+    description:
+      "Vetted insurance, legal, inspection, and maintenance providers for rooming houses — message them directly from your account.",
+    image: "/screenshots/dashboard-services.png",
+  },
+];
 
 const OBJECTIONS = [
   {
@@ -120,6 +147,49 @@ export default function InvestPage() {
                 Benchmark acquisitions and forecast gross yield against actual room-level
                 rental rates, not whole-house estimates.
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Product tour */}
+        <section className="border-t border-line bg-white py-20">
+          <div className="container-page">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-muted">
+                Inside the dashboard
+              </p>
+              <h2 className="font-display text-3xl text-ink md:text-4xl">
+                See exactly what you're getting
+              </h2>
+            </div>
+
+            <div className="mx-auto mt-14 max-w-4xl space-y-16">
+              {TOUR.map(({ icon: Icon, title, description, image }, i) => (
+                <div
+                  key={title}
+                  className={`grid grid-cols-1 items-center gap-8 md:grid-cols-5 ${
+                    i % 2 === 1 ? "md:[direction:rtl]" : ""
+                  }`}
+                >
+                  <div className="md:col-span-2 md:[direction:ltr]">
+                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-linen text-ink">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-xl text-ink">{title}</h3>
+                    <p className="mt-2 text-sm text-body">{description}</p>
+                  </div>
+                  <div className="overflow-hidden rounded-card border border-line shadow-sm md:col-span-3 md:[direction:ltr]">
+                    <Image
+                      src={image}
+                      alt={title}
+                      width={1280}
+                      height={800}
+                      loading="eager"
+                      className="h-auto w-full"
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
