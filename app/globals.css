@@ -41,6 +41,11 @@
    styling — these custom properties are its supported theming hooks, tuned to
    match the rest of the form (h-11 Input, rounded-btn, border-line/ink ring). */
 .rhi-address-autocomplete {
+  /* Without this, the widget's internal form controls follow the OS/browser
+     dark-mode preference regardless of these color overrides, rendering as a
+     black box on a dark-mode device even though the rest of this app is
+     light-only. */
+  color-scheme: light;
   --gmpx-color-surface: #ffffff;
   --gmpx-color-on-surface: #1a1a1a;
   --gmpx-color-on-surface-variant: #6b6b6b;

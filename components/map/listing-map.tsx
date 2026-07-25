@@ -22,9 +22,10 @@ export function ListingMap({
     let cancelled = false;
 
     loadGoogleMaps()
-      .then(() => {
+      .then(async () => {
         if (cancelled || !mapRef.current || !window.google) return;
         const position = { lat, lng };
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID;
         const map = new window.google.maps.Map(mapRef.current, {
           center: position,
           zoom: approximate ? 14 : 17,
@@ -34,13 +35,17 @@ export function ListingMap({
           streetViewControl: !approximate,
           mapTypeControl: false,
           fullscreenControl: false,
+          // AdvancedMarkerElement (below) refuses to render without a Map ID —
+          // omitting it here just means the classic Marker fallback is used.
+          ...(mapId ? { mapId } : {}),
         });
 
-        new window.google.maps.Marker({
-          position,
-          map,
-          title,
-        });
+        if (mapId) {
+          const { AdvancedMarkerElement } = await window.google.maps.importLibrary("marker");
+          new AdvancedMarkerElement({ map, position, title });
+        } else {
+          new window.google.maps.Marker({ position, map, title });
+        }
       })
       .catch(() => {
         // No key configured, or the script failed to load — the disclaimer
