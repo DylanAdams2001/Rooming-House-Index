@@ -1,4 +1,4 @@
-import { Compass, Bookmark, LineChart, Settings, Wrench, type LucideIcon } from "lucide-react";
+import { Compass, Bookmark, LineChart, List, Settings, Wrench, type LucideIcon } from "lucide-react";
 import { serviceCategories } from "@/lib/service-categories";
 
 export type NavItem = {
@@ -9,6 +9,7 @@ export type NavItem = {
 };
 
 export const navItems: NavItem[] = [
+  { href: "/listings", label: "Listings", icon: List },
   { href: "/dashboard/suburbs", label: "Suburb Explorer", icon: Compass },
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/market", label: "Market Overview", icon: LineChart },
