@@ -1,7 +1,9 @@
 // Sample B2C room listings — the "someone looking for a room" side of the
 // platform, distinct from the investor tooling. Public, no login required.
-// Demo data: every listing reuses the same real interior photo set so the
-// grid is easy to browse while more properties get photographed individually.
+// Demo data: photos are real interior/exterior shots from an actual rooming
+// house build (supplied by the client), mixed into varied sets per listing —
+// not claiming each listing's specific room, since addresses besides St
+// Albans' are placeholders, but real photography rather than illustration.
 
 export type RoomListing = {
   id: string;
@@ -20,7 +22,16 @@ export type RoomListing = {
   inspectionTime?: string; // e.g. "Saturday 25 Jul, 10:00am - 10:30am"
 };
 
-const DEMO_PHOTOS = ["/listings/st-albans-example/room.jpg", "/listings/st-albans-example/kitchen.jpg"];
+const STA = "/listings/st-albans-example";
+const D = "/listings/dandenong-example";
+
+const BEDROOMS = [`${D}/bedroom-1.jpg`, `${D}/bedroom-2.jpg`, `${D}/bedroom-3.jpg`, `${D}/bedroom-4.jpg`];
+const COMMON_SPACES = [
+  `${D}/kitchenette-1.jpg`,
+  `${D}/kitchenette-2.jpg`,
+  `${D}/kitchen-dining.jpg`,
+  `${D}/common-dining-laundry.jpg`,
+];
 
 export const mockListings: RoomListing[] = [
   {
@@ -34,7 +45,7 @@ export const mockListings: RoomListing[] = [
     availableFrom: "Available now",
     description:
       "Immaculately presented studio room in a near-new, purpose-built rooming house — a rare standard for the area. This light-filled room is fully self-contained with its own kitchenette, reverse-cycle split-system air conditioning, built-in mirrored robe, and a private study nook, all finished with quality laminate flooring throughout. Residents also enjoy a large shared kitchen and dining space, perfect for entertaining or unwinding after work. Positioned in a quiet, well-maintained street close to St Albans station, Chinatown's shops and eateries, and local bus routes. Presented in outstanding condition and available now — inspections highly recommended, this one won't last.",
-    photos: DEMO_PHOTOS,
+    photos: [`${STA}/room.jpg`, `${STA}/kitchen.jpg`],
     inspectionTime: "Saturday 25 Jul, 10:00am - 10:30am",
   },
   {
@@ -46,7 +57,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 240,
     availableFrom: "Available now",
     description: "Furnished single room, close to Footscray station and Vic Uni campus. Bills included.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[0], COMMON_SPACES[0]],
     inspectionTime: "Saturday 25 Jul, 11:00am - 11:30am",
   },
   {
@@ -58,7 +69,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 165,
     availableFrom: "Available 1 Aug",
     description: "Shared twin room in a quiet 6-room house. Walking distance to Barkly Street shops.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[1], COMMON_SPACES[1]],
   },
   {
     id: "listing-werribee-1",
@@ -69,7 +80,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 175,
     availableFrom: "Available now",
     description: "Bright single room near Werribee Plaza. Off-street parking available.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[2], COMMON_SPACES[2]],
   },
   {
     id: "listing-werribee-2",
@@ -80,7 +91,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 190,
     availableFrom: "Available 15 Aug",
     description: "Recently renovated room, walking distance to Werribee station.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[3], COMMON_SPACES[3]],
   },
   {
     id: "listing-clayton-1",
@@ -91,7 +102,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 265,
     availableFrom: "Available now",
     description: "Student-friendly single room, 5 minutes' walk to Monash University Clayton campus.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[0], COMMON_SPACES[2]],
     inspectionTime: "Saturday 25 Jul, 1:00pm - 1:30pm",
   },
   {
@@ -103,7 +114,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 150,
     availableFrom: "Available now",
     description: "Shared room in a well-maintained 8-room house, all bills and NBN included.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[1], COMMON_SPACES[3]],
   },
   {
     id: "listing-dandenong-1",
@@ -114,7 +125,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 215,
     availableFrom: "Available now",
     description: "Modern single room near Dandenong Market, close to bus interchange.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[2], COMMON_SPACES[0], `${D}/facade-sunset.jpg`],
   },
   {
     id: "listing-sunshine-1",
@@ -125,7 +136,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 230,
     availableFrom: "Available now",
     description: "Spacious single room, 8 minutes' walk to Sunshine station. Onsite laundry.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[3], COMMON_SPACES[1]],
   },
   {
     id: "listing-sunshine-2",
@@ -136,7 +147,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 160,
     availableFrom: "Available 1 Aug",
     description: "Shared room in a renovated 7-room house near Sunshine Marketplace.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[0], `${D}/bathroom.jpg`],
   },
   {
     id: "listing-broadmeadows-1",
@@ -147,7 +158,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 195,
     availableFrom: "Available now",
     description: "Single room close to Broadmeadows station and Hume Central shopping centre.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[1], COMMON_SPACES[0]],
   },
   {
     id: "listing-reservoir-1",
@@ -158,7 +169,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 220,
     availableFrom: "Available 1 Aug",
     description: "Quiet single room in a well-kept house, close to Edwardes Lake Park.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[2], COMMON_SPACES[1]],
   },
   {
     id: "listing-frankston-1",
@@ -169,7 +180,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 210,
     availableFrom: "Available now",
     description: "Single room 10 minutes' walk from Frankston station and the beach.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[3], COMMON_SPACES[2]],
     inspectionTime: "Saturday 25 Jul, 2:00pm - 2:30pm",
   },
   {
@@ -181,7 +192,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 225,
     availableFrom: "Available now",
     description: "Bright single room in a quiet street, short drive to Altona beach and station.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[0], COMMON_SPACES[1], `${D}/facade-gate.jpg`],
   },
   {
     id: "listing-springvale-1",
@@ -192,7 +203,7 @@ export const mockListings: RoomListing[] = [
     weeklyRate: 155,
     availableFrom: "Available now",
     description: "Shared room close to Springvale station and the shopping precinct on Springvale Road.",
-    photos: DEMO_PHOTOS,
+    photos: [BEDROOMS[1], COMMON_SPACES[2]],
   },
 ];
 

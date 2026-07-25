@@ -18,7 +18,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   // on top of the same login, gated in middleware rather than by a different area here.
   const { data: profile } = await supabase
     .from("users")
-    .select("email")
+    .select("email, full_name, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -26,7 +26,12 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <div className="flex min-h-screen bg-white">
       <AccountSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <AccountTopbar userEmail={profile?.email ?? user.email ?? ""} />
+        <AccountTopbar
+          userId={user.id}
+          userEmail={profile?.email ?? user.email ?? ""}
+          fullName={profile?.full_name ?? null}
+          avatarUrl={profile?.avatar_url ?? null}
+        />
         <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
           {children}
         </main>

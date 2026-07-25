@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ListingPhoto } from "@/components/listing-photo";
 import { ListingGallery } from "@/components/listing-gallery";
+import { ListingMapDynamic as ListingMap } from "@/components/map/listing-map-dynamic";
 import { EnquireButton } from "@/components/enquire-button";
 import { SaveListingButton } from "@/components/save-listing-button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -82,6 +83,19 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
                     <p className="mt-2 text-body">{listing.description}</p>
                   </CardContent>
                 </Card>
+
+                {suburb && (
+                  <div className="mt-6">
+                    <h2 className="mb-3 font-display text-lg text-ink">Location</h2>
+                    <ListingMap
+                      lat={suburb.lat}
+                      lng={suburb.lng}
+                      title={getListingTitle(listing)}
+                      suburbName={listing.suburbName}
+                      approximate={!listing.addressVerified}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
