@@ -20,7 +20,7 @@ export type NavItem = {
 };
 
 export const navItems: NavItem[] = [
-  { href: "/listings", label: "Listings", icon: List },
+  { href: "/listings", label: "Listings", icon: List, external: true },
   { href: "/dashboard/suburbs", label: "Suburb Explorer", icon: Compass },
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/market", label: "Market Overview", icon: LineChart },
