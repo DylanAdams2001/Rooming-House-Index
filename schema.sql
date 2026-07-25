@@ -62,58 +62,6 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- ─────────────────────────────────────────────────────────────
--- tenant_profiles
--- The "easy application" data a landlord actually wants to see before approving a
--- tenant — filled in during onboarding (role='tenant' only), one row per tenant.
--- ─────────────────────────────────────────────────────────────
-create table if not exists public.tenant_profiles (
-  user_id uuid primary key references public.users (id) on delete cascade,
-  employment_status text check (
-    employment_status in ('Full-time', 'Part-time', 'Casual', 'Student', 'Self-employed', 'Other')
-  ),
-  occupation text,
-  weekly_income_range text, -- e.g. "$800-1000" — a range, not an exact figure, by design
-  num_occupants integer not null default 1,
-  has_pets boolean not null default false,
-  pet_details text,
-  is_smoker boolean not null default false,
-  preferred_move_in_date date,
-  reference_name text,
-  reference_phone text,
-  additional_notes text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-alter table public.tenant_profiles enable row level security;
-
-create policy "Tenants can view and manage their own application profile"
-  on public.tenant_profiles for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
--- Providers/investors need to read a tenant's application details once that tenant has
--- messaged them — mirrors the conversations visibility rule in the messaging section below.
-create policy "Conversation partners can view a tenant's application profile"
-  on public.tenant_profiles for select
-  using (
-    exists (
-      select 1 from public.conversations c
-      where c.investor_id = tenant_profiles.user_id
-        and (
-          auth.uid() = c.investor_id
-          or auth.uid() in (select user_id from public.service_providers where id = c.provider_id)
-        )
-    )
-  );
-
-create policy "Admins can view every tenant application profile"
-  on public.tenant_profiles for select
-  using (exists (
-    select 1 from public.users where id = auth.uid() and role = 'admin'
-  ));
-
--- ─────────────────────────────────────────────────────────────
 -- suburbs
 -- Core suburb-level rooming house market data.
 -- ─────────────────────────────────────────────────────────────
@@ -258,6 +206,59 @@ create policy "Investors can start a conversation"
 
 create policy "Admins can view every conversation"
   on public.conversations for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+-- ─────────────────────────────────────────────────────────────
+-- tenant_profiles
+-- The "easy application" data a landlord actually wants to see before approving a
+-- tenant — filled in during onboarding (role='tenant' only), one row per tenant.
+-- Placed after conversations/service_providers since its RLS policies reference both.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.tenant_profiles (
+  user_id uuid primary key references public.users (id) on delete cascade,
+  employment_status text check (
+    employment_status in ('Full-time', 'Part-time', 'Casual', 'Student', 'Self-employed', 'Other')
+  ),
+  occupation text,
+  weekly_income_range text, -- e.g. "$800-1000" — a range, not an exact figure, by design
+  num_occupants integer not null default 1,
+  has_pets boolean not null default false,
+  pet_details text,
+  is_smoker boolean not null default false,
+  preferred_move_in_date date,
+  reference_name text,
+  reference_phone text,
+  additional_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.tenant_profiles enable row level security;
+
+create policy "Tenants can view and manage their own application profile"
+  on public.tenant_profiles for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- Providers/investors need to read a tenant's application details once that tenant has
+-- messaged them — mirrors the conversations visibility rule in the messaging section below.
+create policy "Conversation partners can view a tenant's application profile"
+  on public.tenant_profiles for select
+  using (
+    exists (
+      select 1 from public.conversations c
+      where c.investor_id = tenant_profiles.user_id
+        and (
+          auth.uid() = c.investor_id
+          or auth.uid() in (select user_id from public.service_providers where id = c.provider_id)
+        )
+    )
+  );
+
+create policy "Admins can view every tenant application profile"
+  on public.tenant_profiles for select
   using (exists (
     select 1 from public.users where id = auth.uid() and role = 'admin'
   ));
