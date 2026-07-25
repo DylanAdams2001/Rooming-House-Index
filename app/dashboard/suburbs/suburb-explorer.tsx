@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { suburbs, type DemandLevel } from "@/lib/mock-data";
 import { SuburbCard } from "@/components/suburb-card";
@@ -34,7 +35,9 @@ const SuburbMap = dynamic(
 const DEMAND_OPTIONS: (DemandLevel | "All")[] = ["All", "High", "Medium", "Low"];
 
 export function SuburbExplorer() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [state, setState] = useState("VIC");
   const [demand, setDemand] = useState<DemandLevel | "All">("All");
   const [rateRange, setRateRange] = useState<[number, number]>([150, 450]);
@@ -54,6 +57,11 @@ export function SuburbExplorer() {
     });
   }, [query, state, demand, rateRange]);
 
+  const suggestions = useMemo(() => {
+    if (!query.trim()) return [];
+    return results.slice(0, 6);
+  }, [query, results]);
+
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">Suburb Explorer</h1>
@@ -63,16 +71,34 @@ export function SuburbExplorer() {
 
       <div className="mt-8 rounded-card border border-line bg-white p-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="md:col-span-2">
+          <div className="relative md:col-span-2">
             <Label htmlFor="search" className="mb-2 block text-xs uppercase tracking-wide text-muted">
               Search
             </Label>
             <Input
               id="search"
+              autoComplete="off"
               placeholder="Search suburb or postcode"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-btn border border-line bg-white shadow-lg">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onMouseDown={() => router.push(`/dashboard/suburbs/${s.id}`)}
+                    className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-sm text-body hover:bg-linen hover:text-ink"
+                  >
+                    <span>{s.name}</span>
+                    <span className="text-xs text-muted">{s.postcode}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
