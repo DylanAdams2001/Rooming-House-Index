@@ -23,12 +23,6 @@ const ARRANGEMENT_OPTIONS = [
   { value: "not_yet_operating", label: "Not operating as a rooming house yet" },
 ];
 
-const RATE_LIMIT_MS = 60 * 60 * 1000;
-
-function minutesLeft(lastSubmittedAt: number) {
-  return Math.max(0, Math.ceil((RATE_LIMIT_MS - (Date.now() - lastSubmittedAt)) / 60000));
-}
-
 export function ServiceQuoteRequestForm({
   userId,
   category,
@@ -50,8 +44,22 @@ export function ServiceQuoteRequestForm({
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<"idle" | "checking" | "submitting" | "success">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
-  const [, forceTick] = useState(0);
+  // A pending request already exists in this category — blocks a duplicate
+  // (double-click, mis-click, or spam) until quotes actually come back,
+  // rather than making them wait out an arbitrary timer.
+  const [hasPending, setHasPending] = useState(false);
+
+  async function checkPending() {
+    const { data } = await supabase
+      .from("service_quote_requests")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("category", category)
+      .eq("status", "pending")
+      .limit(1)
+      .maybeSingle();
+    setHasPending(!!data);
+  }
 
   // Address book: the account's own previously-submitted addresses (any
   // category) — suggested as they type instead of a third-party lookup.
@@ -66,27 +74,8 @@ export function ServiceQuoteRequestForm({
         setAddressBook(unique);
       });
 
-    supabase
-      .from("service_quote_requests")
-      .select("created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setCooldownUntil(new Date(data.created_at).getTime() + RATE_LIMIT_MS);
-      });
+    checkPending();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Tick every 30s so the countdown text stays accurate without a full refresh.
-  useEffect(() => {
-    if (!cooldownUntil || cooldownUntil <= Date.now()) return;
-    const interval = setInterval(() => forceTick((n) => n + 1), 30_000);
-    return () => clearInterval(interval);
-  }, [cooldownUntil]);
-
-  const rateLimited = cooldownUntil !== null && cooldownUntil > Date.now();
-  const waitMinutes = cooldownUntil ? minutesLeft(cooldownUntil - RATE_LIMIT_MS) : 0;
 
   const suggestions = useMemo(() => {
     if (!propertyAddress.trim()) return [];
@@ -103,23 +92,21 @@ export function ServiceQuoteRequestForm({
     setError(null);
     setStatus("checking");
 
-    const { data: recent } = await supabase
+    const { data: pending } = await supabase
       .from("service_quote_requests")
-      .select("created_at")
+      .select("id")
       .eq("user_id", userId)
-      .order("created_at", { ascending: false })
+      .eq("category", category)
+      .eq("status", "pending")
       .limit(1)
       .maybeSingle();
 
-    if (recent) {
-      const nextAllowed = new Date(recent.created_at).getTime() + RATE_LIMIT_MS;
-      if (nextAllowed > Date.now()) {
-        setCooldownUntil(nextAllowed);
-        setStatus("idle");
-        setError(`You can request quotes once per hour — try again in ${minutesLeft(nextAllowed - RATE_LIMIT_MS)} min.`);
-        lockRef.current = false;
-        return;
-      }
+    if (pending) {
+      setHasPending(true);
+      setStatus("idle");
+      setError("You already have a quote request in progress for this category.");
+      lockRef.current = false;
+      return;
     }
 
     setStatus("submitting");
@@ -136,16 +123,17 @@ export function ServiceQuoteRequestForm({
     if (insertError) {
       setStatus("idle");
       setError(
-        insertError.message.includes("once per hour")
-          ? "You can only request quotes once per hour — please try again shortly."
+        insertError.message.includes("already have a quote request")
+          ? "You already have a quote request in progress for this category."
           : "Couldn't submit your request — please try again."
       );
+      if (insertError.message.includes("already have a quote request")) setHasPending(true);
       lockRef.current = false;
       return;
     }
 
     setStatus("success");
-    setCooldownUntil(Date.now() + RATE_LIMIT_MS);
+    setHasPending(true);
     await new Promise((resolve) => setTimeout(resolve, 1100));
     router.refresh();
     setPropertyAddress("");
@@ -228,9 +216,10 @@ export function ServiceQuoteRequestForm({
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {!error && rateLimited && status === "idle" && (
+      {!error && hasPending && status === "idle" && (
         <p className="text-sm text-muted">
-          You can request another quote in {waitMinutes} min.
+          You already have a quote request in progress for this category — we&apos;ll be in
+          touch soon. You can request again once it&apos;s quoted.
         </p>
       )}
 
@@ -240,7 +229,7 @@ export function ServiceQuoteRequestForm({
           "w-full transition-colors duration-300",
           status === "success" && "bg-green-600 hover:bg-green-600"
         )}
-        disabled={busy || rateLimited || !propertyAddress.trim()}
+        disabled={busy || hasPending || !propertyAddress.trim()}
       >
         {status === "checking" && (
           <>

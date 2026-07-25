@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getServiceCategory } from "@/lib/service-categories";
 import { ProviderJoinForm } from "@/components/provider-join-form";
+import { BackLink } from "@/components/back-link";
 
 export default function JoinServiceCategoryPage({
   params,
@@ -17,6 +18,8 @@ export default function JoinServiceCategoryPage({
 
   return (
     <div className="mx-auto max-w-2xl">
+      <BackLink href={`/dashboard/services/${category.slug}`} label={category.label} />
+
       <p className="text-sm text-muted">{category.label}</p>
       <h1 className="mt-1 font-display text-3xl text-ink">List your business</h1>
       <p className="mt-2 text-body">

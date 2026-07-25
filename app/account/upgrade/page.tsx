@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { BackLink } from "@/components/back-link";
 import { BarChart3, Building2, Check, TrendingUp } from "lucide-react";
 
 const BENEFITS = [
@@ -66,6 +67,8 @@ export default function UpgradePage() {
 
   return (
     <div className="max-w-xl">
+      <BackLink href="/account" label="Account" />
+
       <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-muted">Add-on</p>
       <h1 className="font-display text-3xl text-ink">Get investor access</h1>
       <p className="mt-2 text-body">

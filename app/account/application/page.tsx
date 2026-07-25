@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ApplicationForm } from "@/components/account/application-form";
+import { BackLink } from "@/components/back-link";
 
 function ApplicationContent() {
   const router = useRouter();
@@ -22,6 +23,8 @@ function ApplicationContent() {
 
   return (
     <div className="mx-auto max-w-2xl">
+      <BackLink href="/account" label="Account" />
+
       <h1 className="font-display text-3xl text-ink">My Application</h1>
       <p className="mt-2 text-body">
         The details a landlord sees when you enquire about a room. Update this any time.

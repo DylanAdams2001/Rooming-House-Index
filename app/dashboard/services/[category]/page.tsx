@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { BackLink } from "@/components/back-link";
 import Link from "next/link";
 
 // Quote-based categories (insurance, property-management) render user-specific
@@ -67,6 +68,8 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
 
     return (
       <div>
+        <BackLink href="/dashboard/services" label="Services" />
+
         <h1 className="font-display text-3xl text-ink">{category.label}</h1>
         <p className="mt-2 max-w-2xl text-body">{category.description}</p>
 
@@ -150,6 +153,8 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
 
   return (
     <div>
+      <BackLink href="/dashboard/services" label="Services" />
+
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
         <div>
           <h1 className="font-display text-3xl text-ink">{category.label}</h1>

@@ -7,6 +7,7 @@ import { RentalTrendChart } from "@/components/charts/rental-trend-chart";
 import { SupplyGrowthChart } from "@/components/charts/supply-growth-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { BackLink } from "@/components/back-link";
 import { ExternalLink } from "lucide-react";
 
 export function generateStaticParams() {
@@ -22,6 +23,8 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
 
   return (
     <div>
+      <BackLink href="/dashboard/suburbs" label="Suburb Explorer" />
+
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
         <div>
           <p className="text-sm text-muted">

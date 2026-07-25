@@ -4,6 +4,7 @@ import { getProviderById, mockProviders } from "@/lib/mock-providers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StartConversationButton } from "@/components/start-conversation-button";
 import { PdfQuickView } from "@/components/pdf-quick-view";
+import { BackLink } from "@/components/back-link";
 
 export function generateStaticParams() {
   return mockProviders.map((p) => {
@@ -33,6 +34,8 @@ export default function ProviderProfilePage({
 
   return (
     <div>
+      <BackLink href={`/dashboard/services/${category.slug}`} label={category.label} />
+
       <p className="text-sm text-muted">{category.label}</p>
       <h1 className="mt-1 font-display text-4xl text-ink">{provider.businessName}</h1>
       <p className="mt-2 text-body">{provider.coverageAreas.join(", ")}</p>
