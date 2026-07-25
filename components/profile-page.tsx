@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-// Shared by /account/settings and /dashboard/settings — the same account fields
-// (photo, name, email, phone) apply regardless of whether someone signed up to
-// browse listings or unlocked investor access; nothing here is role-specific.
-export function ProfilePage() {
+// The account fields (photo, name, email, phone) are genuinely universal — used by
+// both /account/settings and /dashboard/settings, since they apply the same way
+// whether someone signed up to browse listings or unlocked investor access. Each
+// page supplies its own heading/copy and any section-specific content around this.
+export function AccountDetailsCard() {
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -118,52 +119,47 @@ export function ProfilePage() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl text-ink">Profile</h1>
-      <p className="mt-2 text-body">Update your photo and contact details.</p>
+    <Card className="max-w-lg">
+      <CardHeader>
+        <CardTitle>Account</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSave} className="space-y-5">
+          <div className="flex items-center gap-4">
+            <Avatar
+              seed={userId ?? "profile"}
+              name={fullName || email}
+              photoUrl={preview ?? avatarUrl}
+              className="h-16 w-16 shrink-0 text-xl"
+            />
+            <label className="cursor-pointer text-sm text-ink underline underline-offset-4">
+              Change photo
+              <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            </label>
+          </div>
 
-      <Card className="mt-8 max-w-lg">
-        <CardHeader>
-          <CardTitle>Account</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSave} className="space-y-5">
-            <div className="flex items-center gap-4">
-              <Avatar
-                seed={userId ?? "profile"}
-                name={fullName || email}
-                photoUrl={preview ?? avatarUrl}
-                className="h-16 w-16 shrink-0 text-xl"
-              />
-              <label className="cursor-pointer text-sm text-ink underline underline-offset-4">
-                Change photo
-                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-              </label>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Full name</Label>
+            <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
-              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          {emailMessage && <p className="text-sm text-body">{emailMessage}</p>}
+          {saved && !error && <p className="text-sm text-body">Saved.</p>}
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            {emailMessage && <p className="text-sm text-body">{emailMessage}</p>}
-            {saved && !error && <p className="text-sm text-body">Saved.</p>}
-
-            <Button type="submit" disabled={saving}>
-              {saving ? "Saving…" : "Save changes"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving…" : "Save changes"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
