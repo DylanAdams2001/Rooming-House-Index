@@ -37,10 +37,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/signup");
 
-  // TODO: re-enable auth gate before launch — disabled temporarily for design review.
-  const AUTH_GATE_ENABLED = false;
-
-  if (AUTH_GATE_ENABLED && !user && isDashboardRoute) {
+  if (!user && isDashboardRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirectedFrom", request.nextUrl.pathname);

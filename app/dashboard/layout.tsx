@@ -8,15 +8,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // TODO: re-enable auth gate before launch — disabled temporarily for design review.
-  const AUTH_GATE_ENABLED = false;
-
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (AUTH_GATE_ENABLED && !user) {
+  if (!user) {
     redirect("/login");
   }
 
@@ -24,7 +21,7 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-white">
       <DashboardSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <DashboardTopbar userEmail={user?.email ?? "demo@roominghouseindex.com"} />
+        <DashboardTopbar userEmail={user.email ?? ""} />
         <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
           {children}
         </main>
