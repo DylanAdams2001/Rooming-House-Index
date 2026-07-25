@@ -27,20 +27,43 @@ export function HeaderAuthButton() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    async function loadProfile(user: { id: string; email?: string | null }) {
+      setUserId(user.id);
+      setEmail(user.email ?? null);
+      const { data: profile } = await supabase
+        .from("users")
+        .select("avatar_url, full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      setAvatarUrl(profile?.avatar_url ?? null);
+      setFullName(profile?.full_name ?? null);
+    }
+
     supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user) {
-        setUserId(user.id);
-        setEmail(user.email ?? null);
-        const { data: profile } = await supabase
-          .from("users")
-          .select("avatar_url, full_name")
-          .eq("id", user.id)
-          .maybeSingle();
-        setAvatarUrl(profile?.avatar_url ?? null);
-        setFullName(profile?.full_name ?? null);
+      if (user) await loadProfile(user);
+      setLoaded(true);
+    });
+
+    // A one-time getUser() on mount misses sign-ins that happen without this
+    // component remounting — e.g. logging in on /login (no header there) and then
+    // client-navigating to a page that does have one, where Next's Router Cache can
+    // also restore a stale previous render. Subscribing to auth changes keeps this
+    // in sync regardless of how/where the session actually changed.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadProfile(session.user);
+      } else {
+        setUserId(null);
+        setAvatarUrl(null);
+        setFullName(null);
+        setEmail(null);
       }
       setLoaded(true);
     });
+
+    return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

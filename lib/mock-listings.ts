@@ -7,7 +7,11 @@ export type RoomListing = {
   id: string;
   suburbId: string; // matches Suburb.id in lib/mock-data.ts
   suburbName: string;
-  address?: string; // street address, only set for listings with a real, verified address
+  address: string; // street address — used as the listing's title so multiple
+  // listings in the same suburb aren't ambiguous in cards/messages/enquiries.
+  // Only St Albans' is a real, verified address; the rest are placeholder
+  // addresses for these demo listings, same spirit as the shared demo photos.
+  addressVerified?: boolean;
   roomType: "Single" | "Shared";
   weeklyRate: number;
   availableFrom: string;
@@ -24,6 +28,7 @@ export const mockListings: RoomListing[] = [
     suburbId: "st-albans-3021",
     suburbName: "St Albans",
     address: "15 Grace Street, St Albans",
+    addressVerified: true,
     roomType: "Single",
     weeklyRate: 380,
     availableFrom: "Available now",
@@ -36,6 +41,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-footscray-1",
     suburbId: "footscray-3011",
     suburbName: "Footscray",
+    address: "8 Nicholson Street, Footscray",
     roomType: "Single",
     weeklyRate: 240,
     availableFrom: "Available now",
@@ -47,6 +53,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-footscray-2",
     suburbId: "footscray-3011",
     suburbName: "Footscray",
+    address: "142 Barkly Street, Footscray",
     roomType: "Shared",
     weeklyRate: 165,
     availableFrom: "Available 1 Aug",
@@ -57,6 +64,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-werribee-1",
     suburbId: "werribee-3030",
     suburbName: "Werribee",
+    address: "21 Watton Street, Werribee",
     roomType: "Single",
     weeklyRate: 175,
     availableFrom: "Available now",
@@ -67,6 +75,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-werribee-2",
     suburbId: "werribee-3030",
     suburbName: "Werribee",
+    address: "5 Comben Drive, Werribee",
     roomType: "Single",
     weeklyRate: 190,
     availableFrom: "Available 15 Aug",
@@ -77,6 +86,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-clayton-1",
     suburbId: "clayton-3168",
     suburbName: "Clayton",
+    address: "33 Carinish Road, Clayton",
     roomType: "Single",
     weeklyRate: 265,
     availableFrom: "Available now",
@@ -88,6 +98,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-clayton-2",
     suburbId: "clayton-3168",
     suburbName: "Clayton",
+    address: "97 Clayton Road, Clayton",
     roomType: "Shared",
     weeklyRate: 150,
     availableFrom: "Available now",
@@ -98,6 +109,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-dandenong-1",
     suburbId: "dandenong-3175",
     suburbName: "Dandenong",
+    address: "14 Foster Street, Dandenong",
     roomType: "Single",
     weeklyRate: 215,
     availableFrom: "Available now",
@@ -108,6 +120,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-sunshine-1",
     suburbId: "sunshine-3020",
     suburbName: "Sunshine",
+    address: "6 Hampshire Road, Sunshine",
     roomType: "Single",
     weeklyRate: 230,
     availableFrom: "Available now",
@@ -118,6 +131,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-sunshine-2",
     suburbId: "sunshine-3020",
     suburbName: "Sunshine",
+    address: "58 Anderson Road, Sunshine",
     roomType: "Shared",
     weeklyRate: 160,
     availableFrom: "Available 1 Aug",
@@ -128,6 +142,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-broadmeadows-1",
     suburbId: "broadmeadows-3047",
     suburbName: "Broadmeadows",
+    address: "19 Dimboola Road, Broadmeadows",
     roomType: "Single",
     weeklyRate: 195,
     availableFrom: "Available now",
@@ -138,6 +153,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-reservoir-1",
     suburbId: "reservoir-3073",
     suburbName: "Reservoir",
+    address: "11 Broadhurst Avenue, Reservoir",
     roomType: "Single",
     weeklyRate: 220,
     availableFrom: "Available 1 Aug",
@@ -148,6 +164,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-frankston-1",
     suburbId: "frankston-3199",
     suburbName: "Frankston",
+    address: "27 Beach Street, Frankston",
     roomType: "Single",
     weeklyRate: 210,
     availableFrom: "Available now",
@@ -159,6 +176,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-altona-1",
     suburbId: "altona-3018",
     suburbName: "Altona",
+    address: "4 Queen Street, Altona",
     roomType: "Single",
     weeklyRate: 225,
     availableFrom: "Available now",
@@ -169,6 +187,7 @@ export const mockListings: RoomListing[] = [
     id: "listing-springvale-1",
     suburbId: "springvale-3171",
     suburbName: "Springvale",
+    address: "70 Springvale Road, Springvale",
     roomType: "Shared",
     weeklyRate: 155,
     availableFrom: "Available now",
@@ -187,4 +206,11 @@ export function getListingById(id: string) {
 
 export function getFeaturedListings(count: number) {
   return mockListings.slice(0, count);
+}
+
+// The one identifier used consistently across cards, listing detail, enquiries,
+// and messages — the address, since suburb + room type alone is ambiguous once
+// there's more than one listing in the same suburb.
+export function getListingTitle(listing: RoomListing) {
+  return listing.address;
 }

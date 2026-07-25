@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getListingById, mockListings } from "@/lib/mock-listings";
+import { getListingById, getListingTitle, mockListings } from "@/lib/mock-listings";
 import { getSuburbById } from "@/lib/mock-data";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -42,10 +42,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
               {listing.photos && listing.photos.length > 0 ? (
-                <ListingGallery
-                  photos={listing.photos}
-                  altBase={`${listing.roomType} room in ${listing.suburbName}`}
-                />
+                <ListingGallery photos={listing.photos} altBase={getListingTitle(listing)} />
               ) : (
                 <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-card sm:grid-cols-4">
                   <ListingPhoto seed={listing.id} className="col-span-2 row-span-2 h-64 sm:h-full" />
@@ -60,12 +57,10 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm text-muted">
-                      {listing.address ?? listing.suburbName}
-                      {suburb ? ` · ${suburb.postcode}, ${suburb.state}` : ""}
+                      {listing.roomType} room · {listing.suburbName}
+                      {suburb ? ` ${suburb.postcode}, ${suburb.state}` : ""}
                     </p>
-                    <h1 className="mt-1 font-display text-3xl text-ink">
-                      {listing.roomType} room in {listing.suburbName}
-                    </h1>
+                    <h1 className="mt-1 font-display text-3xl text-ink">{getListingTitle(listing)}</h1>
                   </div>
                   <Badge variant="outline">{listing.availableFrom}</Badge>
                 </div>
@@ -109,12 +104,6 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
                     <p className="text-xs uppercase tracking-wide text-muted">Suburb</p>
                     <p className="text-ink">{listing.suburbName}</p>
                   </div>
-                  {listing.address && (
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-muted">Address</p>
-                      <p className="text-ink">{listing.address}</p>
-                    </div>
-                  )}
                   {listing.inspectionTime && (
                     <div>
                       <p className="text-xs uppercase tracking-wide text-muted">Inspection</p>
@@ -123,7 +112,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
                   )}
                   <EnquireButton
                     listingId={listing.id}
-                    listingTitle={`${listing.roomType} room in ${listing.suburbName}`}
+                    listingTitle={getListingTitle(listing)}
                     inspectionTime={listing.inspectionTime}
                   />
                   <SaveListingButton listingId={listing.id} />

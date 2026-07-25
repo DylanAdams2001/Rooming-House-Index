@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ListingPhoto } from "@/components/listing-photo";
 import { CalendarClock } from "lucide-react";
-import type { RoomListing } from "@/lib/mock-listings";
+import { getListingTitle, type RoomListing } from "@/lib/mock-listings";
 
 export function ListingCard({ listing }: { listing: RoomListing }) {
   return (
@@ -25,8 +25,8 @@ export function ListingCard({ listing }: { listing: RoomListing }) {
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-display text-xl text-ink">{listing.suburbName}</h3>
-            <p className="text-sm text-muted">{listing.roomType} room</p>
+            <h3 className="font-display text-xl text-ink">{getListingTitle(listing)}</h3>
+            <p className="text-sm text-muted">{listing.roomType} room · {listing.suburbName}</p>
           </div>
           <Badge variant="outline">{listing.availableFrom}</Badge>
         </div>

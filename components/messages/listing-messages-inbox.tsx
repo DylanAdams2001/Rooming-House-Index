@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getListingById } from "@/lib/mock-listings";
+import { getListingById, getListingTitle } from "@/lib/mock-listings";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
 
@@ -69,7 +69,7 @@ export async function ListingMessagesInbox() {
                   <CardContent className="flex items-center justify-between p-5">
                     <div>
                       <p className="font-display text-lg text-ink">
-                        {listing ? `${listing.roomType} room in ${listing.suburbName}` : "Listing"}
+                        {listing ? getListingTitle(listing) : "Listing"}
                       </p>
                       <p className="text-xs text-muted">
                         Last message {new Date(c.last_message_at).toLocaleString("en-AU")}

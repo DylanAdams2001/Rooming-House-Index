@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getListingById } from "@/lib/mock-listings";
+import { getListingById, getListingTitle } from "@/lib/mock-listings";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 
@@ -51,10 +51,10 @@ export async function ListingConversationView({ conversationId }: { conversation
               className="mb-4 flex items-center justify-between gap-4 rounded-card border border-line bg-white px-5 py-3 transition-colors hover:bg-linen"
             >
               <div>
-                <p className="font-display text-base text-ink">
-                  {listing.roomType} room in {listing.suburbName}
+                <p className="font-display text-base text-ink">{getListingTitle(listing)}</p>
+                <p className="text-xs text-muted">
+                  {listing.roomType} room · ${listing.weeklyRate}/wk
                 </p>
-                <p className="text-xs text-muted">${listing.weeklyRate}/wk</p>
               </div>
               {listing.inspectionTime && (
                 <div className="flex items-center gap-1.5 text-xs text-muted">
