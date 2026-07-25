@@ -28,7 +28,7 @@ export function ListingMap({
         const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID;
         const map = new window.google.maps.Map(mapRef.current, {
           center: position,
-          zoom: approximate ? 14 : 17,
+          zoom: approximate ? 13 : 15,
           // Street View (the Pegman control) is only offered for a verified
           // real address — dropping it onto an approximate suburb-level pin
           // would show real imagery for the wrong house.
