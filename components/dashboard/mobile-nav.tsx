@@ -110,6 +110,8 @@ export function MobileNav() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
                     onClick={() => setOpen(false)}
                     className={cn(
                       "flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm transition-colors",

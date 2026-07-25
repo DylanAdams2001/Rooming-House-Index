@@ -15,6 +15,7 @@ export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
+  external?: boolean;
   children?: { label: string; href?: string; comingSoon?: boolean }[];
 };
 
@@ -23,7 +24,12 @@ export const navItems: NavItem[] = [
   { href: "/dashboard/suburbs", label: "Suburb Explorer", icon: Compass },
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/market", label: "Market Overview", icon: LineChart },
-  { href: "/dashboard/land-finder", label: "Land Finder", icon: MapPin },
+  {
+    href: "https://parcel-scout.onrender.com/app.html",
+    label: "Land Finder",
+    icon: MapPin,
+    external: true,
+  },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
   {
     href: "/dashboard/services",

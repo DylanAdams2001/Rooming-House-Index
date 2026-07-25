@@ -79,6 +79,8 @@ export function DashboardSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? "noopener noreferrer" : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm transition-colors",
                 active
