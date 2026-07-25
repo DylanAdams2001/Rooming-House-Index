@@ -1,8 +1,14 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { FunnelHeader } from "@/components/funnel-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
+import { AuthModal } from "@/components/auth-modal";
+import { createClient } from "@/lib/supabase/client";
+import { buildOnboardingUrl, defaultDestination } from "@/lib/onboarding";
 import { dashboardStats } from "@/lib/mock-data";
 import {
   AlertTriangle,
@@ -58,6 +64,25 @@ const OBJECTIONS = [
 ];
 
 export default function InvestPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Same routing rule as the normal signup/login flow: resume onboarding if it
+  // isn't finished, otherwise send investors to /dashboard, everyone else to /account.
+  async function handleAuthenticated(userId: string) {
+    setShowAuthModal(false);
+    const { data: profile } = await supabase
+      .from("users")
+      .select("onboarding_step, investor_access")
+      .eq("id", userId)
+      .maybeSingle();
+    const destination = defaultDestination(profile?.investor_access);
+    const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
+    router.push(onboardingUrl ?? destination);
+    router.refresh();
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <FunnelHeader />
@@ -76,8 +101,12 @@ export default function InvestPage() {
               Suburb-level demand, registered supply, and room rental rates across Victoria —
               built specifically for the rooming house asset class, not generic property data.
             </p>
-            <Button asChild size="lg" className="mt-10 bg-white text-ink hover:bg-white/90">
-              <Link href="/signup">See the Data — Free</Link>
+            <Button
+              size="lg"
+              className="mt-10 bg-white text-ink hover:bg-white/90"
+              onClick={() => setShowAuthModal(true)}
+            >
+              See the Data — Free
             </Button>
             <p className="mt-3 text-xs text-white/50">No card required. Takes under a minute.</p>
           </div>
@@ -229,8 +258,12 @@ export default function InvestPage() {
               Suburb demand, registered supply, room rental rates, saved suburbs, and the
               provider marketplace — no card, no ongoing charge for now.
             </p>
-            <Button asChild size="lg" className="mt-8 w-full bg-white text-ink hover:bg-white/90">
-              <Link href="/signup">Get Investor Access — Free</Link>
+            <Button
+              size="lg"
+              className="mt-8 w-full bg-white text-ink hover:bg-white/90"
+              onClick={() => setShowAuthModal(true)}
+            >
+              Get Investor Access — Free
             </Button>
             <ul className="mt-8 grid grid-cols-1 gap-2 self-start text-left text-sm text-white/80 sm:grid-cols-2">
               {[
@@ -255,6 +288,14 @@ export default function InvestPage() {
       </main>
 
       <SiteFooter />
+
+      {showAuthModal && (
+        <AuthModal
+          initialMode="signup"
+          onClose={() => setShowAuthModal(false)}
+          onAuthenticated={handleAuthenticated}
+        />
+      )}
     </div>
   );
 }
