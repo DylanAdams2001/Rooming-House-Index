@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { HeaderAuthButton } from "@/components/header-auth-button";
+import { BecomeInvestorButton } from "@/components/become-investor-button";
 
 export function SiteHeader() {
   return (
@@ -15,9 +15,7 @@ export function SiteHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-3">
-          <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-            <Link href="/investors">Become an Investor</Link>
-          </Button>
+          <BecomeInvestorButton />
           <HeaderAuthButton />
         </div>
       </div>
