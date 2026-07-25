@@ -21,6 +21,15 @@ export function buildOnboardingUrl(step: string | null | undefined, redirectTo: 
   return `${path}?redirectTo=${encodeURIComponent(redirectTo)}`;
 }
 
+// Appends redirectTo only when it's a real, explicit destination (e.g. back to a
+// listing after an enquiry). Onboarding steps must NOT fabricate a fallback like
+// "/account" this early — investor vs tenant intent isn't known yet at this point
+// in the flow, so a fabricated default here would wrongly override the investor
+// destination computed once intent actually gets chosen.
+export function appendRedirectTo(path: string, redirectTo?: string | null): string {
+  return redirectTo ? `${path}?redirectTo=${encodeURIComponent(redirectTo)}` : path;
+}
+
 // Investors land in /dashboard, everyone else in /account — deliberately kept as
 // separate experiences (different nav, different content) even though it's one
 // login. Keyed on investor_access, the same flag middleware uses to gate /dashboard,

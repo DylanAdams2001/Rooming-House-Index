@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { StepHeader } from "@/components/onboarding/step-header";
+import { appendRedirectTo } from "@/lib/onboarding";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 function BasicsForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/account";
+  const redirectTo = searchParams.get("redirectTo");
   const supabase = createClient();
 
   const [fullName, setFullName] = useState("");
@@ -22,7 +23,8 @@ function BasicsForm() {
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
-        router.push(`/login?redirectTo=${encodeURIComponent(`/onboarding/basics?redirectTo=${redirectTo}`)}`);
+        const here = appendRedirectTo("/onboarding/basics", redirectTo);
+        router.push(`/login?redirectTo=${encodeURIComponent(here)}`);
         return;
       }
       const { data: profile } = await supabase
@@ -61,7 +63,7 @@ function BasicsForm() {
       return;
     }
 
-    router.push(`/onboarding/intent?redirectTo=${encodeURIComponent(redirectTo)}`);
+    router.push(appendRedirectTo("/onboarding/intent", redirectTo));
   }
 
   return (

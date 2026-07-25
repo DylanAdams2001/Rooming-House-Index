@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { buildOnboardingUrl, defaultDestination } from "@/lib/onboarding";
+import { appendRedirectTo, defaultDestination, getOnboardingPath } from "@/lib/onboarding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,9 +51,15 @@ export function AuthForm({
       .eq("id", userId)
       .maybeSingle();
 
-    const destination = explicitDestination ?? defaultDestination(profile?.investor_access);
-    const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
-    router.push(onboardingUrl ?? destination);
+    // Only carry an explicit redirect (e.g. back to a listing) into onboarding —
+    // never a fabricated default, since investor vs tenant intent isn't decided
+    // yet at this point and that default would wrongly stick through every step.
+    const onboardingPath = getOnboardingPath(profile?.onboarding_step);
+    if (onboardingPath) {
+      router.push(appendRedirectTo(onboardingPath, explicitDestination));
+    } else {
+      router.push(explicitDestination ?? defaultDestination(profile?.investor_access));
+    }
     router.refresh();
   }
 

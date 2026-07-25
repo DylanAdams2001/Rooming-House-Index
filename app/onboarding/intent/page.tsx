@@ -4,13 +4,14 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { StepHeader } from "@/components/onboarding/step-header";
+import { appendRedirectTo } from "@/lib/onboarding";
 import { Search, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function IntentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/account";
+  const redirectTo = searchParams.get("redirectTo");
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -20,7 +21,8 @@ function IntentForm() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) {
-        router.push(`/login?redirectTo=${encodeURIComponent(`/onboarding/intent?redirectTo=${redirectTo}`)}`);
+        const here = appendRedirectTo("/onboarding/intent", redirectTo);
+        router.push(`/login?redirectTo=${encodeURIComponent(here)}`);
         return;
       }
       setUserId(user.id);
@@ -45,7 +47,7 @@ function IntentForm() {
       .eq("id", userId);
 
     const nextPath = intent === "investor" ? "/onboarding/investor-details" : "/onboarding/photo";
-    router.push(`${nextPath}?redirectTo=${encodeURIComponent(redirectTo)}`);
+    router.push(appendRedirectTo(nextPath, redirectTo));
   }
 
   return (

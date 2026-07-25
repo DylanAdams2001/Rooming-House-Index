@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { StepHeader } from "@/components/onboarding/step-header";
+import { appendRedirectTo } from "@/lib/onboarding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
 function InvestorDetailsForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/account";
+  const redirectTo = searchParams.get("redirectTo");
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -56,7 +57,7 @@ function InvestorDetailsForm() {
 
     await supabase.from("users").update({ onboarding_step: "photo" }).eq("id", userId);
     setSaving(false);
-    router.push(`/onboarding/photo?redirectTo=${encodeURIComponent(redirectTo)}`);
+    router.push(appendRedirectTo("/onboarding/photo", redirectTo));
   }
 
   return (

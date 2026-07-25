@@ -6,15 +6,12 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 
-// TODO: flip to true once a real Supabase project is connected. Until then,
-// "Message" opens a local-state preview of the chat UI instead of hitting
-// auth/DB calls that can't succeed against placeholder credentials.
-const CHAT_BACKEND_ENABLED = false;
-
 export function StartConversationButton({
   providerId,
   businessName,
 }: {
+  // The friendly slug used in the URL (e.g. "provider-landlord-shield"), not the
+  // service_providers table's internal uuid — resolved below via the slug column.
   providerId: string;
   businessName: string;
 }) {
@@ -24,11 +21,6 @@ export function StartConversationButton({
   const [error, setError] = useState<string | null>(null);
 
   async function handleClick() {
-    if (!CHAT_BACKEND_ENABLED) {
-      router.push(`/dashboard/messages/preview?name=${encodeURIComponent(businessName)}`);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
@@ -41,11 +33,23 @@ export function StartConversationButton({
       return;
     }
 
+    const { data: provider } = await supabase
+      .from("service_providers")
+      .select("id")
+      .eq("slug", providerId)
+      .maybeSingle();
+
+    if (!provider) {
+      setLoading(false);
+      setError("Couldn't start a conversation — this provider isn't connected to a live account yet.");
+      return;
+    }
+
     const { data: existing } = await supabase
       .from("conversations")
       .select("id")
       .eq("investor_id", user.id)
-      .eq("provider_id", providerId)
+      .eq("provider_id", provider.id)
       .maybeSingle();
 
     if (existing) {
@@ -55,16 +59,14 @@ export function StartConversationButton({
 
     const { data: created, error: insertError } = await supabase
       .from("conversations")
-      .insert({ investor_id: user.id, provider_id: providerId })
+      .insert({ investor_id: user.id, provider_id: provider.id })
       .select("id")
       .single();
 
     setLoading(false);
 
     if (insertError || !created) {
-      setError(
-        "Couldn't start a conversation — this provider isn't connected to a live account yet."
-      );
+      setError("Couldn't start a conversation — please try again.");
       return;
     }
 

@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth-modal";
 import { createClient } from "@/lib/supabase/client";
-import { buildOnboardingUrl, defaultDestination } from "@/lib/onboarding";
+import { defaultDestination, getOnboardingPath } from "@/lib/onboarding";
 import { dashboardStats } from "@/lib/mock-data";
 import {
   AlertTriangle,
@@ -77,9 +77,8 @@ export default function InvestPage() {
       .select("onboarding_step, investor_access")
       .eq("id", userId)
       .maybeSingle();
-    const destination = defaultDestination(profile?.investor_access);
-    const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
-    router.push(onboardingUrl ?? destination);
+    const onboardingPath = getOnboardingPath(profile?.onboarding_step);
+    router.push(onboardingPath ?? defaultDestination(profile?.investor_access));
     router.refresh();
   }
 

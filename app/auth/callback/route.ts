@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { buildOnboardingUrl, defaultDestination } from "@/lib/onboarding";
+import { appendRedirectTo, defaultDestination, getOnboardingPath } from "@/lib/onboarding";
 
 // Supabase redirects here after a successful Google OAuth login (see
 // supabase.auth.signInWithOAuth in components/auth-form.tsx). Exchanges the
@@ -24,9 +24,15 @@ export async function GET(request: Request) {
         .eq("id", data.user.id)
         .maybeSingle();
 
-      const destination = explicitDestination ?? defaultDestination(profile?.investor_access);
-      const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
-      return NextResponse.redirect(`${origin}${onboardingUrl ?? destination}`);
+      const onboardingPath = getOnboardingPath(profile?.onboarding_step);
+      if (onboardingPath) {
+        return NextResponse.redirect(
+          `${origin}${appendRedirectTo(onboardingPath, explicitDestination)}`
+        );
+      }
+      return NextResponse.redirect(
+        `${origin}${explicitDestination ?? defaultDestination(profile?.investor_access)}`
+      );
     }
   }
 

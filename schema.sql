@@ -158,7 +158,12 @@ create index if not exists suburbs_postcode_idx on public.suburbs (postcode);
 -- ─────────────────────────────────────────────────────────────
 create table if not exists public.service_providers (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.users (id) on delete cascade,
+  -- Nullable: seeded/unclaimed directory listings (see migrate-seed-providers.sql)
+  -- have no owning account yet — a real provider can claim one later.
+  user_id uuid references public.users (id) on delete cascade,
+  -- Stable, human-readable identifier for the /dashboard/services/<category>/<slug>
+  -- URLs and for seeding, independent of the internal uuid.
+  slug text unique,
   category text not null check (category in (
     'insurance', 'conveyancing_legal', 'inspectors', 'maintenance',
     'building', 'property_management', 'furnishing'

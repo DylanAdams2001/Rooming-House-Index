@@ -66,13 +66,26 @@ export function EnquireButton({
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Every account (member/provider/admin) can enquire — there's one login for the
-    // whole site now, investor access is just an optional add-on. A guest with no
-    // session gets a sign-in modal right here instead of losing this listing to a
-    // full page redirect.
+    // A guest with no session gets a sign-in modal right here instead of losing
+    // this listing to a full page redirect.
     if (!user) {
       setChecking(false);
       setShowAuthModal(true);
+      return;
+    }
+
+    // Investor and tenant experiences are kept deliberately separate — an investor
+    // account enquiring on a room as a "tenant" would confuse the landlord side of
+    // things, so this is blocked with an explanation rather than silently allowed.
+    const { data: profile } = await supabase
+      .from("users")
+      .select("investor_access")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.investor_access === "active") {
+      setChecking(false);
+      setError("You're signed in with an investor account. Enquiries are for room-seeker accounts only.");
       return;
     }
 
