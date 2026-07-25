@@ -74,7 +74,7 @@ export default function LandingPage() {
             </h2>
             <p className="mt-4 max-w-lg text-body">
               Demand data, registered supply, average room rates, and direct access to service
-              providers — added to your account for $29/month.
+              providers — free during early access.
             </p>
             <Button asChild size="lg" className="mt-8">
               <Link href="/investors">Become an Investor</Link>

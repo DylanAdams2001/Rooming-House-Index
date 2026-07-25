@@ -21,9 +21,10 @@ export function buildOnboardingUrl(step: string | null | undefined, redirectTo: 
   return `${path}?redirectTo=${encodeURIComponent(redirectTo)}`;
 }
 
-// Every account lands in /account (messages, application, settings, and the investor
-// upsell) — there's no role branching here anymore. /dashboard is a separate add-on,
-// gated on investor_access rather than which account someone signed up as.
-export function defaultDestination(): string {
-  return "/account";
+// Investors land in /dashboard, everyone else in /account — deliberately kept as
+// separate experiences (different nav, different content) even though it's one
+// login. Keyed on investor_access, the same flag middleware uses to gate /dashboard,
+// so this always agrees with what a user is actually allowed to see.
+export function defaultDestination(investorAccess?: string | null): string {
+  return investorAccess === "active" ? "/dashboard" : "/account";
 }

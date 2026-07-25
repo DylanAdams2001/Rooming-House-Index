@@ -36,10 +36,6 @@ export default function UpgradePage() {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // No real billing wired up yet — this flips the entitlement directly so the
-  // access-control system (middleware, /dashboard gating) can be built and tested
-  // now. Swap this handler for a real Stripe Checkout session later without
-  // touching anything downstream of investor_access.
   async function handleUpgrade() {
     setLoading(true);
     const {
@@ -79,10 +75,7 @@ export default function UpgradePage() {
 
       <Card className="mt-8">
         <CardContent className="p-6">
-          <div className="flex items-baseline gap-1">
-            <span className="font-display text-4xl text-ink">$29</span>
-            <span className="text-body">/month</span>
-          </div>
+          <p className="font-display text-xl text-ink">Free during early access</p>
           <ul className="mt-6 space-y-3">
             {BENEFITS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-start gap-3 text-sm text-body">
@@ -92,11 +85,8 @@ export default function UpgradePage() {
             ))}
           </ul>
           <Button className="mt-8 w-full" size="lg" onClick={handleUpgrade} disabled={!loaded || loading}>
-            {loading ? "Please wait…" : "Unlock investor access"}
+            {loading ? "Please wait…" : "Get investor access"}
           </Button>
-          <p className="mt-3 text-center text-xs text-muted">
-            No payment provider connected yet — this activates access directly.
-          </p>
         </CardContent>
       </Card>
     </div>

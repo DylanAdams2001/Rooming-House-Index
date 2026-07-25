@@ -20,11 +20,11 @@ export async function GET(request: Request) {
     if (data.user) {
       const { data: profile } = await supabase
         .from("users")
-        .select("onboarding_step")
+        .select("onboarding_step, investor_access")
         .eq("id", data.user.id)
         .maybeSingle();
 
-      const destination = explicitDestination ?? defaultDestination();
+      const destination = explicitDestination ?? defaultDestination(profile?.investor_access);
       const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
       return NextResponse.redirect(`${origin}${onboardingUrl ?? destination}`);
     }

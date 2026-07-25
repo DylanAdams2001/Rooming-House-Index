@@ -40,7 +40,7 @@ function PhotoForm() {
   async function advance() {
     if (!userId) return;
     await supabase.from("users").update({ onboarding_step: "complete" }).eq("id", userId);
-    router.push(explicitRedirectTo ?? defaultDestination());
+    router.push(explicitRedirectTo ?? defaultDestination(isInvestor ? "active" : "none"));
     router.refresh();
   }
 

@@ -35,7 +35,13 @@ function IntentForm() {
     const nextStep = intent === "investor" ? "investor_details" : "photo";
     await supabase
       .from("users")
-      .update({ signup_intent: intent, onboarding_step: nextStep })
+      .update({
+        signup_intent: intent,
+        onboarding_step: nextStep,
+        // No paywall for now — choosing "investor" here unlocks the dashboard
+        // immediately, same as everyone else's account otherwise works.
+        ...(intent === "investor" ? { investor_access: "active" } : {}),
+      })
       .eq("id", userId);
 
     const nextPath = intent === "investor" ? "/onboarding/investor-details" : "/onboarding/photo";

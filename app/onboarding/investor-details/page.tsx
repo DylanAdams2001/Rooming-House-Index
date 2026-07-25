@@ -5,24 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { StepHeader } from "@/components/onboarding/step-header";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-
-const INCOME_RANGES = [
-  "Under $500/wk",
-  "$500-1,000/wk",
-  "$1,000-1,500/wk",
-  "$1,500-2,000/wk",
-  "$2,000+/wk",
-  "Not sure / prefer not to say",
-];
 
 function InvestorDetailsForm() {
   const router = useRouter();
@@ -33,7 +18,7 @@ function InvestorDetailsForm() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [hasRoomingHouse, setHasRoomingHouse] = useState<boolean | null>(null);
-  const [income, setIncome] = useState("");
+  const [avgRoomPrice, setAvgRoomPrice] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,32 +33,30 @@ function InvestorDetailsForm() {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function advance() {
-    if (!userId) return;
-    await supabase.from("users").update({ onboarding_step: "photo" }).eq("id", userId);
-    router.push(`/onboarding/photo?redirectTo=${encodeURIComponent(redirectTo)}`);
-  }
+  const canContinue =
+    hasRoomingHouse === false || (hasRoomingHouse === true && avgRoomPrice.trim().length > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!userId) return;
+    if (!userId || !canContinue) return;
     setSaving(true);
     setError(null);
 
     const { error: upsertError } = await supabase.from("investor_profiles").upsert({
       user_id: userId,
       has_rooming_house: hasRoomingHouse,
-      current_property_income: hasRoomingHouse ? income || null : null,
+      average_room_price: hasRoomingHouse ? avgRoomPrice.trim() : null,
     });
 
-    setSaving(false);
-
     if (upsertError) {
+      setSaving(false);
       setError("Couldn't save — this needs a live Supabase project connected.");
       return;
     }
 
-    await advance();
+    await supabase.from("users").update({ onboarding_step: "photo" }).eq("id", userId);
+    setSaving(false);
+    router.push(`/onboarding/photo?redirectTo=${encodeURIComponent(redirectTo)}`);
   }
 
   return (
@@ -105,7 +88,7 @@ function InvestorDetailsForm() {
               type="button"
               onClick={() => {
                 setHasRoomingHouse(false);
-                setIncome("");
+                setAvgRoomPrice("");
               }}
               className={cn(
                 "rounded-btn border border-line px-4 py-3 text-sm transition-colors",
@@ -121,38 +104,22 @@ function InvestorDetailsForm() {
 
         {hasRoomingHouse && (
           <div className="space-y-2">
-            <Label>What income are you currently making from that property?</Label>
-            <Select value={income} onValueChange={setIncome}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a range…" />
-              </SelectTrigger>
-              <SelectContent>
-                {INCOME_RANGES.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="avgRoomPrice">What is the average room price for your property?</Label>
+            <Input
+              id="avgRoomPrice"
+              required
+              value={avgRoomPrice}
+              onChange={(e) => setAvgRoomPrice(e.target.value)}
+              placeholder="e.g. $350/week"
+            />
           </div>
         )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="flex flex-col gap-3">
-          <Button type="submit" className="w-full" disabled={!loaded || saving || hasRoomingHouse === null}>
-            {saving ? "Saving…" : "Continue"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={advance}
-            disabled={!loaded || saving}
-          >
-            Skip for now
-          </Button>
-        </div>
+        <Button type="submit" className="w-full" disabled={!loaded || saving || !canContinue}>
+          {saving ? "Saving…" : "Continue"}
+        </Button>
       </form>
     </>
   );

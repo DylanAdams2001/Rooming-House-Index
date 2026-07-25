@@ -46,12 +46,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // One login for the whole site. /account is every account's home (messages,
-  // application, settings, and the investor upsell). /dashboard is the investor add-on —
-  // gated on investor_access='active', or role in ('provider','admin') who need it for
-  // their own listing/compliance work. Anyone else hitting /dashboard gets sent to the
-  // upsell instead of a hard block, since unlocking it is one click away.
-  if (user && isDashboardRoute) {
+  // One login, but deliberately two separate experiences. /account is the room-seeker
+  // side (messages, saved listings, enquiries, settings). /dashboard is the investor
+  // side (suburb/market data, provider marketplace) — gated on investor_access='active',
+  // or role in ('provider','admin') who need it for their own listing/compliance work.
+  // Enforced both directions: an investor never sees the tenant nav, and vice versa.
+  if (user && (isDashboardRoute || isAccountRoute)) {
     const { data: profile } = await supabase
       .from("users")
       .select("role, investor_access")
@@ -63,9 +63,15 @@ export async function updateSession(request: NextRequest) {
       profile?.role === "provider" ||
       profile?.role === "admin";
 
-    if (!hasDashboardAccess) {
+    if (isDashboardRoute && !hasDashboardAccess) {
       const url = request.nextUrl.clone();
       url.pathname = "/account/upgrade";
+      return NextResponse.redirect(url);
+    }
+
+    if (isAccountRoute && profile?.investor_access === "active") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
   }

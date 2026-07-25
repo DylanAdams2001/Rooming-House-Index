@@ -83,7 +83,7 @@ export default async function AccountHomePage() {
               <div className="font-display text-2xl text-ink">Active</div>
             ) : (
               <Button asChild size="sm" className="w-full">
-                <Link href="/account/upgrade">Unlock — $29/mo</Link>
+                <Link href="/account/upgrade">Get investor access</Link>
               </Button>
             )}
           </CardContent>

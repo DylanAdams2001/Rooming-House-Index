@@ -63,13 +63,14 @@ create trigger on_auth_user_created
 -- ─────────────────────────────────────────────────────────────
 -- investor_profiles
 -- Lead-quality data collected during onboarding when signup_intent='investor' —
--- do they already run a rooming house, and what income does it generate. One row
--- per account, filled in once at signup for now (no dedicated edit page yet).
+-- do they already run a rooming house, and its average room price. Required
+-- (free text, not a bucketed range) when has_rooming_house is true — no skipping
+-- this step. One row per account, filled in once at signup for now.
 -- ─────────────────────────────────────────────────────────────
 create table if not exists public.investor_profiles (
   user_id uuid primary key references public.users (id) on delete cascade,
   has_rooming_house boolean,
-  current_property_income text,
+  average_room_price text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

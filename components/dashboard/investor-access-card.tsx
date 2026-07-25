@@ -39,8 +39,8 @@ export function InvestorAccessCard() {
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-body">Plan</p>
-            <p className="font-display text-lg text-ink">$29/month — Active</p>
+            <p className="text-sm text-body">Status</p>
+            <p className="font-display text-lg text-ink">Active — free during early access</p>
           </div>
         </div>
         <p className="text-sm text-muted">
@@ -53,7 +53,7 @@ export function InvestorAccessCard() {
           disabled={!loaded || cancelling}
           className="text-red-600 hover:bg-red-50"
         >
-          {cancelling ? "Cancelling…" : "Cancel investor access"}
+          {cancelling ? "Removing…" : "Remove investor access"}
         </Button>
       </CardContent>
     </Card>

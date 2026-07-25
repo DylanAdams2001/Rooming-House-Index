@@ -6,13 +6,27 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
 import { createClient } from "@/lib/supabase/client";
-import { Bookmark, FileText, LogOut, MessageCircle, User } from "lucide-react";
+import {
+  Bookmark,
+  FileText,
+  LogOut,
+  MessageCircle,
+  User,
+  Wrench,
+} from "lucide-react";
 
-const MENU_ITEMS = [
+const TENANT_MENU_ITEMS = [
   { href: "/account/messages", label: "Messages", icon: MessageCircle },
   { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
   { href: "/account/enquiries", label: "Enquiries", icon: FileText },
   { href: "/account/settings", label: "Profile", icon: User },
+];
+
+const INVESTOR_MENU_ITEMS = [
+  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
+  { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
+  { href: "/dashboard/services", label: "Services", icon: Wrench },
+  { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
 
 export function HeaderAuthButton() {
@@ -23,6 +37,7 @@ export function HeaderAuthButton() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [isInvestor, setIsInvestor] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,11 +47,12 @@ export function HeaderAuthButton() {
       setEmail(user.email ?? null);
       const { data: profile } = await supabase
         .from("users")
-        .select("avatar_url, full_name")
+        .select("avatar_url, full_name, investor_access")
         .eq("id", user.id)
         .maybeSingle();
       setAvatarUrl(profile?.avatar_url ?? null);
       setFullName(profile?.full_name ?? null);
+      setIsInvestor(profile?.investor_access === "active");
     }
 
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -59,6 +75,7 @@ export function HeaderAuthButton() {
         setAvatarUrl(null);
         setFullName(null);
         setEmail(null);
+        setIsInvestor(false);
       }
       setLoaded(true);
     });
@@ -96,6 +113,8 @@ export function HeaderAuthButton() {
     );
   }
 
+  const menuItems = isInvestor ? INVESTOR_MENU_ITEMS : TENANT_MENU_ITEMS;
+
   return (
     <div className="relative" ref={containerRef}>
       <button
@@ -115,7 +134,16 @@ export function HeaderAuthButton() {
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-card border border-line bg-white py-2 shadow-lg">
-          {MENU_ITEMS.map(({ href, label, icon: Icon }) => (
+          {isInvestor && (
+            <Link
+              href="/dashboard"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted"
+            >
+              Investor Dashboard
+            </Link>
+          )}
+          {menuItems.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}

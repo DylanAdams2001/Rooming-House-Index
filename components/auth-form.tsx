@@ -37,7 +37,8 @@ export function AuthForm({
 
   // Send the user to wherever they actually need to go next: resume onboarding if
   // it isn't finished yet, otherwise their real destination — an explicit one (e.g.
-  // back to a listing) if we have it, else /account (the one home every account has).
+  // back to a listing) if we have it, else the right home for this account —
+  // /dashboard for investors, /account for everyone else, kept deliberately separate.
   async function routeAfterAuth(userId: string) {
     if (onAuthenticated) {
       onAuthenticated(userId);
@@ -46,11 +47,11 @@ export function AuthForm({
 
     const { data: profile } = await supabase
       .from("users")
-      .select("onboarding_step")
+      .select("onboarding_step, investor_access")
       .eq("id", userId)
       .maybeSingle();
 
-    const destination = explicitDestination ?? defaultDestination();
+    const destination = explicitDestination ?? defaultDestination(profile?.investor_access);
     const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
     router.push(onboardingUrl ?? destination);
     router.refresh();

@@ -62,7 +62,7 @@ export default function InvestorsPage() {
               Suburb-level data on demand, registered supply, and rental rates across Victoria —
               plus a direct line to the service providers you need to run a compliant property.
             </p>
-            <InvestorCtaButton className="mt-10">Become an Investor — $29/mo</InvestorCtaButton>
+            <InvestorCtaButton className="mt-10">Become an Investor — Free</InvestorCtaButton>
           </div>
         </section>
 
@@ -93,13 +93,10 @@ export default function InvestorsPage() {
 
         <section className="border-t border-line bg-linen">
           <div className="container-page flex flex-col items-center py-20 text-center">
-            <h2 className="font-display text-3xl text-ink md:text-4xl">Simple, transparent pricing</h2>
+            <h2 className="font-display text-3xl text-ink md:text-4xl">Free during early access</h2>
             <Card className="mt-8 w-full max-w-sm text-left">
               <CardContent className="p-6">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-4xl text-ink">$29</span>
-                  <span className="text-body">/month</span>
-                </div>
+                <p className="font-display text-2xl text-ink">$0</p>
                 <ul className="mt-6 space-y-3">
                   {[
                     "Suburb demand & supply data",
@@ -114,7 +111,6 @@ export default function InvestorsPage() {
                   ))}
                 </ul>
                 <InvestorCtaButton className="mt-8 w-full">Become an Investor</InvestorCtaButton>
-                <p className="mt-3 text-center text-xs text-muted">Cancel anytime from your account.</p>
               </CardContent>
             </Card>
           </div>
