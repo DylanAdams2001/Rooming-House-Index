@@ -12,16 +12,18 @@ export function SiteHeader() {
           <Link href="/listings" className="hover:text-ink">
             Browse Rooms
           </Link>
-          <a href="#investors" className="hover:text-ink">
-            For Investors
-          </a>
           <Link href="/login" className="hover:text-ink">
             Log in
           </Link>
         </nav>
-        <Button asChild size="sm">
-          <Link href="/listings">Browse Rooms</Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+            <Link href="/investors">Become an Investor</Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/listings">Browse Rooms</Link>
+          </Button>
+        </div>
       </div>
     </header>
   );
