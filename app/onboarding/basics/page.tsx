@@ -68,7 +68,7 @@ function BasicsForm() {
     <>
       <StepHeader
         step={1}
-        totalSteps={3}
+        totalSteps={2}
         title="Tell us about you"
         subtitle="Basic details for your profile."
       />

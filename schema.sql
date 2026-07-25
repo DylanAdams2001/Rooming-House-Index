@@ -12,11 +12,12 @@ create table if not exists public.users (
   full_name text,
   phone text,
   avatar_url text,
-  -- Tracks progress through the post-signup onboarding wizard (basics -> photo ->
-  -- rental application questions). Every account goes through the same flow — lets
-  -- the UI resume/skip correctly rather than re-showing steps someone already finished.
+  -- Tracks progress through the post-signup onboarding wizard (basics -> photo).
+  -- Deliberately just the essentials — both investors and room-seekers sign up here,
+  -- so the rental application (tenant_profiles, filled in from /account/application)
+  -- is never a signup requirement, only ever something a room-seeker fills in later.
   onboarding_step text not null default 'basics'
-    check (onboarding_step in ('basics', 'photo', 'tenant_details', 'complete')),
+    check (onboarding_step in ('basics', 'photo', 'complete')),
   -- 'member': the one account type everyone signs up as — browses/enquires on room listings,
   --           and can optionally unlock investor dashboard access (see investor_access below).
   -- 'provider': runs one or more service_providers listings (insurance, legal, etc.) and chats with members.
@@ -209,7 +210,8 @@ create policy "Admins can view every conversation"
 -- ─────────────────────────────────────────────────────────────
 -- tenant_profiles
 -- The "easy application" data a landlord actually wants to see before approving an
--- enquiry — filled in during onboarding by every member, one row per account.
+-- enquiry — filled in from /account/application whenever someone actually wants to
+-- apply for a room, not a signup requirement. One row per account.
 -- Placed after conversations/service_providers since its RLS policies reference both.
 -- ─────────────────────────────────────────────────────────────
 create table if not exists public.tenant_profiles (

@@ -35,15 +35,10 @@ function PhotoForm() {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function nextStepPath() {
-    const redirectTo = explicitRedirectTo ?? defaultDestination();
-    return `/onboarding/tenant-details?redirectTo=${encodeURIComponent(redirectTo)}`;
-  }
-
   async function advance() {
     if (!userId) return;
-    await supabase.from("users").update({ onboarding_step: "tenant_details" }).eq("id", userId);
-    router.push(nextStepPath());
+    await supabase.from("users").update({ onboarding_step: "complete" }).eq("id", userId);
+    router.push(explicitRedirectTo ?? defaultDestination());
     router.refresh();
   }
 
@@ -86,7 +81,7 @@ function PhotoForm() {
     <>
       <StepHeader
         step={2}
-        totalSteps={3}
+        totalSteps={2}
         title="Add a profile photo"
         subtitle="Helps landlords and providers recognise who they're talking to."
       />

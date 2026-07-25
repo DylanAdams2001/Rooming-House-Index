@@ -1,9 +1,8 @@
-export type OnboardingStep = "basics" | "photo" | "tenant_details" | "complete";
+export type OnboardingStep = "basics" | "photo" | "complete";
 
 const STEP_PATH: Record<Exclude<OnboardingStep, "complete">, string> = {
   basics: "/onboarding/basics",
   photo: "/onboarding/photo",
-  tenant_details: "/onboarding/tenant-details",
 };
 
 // Where to send a user based on how far they've gotten through onboarding.
