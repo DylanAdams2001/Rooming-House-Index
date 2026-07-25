@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { AuthModal } from "@/components/auth-modal";
 import { createClient } from "@/lib/supabase/client";
 
 function suggestedMessage(listingTitle: string, inspectionTime?: string) {
@@ -22,14 +22,41 @@ export function EnquireButton({
   listingTitle: string;
   inspectionTime?: string;
 }) {
-  const router = useRouter();
   const supabase = createClient();
   const [checking, setChecking] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [composing, setComposing] = useState(false);
   const [message, setMessage] = useState(() => suggestedMessage(listingTitle, inspectionTime));
   const [sending, setSending] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Shared by "already logged in" and "just authenticated via the modal" — a landlord
+  // needs the application details before an enquiry means anything, so first-time
+  // enquirers get sent to fill it in, then come straight back here.
+  async function continueAfterAuth(userId: string) {
+    const { data: tenantProfile } = await supabase
+      .from("tenant_profiles")
+      .select("user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!tenantProfile) {
+      const params = new URLSearchParams({
+        redirectTo: `/listings/${listingId}`,
+        listingTitle,
+      });
+      // A hard navigation here, not router.push: this fires from deep inside the auth
+      // modal's callback chain, right after the modal itself unmounts in the same tick —
+      // that combination reliably swallows a client-side App Router transition (RSC
+      // fetch succeeds, URL never updates). A full navigation sidesteps it entirely.
+      window.location.href = `/account/application?${params.toString()}`;
+      return;
+    }
+
+    setChecking(false);
+    setComposing(true);
+  }
 
   async function handleEnquireClick() {
     setChecking(true);
@@ -40,33 +67,16 @@ export function EnquireButton({
     } = await supabase.auth.getUser();
 
     // Every account (member/provider/admin) can enquire — there's one login for the
-    // whole site now, investor access is just an optional add-on. Only a guest with
-    // no session at all gets sent to sign up first.
+    // whole site now, investor access is just an optional add-on. A guest with no
+    // session gets a sign-in modal right here instead of losing this listing to a
+    // full page redirect.
     if (!user) {
-      const redirectTo = `/listings/${listingId}`;
-      router.push(`/signup?redirectTo=${encodeURIComponent(redirectTo)}`);
+      setChecking(false);
+      setShowAuthModal(true);
       return;
     }
 
-    // A landlord needs the application details before an enquiry means anything —
-    // first-time enquirers get sent to fill it in, then come straight back here.
-    const { data: tenantProfile } = await supabase
-      .from("tenant_profiles")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (!tenantProfile) {
-      const params = new URLSearchParams({
-        redirectTo: `/listings/${listingId}`,
-        listingTitle,
-      });
-      router.push(`/account/enquiries?${params.toString()}`);
-      return;
-    }
-
-    setChecking(false);
-    setComposing(true);
+    await continueAfterAuth(user.id);
   }
 
   async function handleSend() {
@@ -135,6 +145,17 @@ export function EnquireButton({
         {checking ? "Please wait…" : "Enquire"}
       </Button>
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
+
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => setShowAuthModal(false)}
+          onAuthenticated={(userId) => {
+            setShowAuthModal(false);
+            setChecking(true);
+            continueAfterAuth(userId);
+          }}
+        />
+      )}
     </div>
   );
 }

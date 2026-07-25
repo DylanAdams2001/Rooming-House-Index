@@ -12,9 +12,18 @@ import { Label } from "@/components/ui/label";
 export function AuthForm({
   mode,
   redirectTo,
+  onAuthenticated,
+  onSwitchMode,
 }: {
   mode: "login" | "signup";
   redirectTo?: string;
+  // When provided (e.g. embedded in AuthModal), skip the normal page-navigation
+  // behavior entirely and just hand back the authenticated user id — the caller
+  // decides what happens next without losing whatever page they were already on.
+  onAuthenticated?: (userId: string) => void;
+  // When provided, the "log in instead / sign up instead" link toggles in place
+  // (e.g. inside a modal) rather than navigating to /login or /signup.
+  onSwitchMode?: () => void;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -30,6 +39,11 @@ export function AuthForm({
   // it isn't finished yet, otherwise their real destination — an explicit one (e.g.
   // back to a listing) if we have it, else /account (the one home every account has).
   async function routeAfterAuth(userId: string) {
+    if (onAuthenticated) {
+      onAuthenticated(userId);
+      return;
+    }
+
     const { data: profile } = await supabase
       .from("users")
       .select("onboarding_step")
@@ -140,16 +154,36 @@ export function AuthForm({
         {mode === "login" ? (
           <>
             Don&apos;t have an account?{" "}
-            <Link href={signupHref} className="text-ink underline underline-offset-4">
-              Sign up
-            </Link>
+            {onSwitchMode ? (
+              <button
+                type="button"
+                onClick={onSwitchMode}
+                className="text-ink underline underline-offset-4"
+              >
+                Sign up
+              </button>
+            ) : (
+              <Link href={signupHref} className="text-ink underline underline-offset-4">
+                Sign up
+              </Link>
+            )}
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href={loginHref} className="text-ink underline underline-offset-4">
-              Log in
-            </Link>
+            {onSwitchMode ? (
+              <button
+                type="button"
+                onClick={onSwitchMode}
+                className="text-ink underline underline-offset-4"
+              >
+                Log in
+              </button>
+            ) : (
+              <Link href={loginHref} className="text-ink underline underline-offset-4">
+                Log in
+              </Link>
+            )}
           </>
         )}
       </p>

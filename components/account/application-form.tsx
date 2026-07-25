@@ -35,6 +35,7 @@ export function ApplicationForm({ onSaved }: { onSaved?: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [hasExisting, setHasExisting] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -45,6 +46,7 @@ export function ApplicationForm({ onSaved }: { onSaved?: () => void }) {
         .eq("user_id", user.id)
         .maybeSingle();
       if (data) {
+        setHasExisting(true);
         setEmploymentStatus(data.employment_status ?? "");
         setOccupation(data.occupation ?? "");
         setIncomeRange(data.weekly_income_range ?? "");
@@ -98,6 +100,7 @@ export function ApplicationForm({ onSaved }: { onSaved?: () => void }) {
     }
 
     setSaved(true);
+    setHasExisting(true);
     onSaved?.();
   }
 
@@ -216,7 +219,7 @@ export function ApplicationForm({ onSaved }: { onSaved?: () => void }) {
       {saved && <p className="text-sm text-body">Saved.</p>}
 
       <Button type="submit" className="w-full" disabled={saving}>
-        {saving ? "Saving…" : "Save application"}
+        {saving ? "Saving…" : hasExisting ? "Update application" : "Save application"}
       </Button>
     </form>
   );
