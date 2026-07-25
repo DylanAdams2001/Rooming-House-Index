@@ -18,10 +18,22 @@ export type Suburb = {
   state: string;
   council: string;
   demandLevel: DemandLevel;
+  demandVerified?: boolean; // true only when demandLevel is backed by real rentersInterested-style data
   avgRoomRate: number; // per week, AUD
   avgRoomRateVerified?: boolean; // true only when a real figure has been supplied (not estimated)
   avgRoomRateDisplay?: string; // overrides the $X/wk label, e.g. "$330-350/wk" for a real range
   numRoomingHouses: number;
+  // Real rental-market data for 1-bed units, manually sourced from realestate.com.au suburb
+  // profile pages (not automated — see robots.txt discussion; a human reads the page and
+  // reports the numbers). Optional: only set for suburbs someone has actually looked up.
+  rentalInsights?: {
+    priceGrowthYoY: string; // e.g. "+1.4%"
+    unitsAvailableLastMonth: number;
+    unitsLeasedPast12Months: number;
+    medianDaysOnMarket: number;
+    rentersInterested: number;
+    sourceUrl: string;
+  };
   lat: number;
   lng: number;
   commentary: string;
@@ -208,15 +220,25 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3030",
     state: "VIC",
     council: "Wyndham City Council",
-    demandLevel: "Low",
+    demandLevel: "High",
+    demandVerified: true,
     avgRoomRate: 340,
     avgRoomRateVerified: true,
     avgRoomRateDisplay: "$330-350/wk",
     numRoomingHouses: 32,
     lat: -37.9004,
     lng: 144.662,
+    rentalInsights: {
+      priceGrowthYoY: "+1.4%",
+      unitsAvailableLastMonth: 1,
+      unitsLeasedPast12Months: 15,
+      medianDaysOnMarket: 23,
+      rentersInterested: 235,
+      sourceUrl:
+        "https://www.realestate.com.au/vic/werribee-3030/?sourcePage=rea:rent:srp&sourceElement=suburb-profile&channel=rent",
+    },
     commentary:
-      "Werribee's rapid population growth is skewed toward family housing rather than shared rooming accommodation, keeping rooming house demand comparatively low despite the area's overall growth.",
+      "Werribee shows genuinely strong rental demand for 1-bed units — 235 renters interested against just 1 unit available in the past month, with a median of only 23 days on market. That demand pressure is a strong argument for shared/rooming accommodation in the area, even though the suburb's growth has historically skewed toward family housing.",
     rentalTrend: rentalTrend(325),
     supplyGrowth: supplyGrowth(9),
   },

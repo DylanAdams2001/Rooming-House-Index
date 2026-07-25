@@ -49,9 +49,57 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
         <StatTile label="Rooming houses" value={String(suburb.numRoomingHouses)} />
         <StatTile
           label="Demand level"
-          value={<DemandBadge level={suburb.demandLevel} />}
+          value={
+            <div className="flex items-center gap-2">
+              <DemandBadge level={suburb.demandLevel} />
+              {!suburb.demandVerified && (
+                <span className="font-sans text-xs font-normal text-muted">est.</span>
+              )}
+            </div>
+          }
         />
       </div>
+
+      {suburb.rentalInsights && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Rental Market Insights — 1 Bed Units</CardTitle>
+            <p className="text-sm text-muted">
+              Real figures from{" "}
+              <a
+                href={suburb.rentalInsights.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4 hover:text-ink"
+              >
+                realestate.com.au
+              </a>
+              , manually looked up.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+              <InsightTile label="Price growth" value={suburb.rentalInsights.priceGrowthYoY} />
+              <InsightTile
+                label="Available (30d)"
+                value={String(suburb.rentalInsights.unitsAvailableLastMonth)}
+              />
+              <InsightTile
+                label="Leased (12mo)"
+                value={String(suburb.rentalInsights.unitsLeasedPast12Months)}
+              />
+              <InsightTile
+                label="Median days on market"
+                value={String(suburb.rentalInsights.medianDaysOnMarket)}
+              />
+              <InsightTile
+                label="Renters interested"
+                value={String(suburb.rentalInsights.rentersInterested)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
@@ -81,6 +129,15 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
           <p className="text-body">{suburb.commentary}</p>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function InsightTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-1 font-display text-xl text-ink">{value}</p>
     </div>
   );
 }
