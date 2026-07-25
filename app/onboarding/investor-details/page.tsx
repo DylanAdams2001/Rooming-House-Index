@@ -31,6 +31,7 @@ function InvestorDetailsForm() {
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [hasRoomingHouse, setHasRoomingHouse] = useState<boolean | null>(null);
   const [income, setIncome] = useState("");
   const [saving, setSaving] = useState(false);
@@ -43,6 +44,7 @@ function InvestorDetailsForm() {
         return;
       }
       setUserId(user.id);
+      setLoaded(true);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -138,10 +140,16 @@ function InvestorDetailsForm() {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex flex-col gap-3">
-          <Button type="submit" className="w-full" disabled={saving || hasRoomingHouse === null}>
+          <Button type="submit" className="w-full" disabled={!loaded || saving || hasRoomingHouse === null}>
             {saving ? "Saving…" : "Continue"}
           </Button>
-          <Button type="button" variant="outline" className="w-full" onClick={advance} disabled={saving}>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={advance}
+            disabled={!loaded || saving}
+          >
             Skip for now
           </Button>
         </div>

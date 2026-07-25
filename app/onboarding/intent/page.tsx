@@ -14,6 +14,7 @@ function IntentForm() {
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [submitting, setSubmitting] = useState<"tenant" | "investor" | null>(null);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ function IntentForm() {
         return;
       }
       setUserId(user.id);
+      setLoaded(true);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -53,7 +55,7 @@ function IntentForm() {
         <button
           type="button"
           onClick={() => choose("tenant")}
-          disabled={!!submitting}
+          disabled={!loaded || !!submitting}
           className={cn(
             "flex items-center gap-4 rounded-card border border-line p-5 text-left transition-colors hover:border-ink hover:bg-linen",
             submitting === "tenant" && "opacity-60"
@@ -71,7 +73,7 @@ function IntentForm() {
         <button
           type="button"
           onClick={() => choose("investor")}
-          disabled={!!submitting}
+          disabled={!loaded || !!submitting}
           className={cn(
             "flex items-center gap-4 rounded-card border border-line p-5 text-left transition-colors hover:border-ink hover:bg-linen",
             submitting === "investor" && "opacity-60"
