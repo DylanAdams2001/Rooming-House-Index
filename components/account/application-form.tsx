@@ -16,7 +16,7 @@ import {
 const EMPLOYMENT_OPTIONS = ["Full-time", "Part-time", "Casual", "Student", "Self-employed", "Other"];
 const INCOME_RANGES = ["Under $800/wk", "$800-1000/wk", "$1000-1200/wk", "$1200-1500/wk", "$1500+/wk"];
 
-export function ApplicationForm() {
+export function ApplicationForm({ onSaved }: { onSaved?: () => void }) {
   const supabase = createClient();
 
   const [loaded, setLoaded] = useState(false);
@@ -98,6 +98,7 @@ export function ApplicationForm() {
     }
 
     setSaved(true);
+    onSaved?.();
   }
 
   if (!loaded) {

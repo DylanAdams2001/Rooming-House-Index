@@ -430,7 +430,8 @@ alter publication supabase_realtime add table public.listing_messages;
 create or replace function public.enquire_on_listing(
   p_listing_id text,
   p_listing_title text,
-  p_inspection_time text default null
+  p_inspection_time text default null,
+  p_message text default null
 )
 returns uuid
 language plpgsql
@@ -449,6 +450,15 @@ begin
     values (p_listing_id, auth.uid())
     returning id into v_conversation_id;
     v_is_new := true;
+  end if;
+
+  -- The tenant's own message (what they actually typed) comes first, like sending a
+  -- Marketplace enquiry — the property team's confirmation is an auto-reply after it,
+  -- not the opening message. Only sent on a brand-new conversation; re-enquiring on an
+  -- already-open thread just adds the tenant's message without another auto-reply.
+  if p_message is not null and length(trim(p_message)) > 0 then
+    insert into public.listing_messages (conversation_id, sender_id, is_manager, body)
+    values (v_conversation_id, auth.uid(), false, trim(p_message));
   end if;
 
   if v_is_new then
@@ -472,7 +482,7 @@ begin
 end;
 $$;
 
-grant execute on function public.enquire_on_listing(text, text, text) to authenticated;
+grant execute on function public.enquire_on_listing(text, text, text, text) to authenticated;
 
 -- ─────────────────────────────────────────────────────────────
 -- Storage: profile-photos

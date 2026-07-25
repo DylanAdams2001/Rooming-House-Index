@@ -11,7 +11,7 @@ import { Bookmark, FileText, LogOut, MessageCircle, User } from "lucide-react";
 const MENU_ITEMS = [
   { href: "/account/messages", label: "Messages", icon: MessageCircle },
   { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
-  { href: "/account/application", label: "My Application", icon: FileText },
+  { href: "/account/enquiries", label: "Enquiries", icon: FileText },
   { href: "/account/settings", label: "Profile", icon: User },
 ];
 

@@ -25,6 +25,10 @@ export async function updateSession(request: NextRequest) {
           response.cookies.set({ name, value: "", ...options });
         },
       },
+      global: {
+        fetch: (url: RequestInfo | URL, options?: RequestInit) =>
+          fetch(url, { ...options, cache: "no-store" }),
+      },
     }
   );
 

@@ -4,7 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/supabase/client";
+
+function suggestedMessage(listingTitle: string, inspectionTime?: string) {
+  return inspectionTime
+    ? `Hi, I'm interested in the ${listingTitle}. Can confirm I'll be at the inspection: ${inspectionTime}.`
+    : `Hi, I'm interested in the ${listingTitle}. Is it still available?`;
+}
 
 export function EnquireButton({
   listingId,
@@ -17,12 +24,15 @@ export function EnquireButton({
 }) {
   const router = useRouter();
   const supabase = createClient();
-  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [composing, setComposing] = useState(false);
+  const [message, setMessage] = useState(() => suggestedMessage(listingTitle, inspectionTime));
+  const [sending, setSending] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleEnquire() {
-    setLoading(true);
+  async function handleEnquireClick() {
+    setChecking(true);
     setError(null);
 
     const {
@@ -38,15 +48,40 @@ export function EnquireButton({
       return;
     }
 
-    // Creates (or reuses) a real conversation with the property team, seeded with an
-    // opening message confirming the inspection time — not just a "message sent" toast.
+    // A landlord needs the application details before an enquiry means anything —
+    // first-time enquirers get sent to fill it in, then come straight back here.
+    const { data: tenantProfile } = await supabase
+      .from("tenant_profiles")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!tenantProfile) {
+      const params = new URLSearchParams({
+        redirectTo: `/listings/${listingId}`,
+        listingTitle,
+      });
+      router.push(`/account/enquiries?${params.toString()}`);
+      return;
+    }
+
+    setChecking(false);
+    setComposing(true);
+  }
+
+  async function handleSend() {
+    if (!message.trim()) return;
+    setSending(true);
+    setError(null);
+
     const { data, error: rpcError } = await supabase.rpc("enquire_on_listing", {
       p_listing_id: listingId,
       p_listing_title: listingTitle,
       p_inspection_time: inspectionTime ?? null,
+      p_message: message.trim(),
     });
 
-    setLoading(false);
+    setSending(false);
 
     if (rpcError) {
       setError("Couldn't send your enquiry — this needs a live Supabase project connected.");
@@ -67,10 +102,37 @@ export function EnquireButton({
     );
   }
 
+  if (composing) {
+    return (
+      <div className="space-y-2">
+        <Textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={4}
+          placeholder="Write a message to the property team…"
+        />
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="w-1/3"
+            onClick={() => setComposing(false)}
+            disabled={sending}
+          >
+            Cancel
+          </Button>
+          <Button className="flex-1" onClick={handleSend} disabled={sending || !message.trim()}>
+            {sending ? "Sending…" : "Send"}
+          </Button>
+        </div>
+        {error && <p className="text-center text-sm text-red-600">{error}</p>}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
-      <Button className="w-full" size="lg" onClick={handleEnquire} disabled={loading}>
-        {loading ? "Please wait…" : "Enquire"}
+      <Button className="w-full" size="lg" onClick={handleEnquireClick} disabled={checking}>
+        {checking ? "Please wait…" : "Enquire"}
       </Button>
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
     </div>

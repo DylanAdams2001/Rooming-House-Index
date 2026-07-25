@@ -27,6 +27,14 @@ export function createClient() {
           }
         },
       },
+      // Supabase's reads are plain GET requests, which Next.js's fetch Data Cache will
+      // otherwise cache indefinitely per URL+params — e.g. a page visited once with no
+      // conversations yet would keep serving that stale empty result forever. Every read
+      // here needs to reflect the current DB state, not a cached snapshot.
+      global: {
+        fetch: (url: RequestInfo | URL, options?: RequestInit) =>
+          fetch(url, { ...options, cache: "no-store" }),
+      },
     }
   );
 }

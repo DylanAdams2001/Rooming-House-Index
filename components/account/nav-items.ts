@@ -9,7 +9,7 @@ export type AccountNavItem = {
 export const accountNavItems: AccountNavItem[] = [
   { href: "/account/messages", label: "Messages", icon: MessageCircle },
   { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
-  { href: "/account/application", label: "My Application", icon: FileText },
+  { href: "/account/enquiries", label: "Enquiries", icon: FileText },
   { href: "/account/upgrade", label: "Investor Access", icon: TrendingUp },
   { href: "/account/settings", label: "Profile", icon: User },
 ];
