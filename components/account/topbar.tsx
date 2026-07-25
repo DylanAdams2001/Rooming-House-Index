@@ -1,12 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Avatar } from "@/components/avatar";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { AvatarMenu } from "@/components/avatar-menu";
+import { Bookmark, FileText, MessageCircle, User } from "lucide-react";
 import { AccountMobileNav } from "./mobile-nav";
+
+const MENU_ITEMS = [
+  { href: "/account/messages", label: "Messages", icon: MessageCircle },
+  { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
+  { href: "/account/enquiries", label: "Enquiries", icon: FileText },
+  { href: "/account/settings", label: "Profile", icon: User },
+];
 
 export function AccountTopbar({
   userId,
@@ -36,23 +41,13 @@ export function AccountTopbar({
           Rooming House Index
         </span>
       </div>
-      <div className="flex min-w-0 shrink-0 items-center gap-3 sm:gap-4">
-        <Link href="/account/settings" className="flex min-w-0 items-center gap-2">
-          <Avatar
-            seed={userId}
-            name={fullName ?? userEmail}
-            photoUrl={avatarUrl}
-            className="h-8 w-8 shrink-0 text-sm"
-          />
-          <span className="hidden max-w-[160px] truncate text-sm text-body sm:block md:max-w-none">
-            {userEmail}
-          </span>
-        </Link>
-        <Button variant="outline" size="sm" onClick={handleLogout}>
-          <LogOut className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Log out</span>
-        </Button>
-      </div>
+      <AvatarMenu
+        userId={userId}
+        name={fullName ?? userEmail}
+        avatarUrl={avatarUrl}
+        items={MENU_ITEMS}
+        onLogout={handleLogout}
+      />
     </header>
   );
 }
