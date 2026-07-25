@@ -21,7 +21,7 @@ export function ListingMap({
       <MapContainer
         center={[lat, lng]}
         zoom={15}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
         style={{ height: "320px", width: "100%" }}
       >
         <TileLayer

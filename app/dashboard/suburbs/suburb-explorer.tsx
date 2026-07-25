@@ -38,7 +38,7 @@ export function SuburbExplorer() {
   const [state, setState] = useState("VIC");
   const [demand, setDemand] = useState<DemandLevel | "All">("All");
   const [rateRange, setRateRange] = useState<[number, number]>([150, 450]);
-  const [view, setView] = useState<"grid" | "map">("grid");
+  const [view, setView] = useState<"grid" | "map">("map");
   const { isSaved, toggleSaved, loaded } = useSavedSuburbs();
 
   const results = useMemo(() => {

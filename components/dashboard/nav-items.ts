@@ -3,6 +3,7 @@ import {
   Bookmark,
   LineChart,
   List,
+  MapPin,
   MessageCircle,
   User,
   Wrench,
@@ -22,6 +23,7 @@ export const navItems: NavItem[] = [
   { href: "/dashboard/suburbs", label: "Suburb Explorer", icon: Compass },
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/market", label: "Market Overview", icon: LineChart },
+  { href: "/dashboard/land-finder", label: "Land Finder", icon: MapPin },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
   {
     href: "/dashboard/services",
