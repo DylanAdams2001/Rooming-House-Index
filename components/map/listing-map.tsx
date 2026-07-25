@@ -1,7 +1,7 @@
 "use client";
 
-import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { useEffect, useRef } from "react";
+import { loadGoogleMaps } from "@/lib/load-google-maps";
 
 export function ListingMap({
   lat,
@@ -16,29 +16,45 @@ export function ListingMap({
   suburbName: string;
   approximate: boolean;
 }) {
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadGoogleMaps()
+      .then(() => {
+        if (cancelled || !mapRef.current || !window.google) return;
+        const position = { lat, lng };
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: position,
+          zoom: approximate ? 14 : 17,
+          // Street View (the Pegman control) is only offered for a verified
+          // real address — dropping it onto an approximate suburb-level pin
+          // would show real imagery for the wrong house.
+          streetViewControl: !approximate,
+          mapTypeControl: false,
+          fullscreenControl: false,
+        });
+
+        new window.google.maps.Marker({
+          position,
+          map,
+          title,
+        });
+      })
+      .catch(() => {
+        // No key configured, or the script failed to load — the disclaimer
+        // below (when approximate) still renders either way.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lat, lng, approximate, title]);
+
   return (
     <div className="overflow-hidden rounded-card border border-line">
-      <MapContainer
-        center={[lat, lng]}
-        zoom={15}
-        scrollWheelZoom={true}
-        style={{ height: "320px", width: "100%" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
-        <CircleMarker
-          center={[lat, lng]}
-          radius={10}
-          pathOptions={{ color: "#ffffff", weight: 2, fillColor: "#1a1a1a", fillOpacity: 1 }}
-        >
-          <Popup minWidth={160}>
-            <p className="text-sm text-ink">{title}</p>
-            <p className="text-xs text-muted">{suburbName}</p>
-          </Popup>
-        </CircleMarker>
-      </MapContainer>
+      <div ref={mapRef} style={{ height: "320px", width: "100%" }} className="bg-offwhite" />
       {approximate && (
         <p className="border-t border-line bg-white px-4 py-2 text-xs text-muted">
           Approximate location — showing the {suburbName} area, not the exact address.
