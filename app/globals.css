@@ -53,4 +53,16 @@
   --gmpx-font-family: inherit;
   --gmpx-font-size-base: 0.875rem;
   width: 100%;
+  /* The widget doesn't draw its own border/box by default — match the other
+     Input fields in this form (h-11, border-line, square corners) explicitly. */
+  display: block;
+  height: 2.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+.rhi-address-autocomplete:focus-within {
+  outline: 1px solid #1a1a1a;
+  outline-offset: -1px;
 }
