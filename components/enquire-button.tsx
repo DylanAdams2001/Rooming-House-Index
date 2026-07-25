@@ -18,23 +18,12 @@ export function EnquireButton({ listingId }: { listingId: string }) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // The listings/tenant side is a separate platform from the investor dashboard —
-    // being logged in as an investor (or provider/admin) doesn't qualify someone to
-    // enquire here. Only an actual tenant session counts; everyone else, including
-    // any other logged-in account, is treated exactly like a guest.
-    let role: string | null = null;
-    if (user) {
-      const { data: profile } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
-      role = profile?.role ?? null;
-    }
-
-    if (!user || role !== "tenant") {
+    // Every account (member/provider/admin) can enquire — there's one login for the
+    // whole site now, investor access is just an optional add-on. Only a guest with
+    // no session at all gets sent to sign up first.
+    if (!user) {
       const redirectTo = `/listings/${listingId}`;
-      router.push(`/signup?redirectTo=${encodeURIComponent(redirectTo)}&role=tenant`);
+      router.push(`/signup?redirectTo=${encodeURIComponent(redirectTo)}`);
       return;
     }
 

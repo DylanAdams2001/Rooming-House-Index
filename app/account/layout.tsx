@@ -13,18 +13,14 @@ export default async function AccountLayout({ children }: { children: React.Reac
     redirect("/login");
   }
 
-  // This area is deliberately separate from /dashboard — a tenant looking for a room has
-  // no reason to see investor suburb/market data, and vice versa. Investors/providers/admins
-  // who land here (e.g. an old bookmark) get sent back to their actual area.
+  // /account is every account's home — messages, application, settings, and the
+  // investor upsell. /dashboard (suburb/market data) is a separate add-on layered
+  // on top of the same login, gated in middleware rather than by a different area here.
   const { data: profile } = await supabase
     .from("users")
-    .select("role, email")
+    .select("email")
     .eq("id", user.id)
     .maybeSingle();
-
-  if (profile && profile.role !== "tenant") {
-    redirect("/dashboard");
-  }
 
   return (
     <div className="flex min-h-screen bg-white">

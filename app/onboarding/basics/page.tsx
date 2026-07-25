@@ -11,12 +11,11 @@ import { Button } from "@/components/ui/button";
 function BasicsForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+  const redirectTo = searchParams.get("redirectTo") ?? "/account";
   const supabase = createClient();
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,12 +27,11 @@ function BasicsForm() {
       }
       const { data: profile } = await supabase
         .from("users")
-        .select("full_name, phone, role")
+        .select("full_name, phone")
         .eq("id", user.id)
         .maybeSingle();
       setFullName(profile?.full_name ?? "");
       setPhone(profile?.phone ?? "");
-      setRole(profile?.role ?? "investor");
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -66,13 +64,11 @@ function BasicsForm() {
     router.push(`/onboarding/photo?redirectTo=${encodeURIComponent(redirectTo)}`);
   }
 
-  const totalSteps = role === "tenant" ? 3 : 2;
-
   return (
     <>
       <StepHeader
         step={1}
-        totalSteps={totalSteps}
+        totalSteps={3}
         title="Tell us about you"
         subtitle="Basic details for your profile."
       />

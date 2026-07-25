@@ -9,21 +9,18 @@ export function SiteHeader() {
           Rooming House Index
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-body md:flex">
-          <a href="#features" className="hover:text-ink">
-            Platform
-          </a>
           <Link href="/listings" className="hover:text-ink">
-            Room Listings
+            Browse Rooms
           </Link>
-          <a href="#access" className="hover:text-ink">
-            Early Access
+          <a href="#investors" className="hover:text-ink">
+            For Investors
           </a>
           <Link href="/login" className="hover:text-ink">
             Log in
           </Link>
         </nav>
         <Button asChild size="sm">
-          <a href="#access">Request Early Access</a>
+          <Link href="/listings">Browse Rooms</Link>
         </Button>
       </div>
     </header>

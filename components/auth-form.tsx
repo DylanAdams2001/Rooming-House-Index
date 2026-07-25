@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { buildOnboardingUrl, defaultDestinationForRole } from "@/lib/onboarding";
+import { buildOnboardingUrl, defaultDestination } from "@/lib/onboarding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,11 +12,9 @@ import { Label } from "@/components/ui/label";
 export function AuthForm({
   mode,
   redirectTo,
-  role,
 }: {
   mode: "login" | "signup";
   redirectTo?: string;
-  role?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -30,16 +28,15 @@ export function AuthForm({
 
   // Send the user to wherever they actually need to go next: resume onboarding if
   // it isn't finished yet, otherwise their real destination — an explicit one (e.g.
-  // back to a listing) if we have it, else the right home for their role (tenants
-  // get /account, everyone else gets /dashboard — never a hardcoded guess).
+  // back to a listing) if we have it, else /account (the one home every account has).
   async function routeAfterAuth(userId: string) {
     const { data: profile } = await supabase
       .from("users")
-      .select("onboarding_step, role")
+      .select("onboarding_step")
       .eq("id", userId)
       .maybeSingle();
 
-    const destination = explicitDestination ?? defaultDestinationForRole(profile?.role);
+    const destination = explicitDestination ?? defaultDestination();
     const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
     router.push(onboardingUrl ?? destination);
     router.refresh();
@@ -50,9 +47,6 @@ export function AuthForm({
     const callbackUrl = new URL("/auth/callback", window.location.origin);
     if (explicitDestination) {
       callbackUrl.searchParams.set("redirectTo", explicitDestination);
-    }
-    if (mode === "signup" && role) {
-      callbackUrl.searchParams.set("role", role);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -69,11 +63,7 @@ export function AuthForm({
     setMessage(null);
 
     if (mode === "signup") {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { role: role ?? "investor" } },
-      });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
       } else if (data.session && data.user) {

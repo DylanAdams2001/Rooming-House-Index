@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Rooming House Index — Rooming House Intelligence",
+  title: "Rooming House Index — Find a Room",
   description:
-    "Suburb-level data on demand, vacancy, and rental rates for rooming house investors across Victoria.",
+    "Browse rooming house rooms across Victoria, or unlock suburb-level market data for investors on the same account.",
 };
 
 export default function RootLayout({

@@ -42,32 +42,26 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Tenants get their own area (/account) — no investor suburb/market data. Everyone
-  // else (investor/provider/admin) uses /dashboard. Enforced both directions here so
-  // an old bookmark or a typed URL can't cross into the wrong area.
-  //
-  // Deliberately NOT redirecting logged-in users away from /login or /signup: this app
-  // supports one browser holding separate investor and tenant accounts (they're treated
-  // as different platforms), so someone can be logged in as an investor and still need
-  // to reach /signup to create a tenant account (e.g. via Enquire on a listing), or vice
-  // versa. Auto-redirecting away from auth routes broke exactly that flow.
-  if (user && (isDashboardRoute || isAccountRoute)) {
+  // One login for the whole site. /account is every account's home (messages,
+  // application, settings, and the investor upsell). /dashboard is the investor add-on —
+  // gated on investor_access='active', or role in ('provider','admin') who need it for
+  // their own listing/compliance work. Anyone else hitting /dashboard gets sent to the
+  // upsell instead of a hard block, since unlocking it is one click away.
+  if (user && isDashboardRoute) {
     const { data: profile } = await supabase
       .from("users")
-      .select("role")
+      .select("role, investor_access")
       .eq("id", user.id)
       .maybeSingle();
-    const role = profile?.role ?? null;
 
-    if (isDashboardRoute && role === "tenant") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/account";
-      return NextResponse.redirect(url);
-    }
+    const hasDashboardAccess =
+      profile?.investor_access === "active" ||
+      profile?.role === "provider" ||
+      profile?.role === "admin";
 
-    if (isAccountRoute && role !== null && role !== "tenant") {
+    if (!hasDashboardAccess) {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.pathname = "/account/upgrade";
       return NextResponse.redirect(url);
     }
   }

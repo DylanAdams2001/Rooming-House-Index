@@ -13,16 +13,19 @@ create table if not exists public.users (
   phone text,
   avatar_url text,
   -- Tracks progress through the post-signup onboarding wizard (basics -> photo ->
-  -- tenant application questions for role='tenant'). Lets the UI resume/skip correctly
-  -- rather than re-showing steps someone already finished.
+  -- rental application questions). Every account goes through the same flow — lets
+  -- the UI resume/skip correctly rather than re-showing steps someone already finished.
   onboarding_step text not null default 'basics'
     check (onboarding_step in ('basics', 'photo', 'tenant_details', 'complete')),
-  -- 'investor': platform user browsing suburb data, saved suburbs, room listings as a landlord.
-  -- 'tenant': signed up via the public /listings page to enquire about a room — the qualification
-  --           step before an Uber/Airbnb-style trust rating gets built on top later.
-  -- 'provider': runs one or more service_providers listings (insurance, legal, etc.) and chats with investors.
+  -- 'member': the one account type everyone signs up as — browses/enquires on room listings,
+  --           and can optionally unlock investor dashboard access (see investor_access below).
+  -- 'provider': runs one or more service_providers listings (insurance, legal, etc.) and chats with members.
   -- 'admin': platform owner — can see every conversation across every provider, for payment/compliance oversight.
-  role text not null default 'investor' check (role in ('investor', 'tenant', 'provider', 'admin')),
+  role text not null default 'member' check (role in ('member', 'provider', 'admin')),
+  -- Gates /dashboard (suburb/market data, saved suburbs, provider messaging). A 'member' with
+  -- investor_access='active' gets the same login into both the listings side and the investor
+  -- side — no separate account needed. 'none' until they pay the $29/mo add-on.
+  investor_access text not null default 'none' check (investor_access in ('none', 'active')),
   created_at timestamptz not null default now()
 );
 
@@ -36,23 +39,14 @@ create policy "Users can update their own profile"
   on public.users for update
   using (auth.uid() = id);
 
--- Auto-create a public.users row whenever a new auth user signs up. The role comes from
--- supabase.auth.signUp's options.data.role (see components/auth-form.tsx) — e.g. someone
--- signing up from the "Enquire" flow on /listings arrives here with role='tenant'. Falls
--- back to 'investor' if no role was passed or it's not one of the recognised values.
+-- Auto-create a public.users row whenever a new auth user signs up. Every signup starts
+-- as a plain 'member' — becoming a provider (provider-join-form.tsx) or unlocking investor
+-- access (the $29/mo upsell) both happen as later updates to an existing account, not at signup.
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (id, email, role)
-  values (
-    new.id,
-    new.email,
-    case
-      when new.raw_user_meta_data->>'role' in ('investor', 'tenant', 'provider', 'admin')
-        then new.raw_user_meta_data->>'role'
-      else 'investor'
-    end
-  );
+  insert into public.users (id, email)
+  values (new.id, new.email);
   return new;
 end;
 $$ language plpgsql security definer;
@@ -177,7 +171,9 @@ create index if not exists service_providers_user_id_idx on public.service_provi
 
 -- ─────────────────────────────────────────────────────────────
 -- conversations
--- One thread per investor/provider pair, across any category.
+-- One thread per member/provider pair, across any category. `investor_id` is really
+-- just "the member who started the conversation" — kept named investor_id since that's
+-- the only side of the marketplace that messages providers today (needs investor_access).
 -- ─────────────────────────────────────────────────────────────
 create table if not exists public.conversations (
   id uuid primary key default gen_random_uuid(),
@@ -212,8 +208,8 @@ create policy "Admins can view every conversation"
 
 -- ─────────────────────────────────────────────────────────────
 -- tenant_profiles
--- The "easy application" data a landlord actually wants to see before approving a
--- tenant — filled in during onboarding (role='tenant' only), one row per tenant.
+-- The "easy application" data a landlord actually wants to see before approving an
+-- enquiry — filled in during onboarding by every member, one row per account.
 -- Placed after conversations/service_providers since its RLS policies reference both.
 -- ─────────────────────────────────────────────────────────────
 create table if not exists public.tenant_profiles (

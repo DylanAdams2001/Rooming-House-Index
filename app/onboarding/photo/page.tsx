@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { defaultDestinationForRole } from "@/lib/onboarding";
+import { defaultDestination } from "@/lib/onboarding";
 import { StepHeader } from "@/components/onboarding/step-header";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
@@ -15,8 +15,7 @@ function PhotoForm() {
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const [roleLoaded, setRoleLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,25 +27,22 @@ function PhotoForm() {
       setUserId(user.id);
       const { data: profile } = await supabase
         .from("users")
-        .select("role, avatar_url")
+        .select("avatar_url")
         .eq("id", user.id)
         .maybeSingle();
-      setRole(profile?.role ?? "investor");
       if (profile?.avatar_url) setPreview(profile.avatar_url);
-      setRoleLoaded(true);
+      setLoaded(true);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function nextStepPath() {
-    const redirectTo = explicitRedirectTo ?? defaultDestinationForRole(role);
-    return role === "tenant"
-      ? `/onboarding/tenant-details?redirectTo=${encodeURIComponent(redirectTo)}`
-      : redirectTo;
+    const redirectTo = explicitRedirectTo ?? defaultDestination();
+    return `/onboarding/tenant-details?redirectTo=${encodeURIComponent(redirectTo)}`;
   }
 
-  async function advance(nextStep: "tenant_details" | "complete") {
+  async function advance() {
     if (!userId) return;
-    await supabase.from("users").update({ onboarding_step: nextStep }).eq("id", userId);
+    await supabase.from("users").update({ onboarding_step: "tenant_details" }).eq("id", userId);
     router.push(nextStepPath());
     router.refresh();
   }
@@ -83,16 +79,14 @@ function PhotoForm() {
     await supabase.from("users").update({ avatar_url: publicUrl }).eq("id", userId);
 
     setLoading(false);
-    await advance(role === "tenant" ? "tenant_details" : "complete");
+    await advance();
   }
-
-  const totalSteps = role === "tenant" ? 3 : 2;
 
   return (
     <>
       <StepHeader
         step={2}
-        totalSteps={totalSteps}
+        totalSteps={3}
         title="Add a profile photo"
         subtitle="Helps landlords and providers recognise who they're talking to."
       />
@@ -115,16 +109,11 @@ function PhotoForm() {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="mt-4 flex w-full flex-col gap-3">
-          <Button onClick={handleUpload} disabled={!file || loading || !roleLoaded} className="w-full">
+          <Button onClick={handleUpload} disabled={!file || loading || !loaded} className="w-full">
             {loading ? "Uploading…" : "Save and continue"}
           </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={!roleLoaded}
-            onClick={() => advance(role === "tenant" ? "tenant_details" : "complete")}
-          >
-            {roleLoaded ? "Skip for now" : "Loading…"}
+          <Button variant="outline" className="w-full" disabled={!loaded} onClick={() => advance()}>
+            {loaded ? "Skip for now" : "Loading…"}
           </Button>
         </div>
       </div>

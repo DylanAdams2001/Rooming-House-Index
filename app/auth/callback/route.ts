@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { buildOnboardingUrl, defaultDestinationForRole } from "@/lib/onboarding";
+import { buildOnboardingUrl, defaultDestination } from "@/lib/onboarding";
 
 // Supabase redirects here after a successful Google OAuth login (see
 // supabase.auth.signInWithOAuth in components/auth-form.tsx). Exchanges the
@@ -17,30 +17,18 @@ export async function GET(request: Request) {
     const supabase = createClient();
     const { data } = await supabase.auth.exchangeCodeForSession(code);
 
-    // Only ever allow this to set 'tenant', and only on a fresh signup that's still
-    // sitting at the default 'investor' role — never let a client-controlled query
-    // param grant 'provider' or 'admin'.
-    const role = searchParams.get("role");
-    if (role === "tenant" && data.user) {
-      await supabase
-        .from("users")
-        .update({ role: "tenant" })
-        .eq("id", data.user.id)
-        .eq("role", "investor");
-    }
-
     if (data.user) {
       const { data: profile } = await supabase
         .from("users")
-        .select("onboarding_step, role")
+        .select("onboarding_step")
         .eq("id", data.user.id)
         .maybeSingle();
 
-      const destination = explicitDestination ?? defaultDestinationForRole(profile?.role);
+      const destination = explicitDestination ?? defaultDestination();
       const onboardingUrl = buildOnboardingUrl(profile?.onboarding_step, destination);
       return NextResponse.redirect(`${origin}${onboardingUrl ?? destination}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}${explicitDestination ?? "/dashboard"}`);
+  return NextResponse.redirect(`${origin}${explicitDestination ?? "/account"}`);
 }

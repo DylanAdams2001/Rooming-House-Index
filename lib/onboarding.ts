@@ -20,10 +20,9 @@ export function buildOnboardingUrl(step: string | null | undefined, redirectTo: 
   return `${path}?redirectTo=${encodeURIComponent(redirectTo)}`;
 }
 
-// Tenants land in /account (messages, application, settings — no investor market
-// data). Everyone else (investor/provider/admin) lands in /dashboard. Used whenever
-// no explicit redirectTo was given, e.g. a plain login/signup with nowhere specific
-// to return to.
-export function defaultDestinationForRole(role: string | null | undefined): string {
-  return role === "tenant" ? "/account" : "/dashboard";
+// Every account lands in /account (messages, application, settings, and the investor
+// upsell) — there's no role branching here anymore. /dashboard is a separate add-on,
+// gated on investor_access rather than which account someone signed up as.
+export function defaultDestination(): string {
+  return "/account";
 }
