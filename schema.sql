@@ -611,3 +611,27 @@ create policy "Admins can manage every quote"
 
 create index if not exists service_quote_quotes_request_id_idx
   on public.service_quote_quotes (request_id);
+
+-- Hard floor on quote requests, independent of any client-side check: at most
+-- one every hour per account, across every category — guards against
+-- double-click duplicates and a slow request loop spamming providers.
+create or replace function public.enforce_quote_request_rate_limit()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  if exists (
+    select 1 from public.service_quote_requests
+    where user_id = new.user_id
+      and created_at > now() - interval '1 hour'
+  ) then
+    raise exception 'You can only request quotes once per hour.' using errcode = 'P0001';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_enforce_quote_request_rate_limit
+  before insert on public.service_quote_requests
+  for each row execute procedure public.enforce_quote_request_rate_limit();

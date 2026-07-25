@@ -9,4 +9,5 @@ next-env.d.ts
 
 # Raw source PDF (contains operator personal details) and personal drafts — not app code
 *.pdf
+!public/**/*.pdf
 cav-data-request-draft.txt

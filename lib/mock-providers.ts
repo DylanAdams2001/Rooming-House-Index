@@ -3,24 +3,10 @@
 // Supabase query filtered to status = 'approved'. Shape mirrors the DB
 // table closely so swapping the data source later is mechanical.
 
-export type FurniturePackageItem = {
-  name: string;
-  dimensions?: string;
-  unitPrice: number;
-  assemblyFee?: number;
-  quantity: number;
-  amount: number;
-};
-
 export type FurniturePackage = {
-  title: string;
-  items: FurniturePackageItem[];
-  subtotal: number;
-  gst: number;
-  total: number;
-  // Where the real pricing came from — kept visible rather than presented as if
-  // the (illustrative) provider itself quoted it.
-  sourceNote: string;
+  label: string;
+  // Path under /public — served directly, opened in a quick-view modal.
+  fileUrl: string;
 };
 
 export type ServiceProvider = {
@@ -33,7 +19,10 @@ export type ServiceProvider = {
   coverageAreas: string[];
   licenseNumber?: string;
   credentials: Record<string, string | string[]>;
-  furniturePackage?: FurniturePackage;
+  // Room-count-specific furniture package quotes — more get added as they're
+  // sourced (6/7/8-bed, etc.), letting investors compare price and inclusions
+  // across providers.
+  furniturePackages?: FurniturePackage[];
 };
 
 export const mockProviders: ServiceProvider[] = [
@@ -164,33 +153,9 @@ export const mockProviders: ServiceProvider[] = [
     credentials: {
       abn: "55 123 456 789",
     },
-    furniturePackage: {
-      title: "9 Bedroom Accommodation — Sample Package",
-      items: [
-        { name: "Ensemble Base — Queen (Australian Made)", dimensions: "2030 x 1520 x 350 mm", unitPrice: 303, assemblyFee: 5, quantity: 9, amount: 2772 },
-        { name: "Bedhead — Queen (matched to base)", unitPrice: 395, quantity: 9, amount: 3555 },
-        { name: "Fire Retardant Mattress — Queen", dimensions: "2030 x 1530 x 210 mm", unitPrice: 194, quantity: 9, amount: 1746 },
-        { name: "Bedside Table — Natural Oak", dimensions: "420 x 390 x 500 mm", unitPrice: 110, assemblyFee: 20, quantity: 18, amount: 2340 },
-        { name: '40" Android TV', dimensions: "900 x 230 x 570 mm (with stand)", unitPrice: 250, quantity: 9, amount: 2250 },
-        { name: "TV bracket (excl. wall assembly)", unitPrice: 35, quantity: 9, amount: 315 },
-        { name: "Round Dining Table — 80cm", dimensions: "800 x 800 x 760 mm", unitPrice: 96, assemblyFee: 10, quantity: 9, amount: 954 },
-        { name: "Padded Replica Dining Chair", dimensions: "440 x 540 x 860 mm", unitPrice: 60, assemblyFee: 10, quantity: 18, amount: 1260 },
-        { name: "End/Coffee Table with Glass Top", dimensions: "500 x 300 x 600 mm", unitPrice: 66, assemblyFee: 15, quantity: 9, amount: 729 },
-        { name: "197L Fridge — White", dimensions: "60 x 55 x 142 cm", unitPrice: 380, assemblyFee: 15, quantity: 9, amount: 3555 },
-        { name: "2 Seater PU Leather Sofa (Fire Retardant)", dimensions: "870 x 1320 x 740 mm", unitPrice: 427, assemblyFee: 15, quantity: 9, amount: 3978 },
-        { name: "1800 Dining Table", dimensions: "1800 x 900 x 760 mm", unitPrice: 331, assemblyFee: 40, quantity: 1, amount: 371 },
-        { name: "Padded Replica Dining Chair — Grey (Set of 4)", dimensions: "480 x 550 x 800 mm", unitPrice: 60, assemblyFee: 5, quantity: 6, amount: 390 },
-        { name: "34L Microwave", unitPrice: 130, quantity: 10, amount: 1300 },
-        { name: "Kettle", unitPrice: 10, quantity: 10, amount: 100 },
-        { name: "2-Slice Toaster", unitPrice: 14, quantity: 10, amount: 140 },
-        { name: "334L Top Mount Fridge — White", dimensions: "60.5 x 67 x 170.5 cm", unitPrice: 580, assemblyFee: 15, quantity: 1, amount: 595 },
-        { name: "Delivery, move-in, unpack & rubbish collection", unitPrice: 700, quantity: 1, amount: 700 },
-      ],
-      subtotal: 27050,
-      gst: 2705,
-      total: 29755,
-      sourceNote: "Sample pricing from a real HEQS furniture package quote for 9-room accommodation, supplied ex GST. Quotes are typically valid 30 days — treat as indicative, not a live price.",
-    },
+    furniturePackages: [
+      { label: "9 Bed HEQS Package", fileUrl: "/furniture-packages/heqs-9-bed-package.pdf" },
+    ],
   },
   {
     id: "provider-bulk-interiors",

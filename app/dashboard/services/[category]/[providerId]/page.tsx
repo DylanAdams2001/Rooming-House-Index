@@ -3,6 +3,7 @@ import { getServiceCategory } from "@/lib/service-categories";
 import { getProviderById, mockProviders } from "@/lib/mock-providers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StartConversationButton } from "@/components/start-conversation-button";
+import { PdfQuickView } from "@/components/pdf-quick-view";
 
 export function generateStaticParams() {
   return mockProviders.map((p) => {
@@ -80,52 +81,18 @@ export default function ProviderProfilePage({
         </Card>
       </div>
 
-      {provider.furniturePackage && (
+      {provider.furniturePackages && provider.furniturePackages.length > 0 && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>{provider.furniturePackage.title}</CardTitle>
-            <p className="text-sm text-muted">{provider.furniturePackage.sourceNote}</p>
+            <CardTitle>Furniture Packages</CardTitle>
+            <p className="text-sm text-muted">
+              Sample package quotes by room count — more added as they&apos;re sourced.
+            </p>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-sm">
-                <thead>
-                  <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                    <th className="py-2 pr-4 font-medium">Item</th>
-                    <th className="py-2 pr-4 font-medium">Dimensions</th>
-                    <th className="py-2 pr-4 font-medium">Unit price</th>
-                    <th className="py-2 pr-4 font-medium">Qty</th>
-                    <th className="py-2 pr-0 text-right font-medium">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {provider.furniturePackage.items.map((item) => (
-                    <tr key={item.name} className="border-b border-line/60">
-                      <td className="py-2 pr-4 text-ink">{item.name}</td>
-                      <td className="py-2 pr-4 text-muted">{item.dimensions ?? "—"}</td>
-                      <td className="py-2 pr-4 text-body">
-                        ${item.unitPrice.toLocaleString()}
-                        {item.assemblyFee ? ` + $${item.assemblyFee} assembly` : ""}
-                      </td>
-                      <td className="py-2 pr-4 text-body">{item.quantity}</td>
-                      <td className="py-2 pr-0 text-right text-ink">
-                        ${item.amount.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-4 flex flex-col items-end gap-1 text-sm">
-              <p className="text-body">
-                Subtotal (ex GST): ${provider.furniturePackage.subtotal.toLocaleString()}
-              </p>
-              <p className="text-body">GST: ${provider.furniturePackage.gst.toLocaleString()}</p>
-              <p className="font-display text-lg text-ink">
-                Total: ${provider.furniturePackage.total.toLocaleString()}
-              </p>
-            </div>
+          <CardContent className="space-y-2">
+            {provider.furniturePackages.map((pkg) => (
+              <PdfQuickView key={pkg.fileUrl} label={pkg.label} fileUrl={pkg.fileUrl} />
+            ))}
           </CardContent>
         </Card>
       )}
