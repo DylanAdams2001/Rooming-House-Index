@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const resend = new Resend(apiKey);
 
   const { error } = await resend.emails.send({
-    from: fromAddress,
+    from: `Rooming House Index <${fromAddress}>`,
     to: SUPPORT_RECIPIENTS,
     replyTo: contactEmail || undefined,
     subject: "You have a new support chat message — Rooming House Index",

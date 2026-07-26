@@ -72,7 +72,7 @@ export async function POST(req: Request) {
   }${notes ? `Notes: ${notes}\n` : ""}`;
 
   await resend.emails.send({
-    from: fromAddress,
+    from: `Rooming House Index <${fromAddress}>`,
     to: recipients,
     subject,
     text,

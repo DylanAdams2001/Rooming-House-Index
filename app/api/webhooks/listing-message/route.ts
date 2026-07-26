@@ -65,9 +65,9 @@ export async function POST(req: Request) {
     if (!tenant?.email) return NextResponse.json({ ok: true });
 
     const { error: sendError } = await resend.emails.send({
-      from: fromAddress,
+      from: `Rooming House Index <${fromAddress}>`,
       to: tenant.email,
-      subject: `New reply about ${listing.address}`,
+      subject: `NEW REPLY - ${listing.address}`,
       text: `The property team replied about ${listing.address}:\n\n"${payload.record.body}"\n\nReply here: ${SITE_URL}/account/messages/${payload.record.conversation_id}`,
     });
 
@@ -110,9 +110,9 @@ export async function POST(req: Request) {
   ].filter(Boolean);
 
   const { error: sendError } = await resend.emails.send({
-    from: fromAddress,
+    from: `Rooming House Index <${fromAddress}>`,
     to: owner.email,
-    subject: `New enquiry about ${listing.address}`,
+    subject: `NEW ENQUIRY - ${listing.address}`,
     text: `A tenant sent a message about your listing at ${listing.address}:\n\n"${payload.record.body}"\n\nApplicant details:\n${applicantLines.join(
       "\n"
     )}\n\nReply here: ${SITE_URL}/partners/enquiries/${payload.record.conversation_id}`,
