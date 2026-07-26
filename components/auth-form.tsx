@@ -14,6 +14,7 @@ export function AuthForm({
   redirectTo,
   onAuthenticated,
   onSwitchMode,
+  signupRole,
 }: {
   mode: "login" | "signup";
   redirectTo?: string;
@@ -24,6 +25,13 @@ export function AuthForm({
   // When provided, the "log in instead / sign up instead" link toggles in place
   // (e.g. inside a modal) rather than navigating to /login or /signup.
   onSwitchMode?: () => void;
+  // Private, hand-sent signup links (e.g. /signup/property-manager) pass this so
+  // a brand-new account gets flipped straight to that role and into /partners,
+  // instead of the normal room-seeker/investor onboarding wizard. Must work for
+  // BOTH auth paths below — Google OAuth never runs onAuthenticated/routeAfterAuth
+  // at all (it redirects through /auth/callback instead), so this also has to be
+  // threaded through the callback URL for that path to end up in the same place.
+  signupRole?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -42,6 +50,13 @@ export function AuthForm({
   async function routeAfterAuth(userId: string) {
     if (onAuthenticated) {
       onAuthenticated(userId);
+      return;
+    }
+
+    if (signupRole) {
+      await supabase.from("users").update({ role: signupRole }).eq("id", userId);
+      router.push("/partners");
+      router.refresh();
       return;
     }
 
@@ -70,6 +85,9 @@ export function AuthForm({
     const callbackUrl = new URL("/auth/callback", window.location.origin);
     if (explicitDestination) {
       callbackUrl.searchParams.set("redirectTo", explicitDestination);
+    }
+    if (signupRole) {
+      callbackUrl.searchParams.set("assignRole", signupRole);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({

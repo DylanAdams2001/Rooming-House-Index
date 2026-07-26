@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const redirectToParam = searchParams.get("redirectTo");
+  const assignRole = searchParams.get("assignRole");
   const explicitDestination =
     redirectToParam && redirectToParam.startsWith("/") ? redirectToParam : null;
 
@@ -18,6 +19,14 @@ export async function GET(request: Request) {
     const { data } = await supabase.auth.exchangeCodeForSession(code);
 
     if (data.user) {
+      // Private, hand-sent signup links (e.g. /signup/property-manager) carry this
+      // through so Google OAuth signups land in /partners with the right role too,
+      // same as the email/password path in components/auth-form.tsx.
+      if (assignRole) {
+        await supabase.from("users").update({ role: assignRole }).eq("id", data.user.id);
+        return NextResponse.redirect(`${origin}/partners`);
+      }
+
       const { data: profile } = await supabase
         .from("users")
         .select("onboarding_step, investor_access, role")
