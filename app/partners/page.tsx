@@ -38,7 +38,21 @@ export default async function PartnersHomePage() {
 
   let pendingListings = 0;
   let approvedListings = 0;
+  let enquiryCount = 0;
   if (showListings) {
+    const { data: ownedListings } = await supabase
+      .from("listings")
+      .select("id")
+      .eq("owner_id", user!.id);
+    const listingIds = (ownedListings ?? []).map((l) => l.id);
+    if (listingIds.length > 0) {
+      const { count } = await supabase
+        .from("listing_conversations")
+        .select("id", { count: "exact", head: true })
+        .in("listing_id", listingIds);
+      enquiryCount = count ?? 0;
+    }
+
     const { count: pending } = await supabase
       .from("listings")
       .select("id", { count: "exact", head: true })
@@ -93,6 +107,18 @@ export default async function PartnersHomePage() {
               </CardHeader>
               <CardContent>
                 <div className="font-display text-3xl text-ink">{approvedListings}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted">Room Enquiries</CardTitle>
+                <MessageCircle className="h-5 w-5 text-ink" />
+              </CardHeader>
+              <CardContent>
+                <div className="font-display text-3xl text-ink">{enquiryCount}</div>
+                <Button asChild size="sm" className="mt-3 w-full">
+                  <Link href="/partners/enquiries">View Enquiries</Link>
+                </Button>
               </CardContent>
             </Card>
             <Card>

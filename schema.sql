@@ -787,3 +787,39 @@ values
 -- ─────────────────────────────────────────────────────────────
 alter table public.listings add column if not exists lat double precision;
 alter table public.listings add column if not exists lng double precision;
+
+-- ─────────────────────────────────────────────────────────────
+-- listing_conversations / listing_messages: property manager access
+-- Originally only the tenant and admins could see a room enquiry — there was
+-- no live manager-reply UI, just the auto "Property Team" message. Now that
+-- listings have a real owner_id, the property manager who owns that room
+-- needs the same access a tenant has: view the conversation, and reply
+-- (attributed to them, is_manager=true, rather than the anonymous system
+-- reply enquire_on_listing() sends on a brand-new conversation).
+-- ─────────────────────────────────────────────────────────────
+create policy "Listing owners can view conversations about their listings"
+  on public.listing_conversations for select
+  using (exists (
+    select 1 from public.listings l
+    where l.id::text = listing_conversations.listing_id and l.owner_id = auth.uid()
+  ));
+
+create policy "Listing owners can view messages about their listings"
+  on public.listing_messages for select
+  using (exists (
+    select 1 from public.listing_conversations c
+    join public.listings l on l.id::text = c.listing_id
+    where c.id = conversation_id and l.owner_id = auth.uid()
+  ));
+
+create policy "Listing owners can reply about their listings"
+  on public.listing_messages for insert
+  with check (
+    auth.uid() = sender_id
+    and is_manager = true
+    and exists (
+      select 1 from public.listing_conversations c
+      join public.listings l on l.id::text = c.listing_id
+      where c.id = conversation_id and l.owner_id = auth.uid()
+    )
+  );

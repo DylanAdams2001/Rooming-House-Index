@@ -2,10 +2,19 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getListingTitle } from "@/lib/mock-listings";
 import { getApprovedListingById } from "@/lib/listings";
+import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 
-export async function ListingConversationView({ conversationId }: { conversationId: string }) {
+export async function ListingConversationView({
+  conversationId,
+  basePath = "/account",
+  perspective = "tenant",
+}: {
+  conversationId: string;
+  basePath?: string;
+  perspective?: "tenant" | "manager";
+}) {
   const supabase = createClient();
   const {
     data: { user },
@@ -13,7 +22,7 @@ export async function ListingConversationView({ conversationId }: { conversation
 
   const { data: conversation, error } = await supabase
     .from("listing_conversations")
-    .select("id, listing_id, tenant_id")
+    .select("id, listing_id, tenant_id, users!listing_conversations_tenant_id_fkey(email)")
     .eq("id", conversationId)
     .maybeSingle();
 
@@ -25,16 +34,32 @@ export async function ListingConversationView({ conversationId }: { conversation
         .order("created_at", { ascending: true })
     : { data: [] };
 
-  const listing = conversation ? await getApprovedListingById(conversation.listing_id) : null;
+  let listing = null;
+  if (conversation) {
+    if (perspective === "manager") {
+      const { data } = await supabase
+        .from("listings")
+        .select(LISTING_COLUMNS)
+        .eq("id", conversation.listing_id)
+        .maybeSingle();
+      listing = data ? mapListingRow(data) : null;
+    } else {
+      listing = await getApprovedListingById(conversation.listing_id);
+    }
+  }
+
+  const tenantEmail = conversation
+    ? (conversation.users as unknown as { email: string } | null)?.email
+    : null;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
       <Link
-        href="/account/messages"
+        href={`${basePath}/${perspective === "manager" ? "enquiries" : "messages"}`}
         className="mb-4 flex items-center gap-2 text-sm text-body hover:text-ink"
       >
         <ArrowLeft className="h-4 w-4" />
-        All messages
+        All {perspective === "manager" ? "enquiries" : "messages"}
       </Link>
 
       {!conversation || error || !user ? (
@@ -55,6 +80,7 @@ export async function ListingConversationView({ conversationId }: { conversation
                 <p className="font-display text-base text-ink">{getListingTitle(listing)}</p>
                 <p className="text-xs text-muted">
                   {listing.roomType} room · ${listing.weeklyRate}/wk
+                  {perspective === "manager" && tenantEmail ? ` · Tenant: ${tenantEmail}` : ""}
                 </p>
               </div>
               {listing.inspectionTime && (
@@ -68,10 +94,15 @@ export async function ListingConversationView({ conversationId }: { conversation
           <ChatThread
             conversationId={conversation.id}
             currentUserId={user.id}
-            otherPartyName="Property Team"
+            otherPartyName={perspective === "manager" ? tenantEmail ?? "Tenant" : "Property Team"}
             initialMessages={initialMessages ?? []}
             table="listing_messages"
-            complianceNote="Confirm you'll be at the inspection, ask questions, or reschedule — the property team will reply here."
+            isManagerReply={perspective === "manager"}
+            complianceNote={
+              perspective === "manager"
+                ? "Replies here are sent to the tenant as the property team."
+                : "Confirm you'll be at the inspection, ask questions, or reschedule — the property team will reply here."
+            }
           />
         </>
       )}

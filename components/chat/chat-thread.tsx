@@ -20,6 +20,7 @@ export function ChatThread({
   otherPartyName,
   initialMessages,
   table = "messages",
+  isManagerReply = false,
   complianceNote = "All messages here are visible to Rooming House Index for payment and compliance purposes.",
 }: {
   conversationId: string;
@@ -27,6 +28,10 @@ export function ChatThread({
   otherPartyName: string;
   initialMessages: Message[];
   table?: "messages" | "listing_messages";
+  // Only meaningful for table="listing_messages" — true when the current user
+  // is the property manager replying (attributed via is_manager on the row),
+  // rather than the tenant who started the enquiry.
+  isManagerReply?: boolean;
   complianceNote?: string;
 }) {
   const supabase = createClient();
@@ -72,7 +77,12 @@ export function ChatThread({
 
     const { data, error } = await supabase
       .from(table)
-      .insert({ conversation_id: conversationId, sender_id: currentUserId, body })
+      .insert({
+        conversation_id: conversationId,
+        sender_id: currentUserId,
+        body,
+        ...(table === "listing_messages" ? { is_manager: isManagerReply } : {}),
+      })
       .select("id, sender_id, body, created_at")
       .single();
 

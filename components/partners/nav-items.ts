@@ -21,6 +21,7 @@ export function getPartnerNavItems(role: string | null | undefined): PartnerNavI
   if (role === "property_manager" || role === "admin") {
     items.push({ href: "/partners/listings", label: "Rooms", icon: ListChecks });
     items.push({ href: "/partners/listings/new", label: "Add Room", icon: Plus });
+    items.push({ href: "/partners/enquiries", label: "Enquiries", icon: MessageCircle });
   }
 
   return items;
