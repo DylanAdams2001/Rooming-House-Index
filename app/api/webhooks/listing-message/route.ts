@@ -32,30 +32,20 @@ export async function POST(req: Request) {
     record: { id: string; conversation_id: string; sender_id: string | null; is_manager: boolean; body: string };
   };
 
-  // TEMPORARY DIAGNOSTIC: _debug on every response, to find exactly which
-  // guard is short-circuiting before resend.emails.send() is ever reached.
-  // Remove once the tenant-reply email is confirmed working end-to-end.
   if (payload.type !== "INSERT") {
-    return NextResponse.json({ ok: true, _debug: "not an insert" });
+    return NextResponse.json({ ok: true });
   }
 
   const supabase = createServiceRoleClient();
   const resend = new Resend(apiKey);
 
-  const { data: conversation, error: conversationError } = await supabase
+  const { data: conversation } = await supabase
     .from("listing_conversations")
     .select("listing_id, tenant_id")
     .eq("id", payload.record.conversation_id)
     .maybeSingle();
 
-  if (!conversation) {
-    return NextResponse.json({
-      ok: true,
-      _debug: "no conversation found for conversation_id",
-      _debugConversationId: payload.record.conversation_id,
-      _debugError: conversationError,
-    });
-  }
+  if (!conversation) return NextResponse.json({ ok: true });
 
   // These three only depend on the conversation row, not on each other —
   // run them together instead of one after another to shave real latency
@@ -67,20 +57,12 @@ export async function POST(req: Request) {
     supabase.from("tenant_profiles").select("*").eq("user_id", conversation.tenant_id).maybeSingle(),
   ]);
 
-  if (!listing) {
-    return NextResponse.json({ ok: true, _debug: "no listing found for listing_id " + conversation.listing_id });
-  }
+  if (!listing) return NextResponse.json({ ok: true });
 
   if (payload.record.is_manager) {
     // The property manager replied — notify the tenant, with the reply text
     // and a link straight back into their side of the conversation.
-    if (!tenant?.email) {
-      return NextResponse.json({
-        ok: false,
-        reason: "tenant has no email on file",
-        _debug: { tenant_id: conversation.tenant_id, tenant },
-      });
-    }
+    if (!tenant?.email) return NextResponse.json({ ok: true });
 
     const { error: sendError } = await resend.emails.send({
       from: fromAddress,
@@ -90,15 +72,13 @@ export async function POST(req: Request) {
     });
 
     if (sendError) {
-      return NextResponse.json({ ok: false, reason: sendError.message, _debug: "resend rejected send" }, { status: 502 });
+      return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });
     }
 
-    return NextResponse.json({ ok: true, _debug: `sent to tenant ${tenant.email}` });
+    return NextResponse.json({ ok: true });
   }
 
-  if (!listing.owner_id) {
-    return NextResponse.json({ ok: true, _debug: "listing has no owner_id" });
-  }
+  if (!listing.owner_id) return NextResponse.json({ ok: true });
 
   const { data: owner } = await supabase
     .from("users")
@@ -106,9 +86,7 @@ export async function POST(req: Request) {
     .eq("id", listing.owner_id)
     .maybeSingle();
 
-  if (!owner?.email) {
-    return NextResponse.json({ ok: true, _debug: "owner has no email on file" });
-  }
+  if (!owner?.email) return NextResponse.json({ ok: true });
 
   // The tenant already filled this in before they could enquire at all — pass
   // it straight through rather than making the manager log in just to see who
@@ -141,8 +119,8 @@ export async function POST(req: Request) {
   });
 
   if (sendError) {
-    return NextResponse.json({ ok: false, reason: sendError.message, _debug: "resend rejected send" }, { status: 502 });
+    return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });
   }
 
-  return NextResponse.json({ ok: true, _debug: `sent to owner ${owner.email}` });
+  return NextResponse.json({ ok: true });
 }
