@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, MessageCircle, Send, X } from "lucide-react";
+import { Check, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
@@ -144,31 +144,34 @@ export function SupportChatWidget() {
 
             {lastMessageEscalates && (
               <div className="rounded-card border border-line bg-offwhite p-3">
-                {escalated === "sent" ? (
+                <div className="space-y-2">
                   <p className="text-sm text-body">
-                    Thanks — the team has been notified and will follow up by email.
+                    Want me to send this conversation to our team?
                   </p>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm text-body">
-                      Want me to send this conversation to our team?
-                    </p>
-                    <p className="text-xs text-muted">They'll reply to {accountEmail}.</p>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="w-full"
-                      disabled={escalated === "sending"}
-                      onClick={handleEscalate}
-                    >
-                      {escalated === "sending" ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        "Send to support team"
-                      )}
-                    </Button>
-                  </div>
-                )}
+                  <Button
+                    type="button"
+                    size="sm"
+                    className={cn(
+                      "w-full transition-colors duration-300",
+                      escalated === "sent" && "bg-green-600 hover:bg-green-600"
+                    )}
+                    disabled={escalated === "sending" || escalated === "sent"}
+                    onClick={handleEscalate}
+                  >
+                    {escalated === "sending" && (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending…
+                      </>
+                    )}
+                    {escalated === "sent" && (
+                      <>
+                        <Check className="mr-2 h-4 w-4" /> Sent to support team
+                      </>
+                    )}
+                    {(escalated === "offered" || escalated === "idle") &&
+                      "Send to support team"}
+                  </Button>
+                </div>
               </div>
             )}
           </div>
