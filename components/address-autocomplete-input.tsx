@@ -17,9 +17,15 @@ const VIC_BOUNDS = {
 // Uses Places API (New)'s PlaceAutocompleteElement — the actively-developed
 // replacement for the legacy google.maps.places.Autocomplete widget, which
 // Google has on a path to eventual retirement.
+export type AddressParts = {
+  suburb?: string;
+  postcode?: string;
+};
+
 export function AddressAutocompleteInput({
   value,
   onChange,
+  onPlaceSelect,
   id,
   placeholder,
   className,
@@ -27,10 +33,16 @@ export function AddressAutocompleteInput({
 }: Omit<InputProps, "value" | "onChange"> & {
   value: string;
   onChange: (value: string) => void;
+  // Fired only on an explicit Places selection (not free typing), with whatever
+  // suburb/postcode components Google returns — lets forms like the listing
+  // creator auto-fill those fields instead of requiring them typed separately.
+  onPlaceSelect?: (parts: AddressParts) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const onPlaceSelectRef = useRef(onPlaceSelect);
+  onPlaceSelectRef.current = onPlaceSelect;
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -64,8 +76,16 @@ export function AddressAutocompleteInput({
 
         element.addEventListener("gmp-select", async (event: any) => {
           const place = event.placePrediction.toPlace();
-          await place.fetchFields({ fields: ["formattedAddress"] });
+          await place.fetchFields({ fields: ["formattedAddress", "addressComponents"] });
           onChangeRef.current(place.formattedAddress ?? "");
+
+          if (onPlaceSelectRef.current) {
+            const components: { longText?: string; shortText?: string; types: string[] }[] =
+              place.addressComponents ?? [];
+            const suburb = components.find((c) => c.types.includes("locality"))?.longText;
+            const postcode = components.find((c) => c.types.includes("postal_code"))?.longText;
+            onPlaceSelectRef.current({ suburb, postcode });
+          }
         });
 
         containerRef.current.appendChild(element);

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { AddressAutocompleteInput } from "@/components/address-autocomplete-input";
+import { AddressAutocompleteInput, type AddressParts } from "@/components/address-autocomplete-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +26,32 @@ function slugify(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+}
+
+function formatTime(time: string) {
+  const [hoursStr, minutes] = time.split(":");
+  const hours = Number(hoursStr);
+  const period = hours >= 12 ? "pm" : "am";
+  const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+  return `${displayHours}:${minutes}${period}`;
+}
+
+// Builds the same free-text style already used across the site ("Saturday 25
+// Jul, 10:00am - 10:30am") from separate date/start/end picker values, so every
+// existing display of inspection_time (cards, listing detail, enquiry threads)
+// keeps working unchanged.
+function formatInspectionTime(date: string, startTime: string, endTime: string) {
+  if (!date || !startTime) return "";
+  const [year, month, day] = date.split("-").map(Number);
+  const parsed = new Date(year, month - 1, day);
+  const dateLabel = parsed.toLocaleDateString("en-AU", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+  });
+  return endTime
+    ? `${dateLabel}, ${formatTime(startTime)} - ${formatTime(endTime)}`
+    : `${dateLabel}, ${formatTime(startTime)}`;
 }
 
 export type ListingFormInitial = {
@@ -52,7 +78,9 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
   const [weeklyRate, setWeeklyRate] = useState(initial?.weeklyRate ?? "");
   const [availableFrom, setAvailableFrom] = useState(initial?.availableFrom ?? "Available now");
   const [description, setDescription] = useState(initial?.description ?? "");
-  const [inspectionTime, setInspectionTime] = useState(initial?.inspectionTime ?? "");
+  const [inspectionDate, setInspectionDate] = useState("");
+  const [inspectionStartTime, setInspectionStartTime] = useState("");
+  const [inspectionEndTime, setInspectionEndTime] = useState("");
   const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
@@ -101,6 +129,11 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
     setPhotos((prev) => prev.filter((p) => p !== url));
   }
 
+  function handleAddressSelect(parts: AddressParts) {
+    if (parts.suburb) setSuburbName(parts.suburb);
+    if (parts.postcode) setPostcode(parts.postcode);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("submitting");
@@ -115,6 +148,12 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
       return;
     }
 
+    const formattedInspectionTime = formatInspectionTime(
+      inspectionDate,
+      inspectionStartTime,
+      inspectionEndTime
+    );
+
     const payload = {
       owner_id: user.id,
       suburb_id: `${slugify(suburbName)}-${postcode.trim()}`,
@@ -125,7 +164,9 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
       available_from: availableFrom.trim(),
       description: description.trim(),
       photos,
-      inspection_time: inspectionTime.trim() || null,
+      // Falls back to whatever inspection time the listing already had if the
+      // picker was left untouched while editing (e.g. changing only the price).
+      inspection_time: formattedInspectionTime || initial?.inspectionTime || null,
     };
 
     // Property managers are hand-picked and already vetted before they're ever
@@ -157,6 +198,7 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
           required
           value={address}
           onChange={setAddress}
+          onPlaceSelect={handleAddressSelect}
           placeholder="15 Grace Street, St Albans VIC 3021"
         />
       </div>
@@ -224,13 +266,30 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="inspectionTime">Inspection time (optional)</Label>
-        <Input
-          id="inspectionTime"
-          value={inspectionTime}
-          onChange={(e) => setInspectionTime(e.target.value)}
-          placeholder="Saturday 25 Jul, 10:00am - 10:30am"
-        />
+        <Label>Inspection time (optional)</Label>
+        {initial?.inspectionTime && !inspectionDate && (
+          <p className="text-xs text-muted">Current: {initial.inspectionTime}</p>
+        )}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Input
+            type="date"
+            aria-label="Inspection date"
+            value={inspectionDate}
+            onChange={(e) => setInspectionDate(e.target.value)}
+          />
+          <Input
+            type="time"
+            aria-label="Inspection start time"
+            value={inspectionStartTime}
+            onChange={(e) => setInspectionStartTime(e.target.value)}
+          />
+          <Input
+            type="time"
+            aria-label="Inspection end time"
+            value={inspectionEndTime}
+            onChange={(e) => setInspectionEndTime(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -286,7 +345,7 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
             <Check className="mr-2 h-4 w-4" /> Saved
           </>
         )}
-        {status === "idle" && (initial?.id ? "Save changes" : "Submit listing for review")}
+        {status === "idle" && (initial?.id ? "Save changes" : "Publish listing")}
       </Button>
     </form>
   );
