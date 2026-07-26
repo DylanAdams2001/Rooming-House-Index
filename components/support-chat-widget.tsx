@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, MessageCircle, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -24,12 +25,19 @@ export function SupportChatWidget() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [escalated, setEscalated] = useState<"idle" | "offered" | "sending" | "sent">("idle");
-  const [contactEmail, setContactEmail] = useState("");
+  const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, escalated]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setAccountEmail(data.user?.email ?? null);
+    });
+  }, []);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -79,7 +87,7 @@ export function SupportChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: messages.map(({ role, content }) => ({ role, content })),
-          contactEmail: contactEmail.trim() || undefined,
+          contactEmail: accountEmail || undefined,
         }),
       });
       setEscalated(res.ok ? "sent" : "offered");
@@ -89,6 +97,8 @@ export function SupportChatWidget() {
   }
 
   const lastMessageEscalates = Boolean(messages[messages.length - 1]?.escalate);
+
+  if (!accountEmail) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -143,13 +153,7 @@ export function SupportChatWidget() {
                     <p className="text-sm text-body">
                       Want me to send this conversation to our team?
                     </p>
-                    <Input
-                      type="email"
-                      placeholder="Your email (optional)"
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      className="h-9 text-sm"
-                    />
+                    <p className="text-xs text-muted">They'll reply to {accountEmail}.</p>
                     <Button
                       type="button"
                       size="sm"
