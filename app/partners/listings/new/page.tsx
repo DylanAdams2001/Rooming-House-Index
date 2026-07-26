@@ -5,7 +5,7 @@ export default function NewListingPage() {
     <div>
       <h1 className="font-display text-3xl text-ink">Add a Room</h1>
       <p className="mt-2 text-body">
-        New rooms go live once reviewed — you'll see the status on your listings page.
+        Your listing goes live on the site as soon as you submit it.
       </p>
 
       <div className="mt-8 max-w-2xl">

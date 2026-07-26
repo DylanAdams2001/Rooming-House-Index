@@ -128,9 +128,12 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
       inspection_time: inspectionTime.trim() || null,
     };
 
+    // Property managers are hand-picked and already vetted before they're ever
+    // sent a signup link, so their listings publish immediately rather than
+    // sitting in a pending queue (unlike self-serve service provider signups).
     const { error: writeError } = initial?.id
       ? await supabase.from("listings").update(payload).eq("id", initial.id)
-      : await supabase.from("listings").insert({ ...payload, status: "pending" });
+      : await supabase.from("listings").insert({ ...payload, status: "approved" });
 
     if (writeError) {
       setStatus("idle");
