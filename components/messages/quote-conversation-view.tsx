@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { QuoteRequestSummary } from "@/components/partners/quote-request-summary";
 import { QuoteReplyStarter } from "@/components/partners/quote-reply-starter";
+import { QuoteSubmissionForm, type ExistingQuote } from "@/components/partners/quote-submission-form";
 import { ArrowLeft } from "lucide-react";
 
 // Shared between the provider's view (/partners/quotes/[requestId]) and the
@@ -70,6 +71,26 @@ export async function QuoteConversationView({
         .order("created_at", { ascending: true })
     : { data: [] };
 
+  let existingQuote: ExistingQuote | null = null;
+  if (perspective === "provider") {
+    const { data } = await supabase
+      .from("service_quote_quotes")
+      .select("id, monthly_fee_pct, flat_fee, notes, document_url")
+      .eq("request_id", requestId)
+      .eq("provider_id", providerId)
+      .maybeSingle();
+    if (data) {
+      existingQuote = {
+        id: data.id,
+        feeType: data.flat_fee ? "flat" : "monthly_pct",
+        monthlyFeePct: data.monthly_fee_pct,
+        flatFee: data.flat_fee,
+        notes: data.notes,
+        documentUrl: data.document_url,
+      };
+    }
+  }
+
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
       <Link href={backHref} className="mb-4 flex items-center gap-2 text-sm text-body hover:text-ink">
@@ -87,6 +108,15 @@ export async function QuoteConversationView({
           investorEmail: investor?.email ?? null,
         }}
       />
+
+      {perspective === "provider" && (
+        <QuoteSubmissionForm
+          requestId={requestId}
+          providerId={providerId}
+          businessName={provider?.business_name ?? "Provider"}
+          existing={existingQuote}
+        />
+      )}
 
       {!conversation ? (
         perspective === "provider" ? (

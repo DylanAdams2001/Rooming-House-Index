@@ -1057,3 +1057,48 @@ create policy "Providers can view quote requests in their own category"
       and p.category = service_quote_requests.category
       and p.status = 'approved'
   ));
+
+-- ─────────────────────────────────────────────────────────────
+-- service_quote_quotes: let providers submit their own formal quote
+-- Previously admin-only (rows added by hand via the Supabase table editor).
+-- provider_id links a quote back to the submitting provider so RLS can grant
+-- them insert/update/delete on their own rows; document_url is an optional
+-- attached PDF, stored in a new quote-documents bucket alongside the
+-- structured price fields already on this table.
+-- ─────────────────────────────────────────────────────────────
+alter table public.service_quote_quotes add column if not exists provider_id uuid references public.service_providers (id) on delete set null;
+alter table public.service_quote_quotes add column if not exists document_url text;
+
+create policy "Providers can manage their own submitted quotes"
+  on public.service_quote_quotes for all
+  using (exists (
+    select 1 from public.service_providers p
+    where p.id = service_quote_quotes.provider_id and p.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.service_providers p
+    where p.id = service_quote_quotes.provider_id and p.user_id = auth.uid()
+  ));
+
+create index if not exists service_quote_quotes_provider_id_idx on public.service_quote_quotes (provider_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- Storage: quote-documents
+-- Public bucket for a provider's optional attached quote PDF, same
+-- folder-per-owner convention as profile-photos/listing-photos.
+-- ─────────────────────────────────────────────────────────────
+insert into storage.buckets (id, name, public)
+values ('quote-documents', 'quote-documents', true)
+on conflict (id) do nothing;
+
+create policy "Anyone can view quote documents"
+  on storage.objects for select
+  using (bucket_id = 'quote-documents');
+
+create policy "Providers can upload their own quote documents"
+  on storage.objects for insert
+  with check (bucket_id = 'quote-documents' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Providers can update their own quote documents"
+  on storage.objects for update
+  using (bucket_id = 'quote-documents' and (storage.foldername(name))[1] = auth.uid()::text);

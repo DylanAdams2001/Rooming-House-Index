@@ -26,6 +26,7 @@ type Quote = {
   monthly_fee_pct: number | null;
   flat_fee: string | null;
   notes: string | null;
+  document_url: string | null;
 };
 
 type Request = {
@@ -160,6 +161,16 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                               </p>
                               {quote.notes && (
                                 <p className="mt-0.5 text-sm text-body">{quote.notes}</p>
+                              )}
+                              {quote.document_url && (
+                                <a
+                                  href={quote.document_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="mt-1 inline-block text-xs text-ink underline underline-offset-4"
+                                >
+                                  View quote document
+                                </a>
                               )}
                             </div>
                             <p className="font-display text-lg text-ink">
