@@ -1042,3 +1042,18 @@ create trigger on_quote_message_inserted
   for each row execute procedure public.handle_new_quote_message();
 
 alter publication supabase_realtime add table public.quote_messages;
+
+-- Missing piece: providers could never actually SELECT service_quote_requests
+-- at all — only the investor who submitted one, or an admin, had a policy
+-- covering it. The email notification still worked (that route uses the
+-- service-role client, which bypasses RLS entirely), but /partners/quotes
+-- silently returned zero rows for every provider since nothing granted them
+-- read access to requests in their own category.
+create policy "Providers can view quote requests in their own category"
+  on public.service_quote_requests for select
+  using (exists (
+    select 1 from public.service_providers p
+    where p.user_id = auth.uid()
+      and p.category = service_quote_requests.category
+      and p.status = 'approved'
+  ));
