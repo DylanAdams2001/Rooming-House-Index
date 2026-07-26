@@ -26,6 +26,29 @@ export type ExistingQuote = {
   documentUrl: string | null;
 };
 
+const FLAT_FEE_PERIODS = [
+  { value: "one-off", label: "One-off" },
+  { value: "per year", label: "Per year" },
+  { value: "per quarter", label: "Per quarter" },
+  { value: "per month", label: "Per month" },
+];
+
+function formatFlatFee(amount: string, period: string) {
+  const numeric = Number(amount.replace(/[^0-9.]/g, ""));
+  if (!numeric) return "";
+  return `$${numeric.toLocaleString("en-AU")} ${period}`;
+}
+
+// Best-effort split of an existing flat_fee string (e.g. "$1,000 per year",
+// or a bare legacy value like "1000" from before this format existed) back
+// into an amount + period so the form can prefill sensibly when editing.
+function parseFlatFee(value: string | null): { amount: string; period: string } {
+  if (!value) return { amount: "", period: "per year" };
+  const numeric = value.replace(/[^0-9.]/g, "");
+  const period = FLAT_FEE_PERIODS.find((p) => value.includes(p.value))?.value ?? "per year";
+  return { amount: numeric, period };
+}
+
 // The formal, comparable quote a provider submits for a specific request —
 // separate from the chat thread (questions/back-and-forth), this is the
 // actual deliverable investors see listed on their Services page.
@@ -43,9 +66,11 @@ export function QuoteSubmissionForm({
   const router = useRouter();
   const supabase = createClient();
 
+  const parsedFlatFee = parseFlatFee(existing?.flatFee ?? null);
   const [feeType, setFeeType] = useState<string>(existing?.feeType ?? "monthly_pct");
   const [monthlyFeePct, setMonthlyFeePct] = useState(existing?.monthlyFeePct?.toString() ?? "");
-  const [flatFee, setFlatFee] = useState(existing?.flatFee ?? "");
+  const [flatFeeAmount, setFlatFeeAmount] = useState(parsedFlatFee.amount);
+  const [flatFeePeriod, setFlatFeePeriod] = useState(parsedFlatFee.period);
   const [notes, setNotes] = useState(existing?.notes ?? "");
   const [documentUrl, setDocumentUrl] = useState<string | null>(existing?.documentUrl ?? null);
   const [uploading, setUploading] = useState(false);
@@ -96,7 +121,7 @@ export function QuoteSubmissionForm({
       provider_id: providerId,
       provider_name: businessName,
       monthly_fee_pct: feeType === "monthly_pct" && monthlyFeePct ? Number(monthlyFeePct) : null,
-      flat_fee: feeType === "flat" && flatFee ? flatFee.trim() : null,
+      flat_fee: feeType === "flat" ? formatFlatFee(flatFeeAmount, flatFeePeriod) || null : null,
       notes: notes.trim() || null,
       document_url: documentUrl,
     };
@@ -123,44 +148,62 @@ export function QuoteSubmissionForm({
         {existing ? "Update your quote" : "Submit your quote"}
       </p>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Fee type</Label>
-          <Select value={feeType} onValueChange={setFeeType}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="monthly_pct">% of rent (monthly)</SelectItem>
-              <SelectItem value="flat">Flat fee</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {feeType === "monthly_pct" ? (
-          <div className="space-y-2">
-            <Label htmlFor="monthlyFeePct">Monthly fee (%)</Label>
-            <Input
-              id="monthlyFeePct"
-              type="number"
-              step="0.1"
-              min={0}
-              value={monthlyFeePct}
-              onChange={(e) => setMonthlyFeePct(e.target.value)}
-              placeholder="e.g. 7.5"
-            />
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Label htmlFor="flatFee">Flat fee</Label>
-            <Input
-              id="flatFee"
-              value={flatFee}
-              onChange={(e) => setFlatFee(e.target.value)}
-              placeholder="e.g. $450/yr"
-            />
-          </div>
-        )}
+      <div className="space-y-2">
+        <Label>Fee type</Label>
+        <Select value={feeType} onValueChange={setFeeType}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="monthly_pct">% of rent (monthly)</SelectItem>
+            <SelectItem value="flat">Flat fee</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
+      {feeType === "monthly_pct" ? (
+        <div className="space-y-2">
+          <Label htmlFor="monthlyFeePct">Monthly fee (%)</Label>
+          <Input
+            id="monthlyFeePct"
+            type="number"
+            step="0.1"
+            min={0}
+            value={monthlyFeePct}
+            onChange={(e) => setMonthlyFeePct(e.target.value)}
+            placeholder="e.g. 7.5"
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="flatFeeAmount">Amount ($)</Label>
+            <Input
+              id="flatFeeAmount"
+              type="number"
+              min={0}
+              value={flatFeeAmount}
+              onChange={(e) => setFlatFeeAmount(e.target.value)}
+              placeholder="e.g. 1000"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Period</Label>
+            <Select value={flatFeePeriod} onValueChange={setFlatFeePeriod}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FLAT_FEE_PERIODS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="notes">Notes (optional)</Label>
