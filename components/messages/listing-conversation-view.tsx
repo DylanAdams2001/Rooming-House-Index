@@ -22,7 +22,7 @@ export async function ListingConversationView({
 
   const { data: conversation, error } = await supabase
     .from("listing_conversations")
-    .select("id, listing_id, tenant_id, users!listing_conversations_tenant_id_fkey(email)")
+    .select("id, listing_id, tenant_id")
     .eq("id", conversationId)
     .maybeSingle();
 
@@ -48,9 +48,15 @@ export async function ListingConversationView({
     }
   }
 
-  const tenantEmail = conversation
-    ? (conversation.users as unknown as { email: string } | null)?.email
-    : null;
+  let tenantEmail: string | null = null;
+  if (conversation && perspective === "manager") {
+    const { data: tenant } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", conversation.tenant_id)
+      .maybeSingle();
+    tenantEmail = tenant?.email ?? null;
+  }
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
