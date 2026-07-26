@@ -4,6 +4,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 15;
 
 // Configured as a Supabase Database Webhook on service_quote_requests INSERT.
 // Fans the new request out by category: a property-management quote goes to

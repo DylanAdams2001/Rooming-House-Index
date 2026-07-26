@@ -4,6 +4,9 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
 
 export const runtime = "nodejs";
+// pg_net's own call timeout is set generously in the trigger function, but
+// this keeps Vercel from cutting the function off early on a cold start too.
+export const maxDuration = 15;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rooming-house-index.vercel.app";
 
@@ -44,23 +47,21 @@ export async function POST(req: Request) {
 
   if (!conversation) return NextResponse.json({ ok: true });
 
-  const { data: listing } = await supabase
-    .from("listings")
-    .select("owner_id, address")
-    .eq("id", conversation.listing_id)
-    .maybeSingle();
+  // These three only depend on the conversation row, not on each other —
+  // run them together instead of one after another to shave real latency
+  // off a cold-started function (this is what was causing pg_net's 5s
+  // timeout to trip before the request ever finished).
+  const [{ data: listing }, { data: tenant }, { data: profile }] = await Promise.all([
+    supabase.from("listings").select("owner_id, address").eq("id", conversation.listing_id).maybeSingle(),
+    supabase.from("users").select("email, full_name, phone").eq("id", conversation.tenant_id).maybeSingle(),
+    supabase.from("tenant_profiles").select("*").eq("user_id", conversation.tenant_id).maybeSingle(),
+  ]);
 
   if (!listing) return NextResponse.json({ ok: true });
 
   if (payload.record.is_manager) {
     // The property manager replied — notify the tenant, with the reply text
     // and a link straight back into their side of the conversation.
-    const { data: tenant } = await supabase
-      .from("users")
-      .select("email")
-      .eq("id", conversation.tenant_id)
-      .maybeSingle();
-
     if (!tenant?.email) return NextResponse.json({ ok: true });
 
     await resend.emails.send({
@@ -86,18 +87,6 @@ export async function POST(req: Request) {
   // The tenant already filled this in before they could enquire at all — pass
   // it straight through rather than making the manager log in just to see who
   // they're talking to.
-  const { data: tenant } = await supabase
-    .from("users")
-    .select("email, full_name, phone")
-    .eq("id", conversation.tenant_id)
-    .maybeSingle();
-
-  const { data: profile } = await supabase
-    .from("tenant_profiles")
-    .select("*")
-    .eq("user_id", conversation.tenant_id)
-    .maybeSingle();
-
   const applicantLines = [
     `Name: ${tenant?.full_name ?? "Not provided"}`,
     `Email: ${tenant?.email ?? "Not provided"}`,
