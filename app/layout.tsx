@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SupportChatWidget } from "@/components/support-chat-widget";
 
 export const metadata: Metadata = {
   title: "Rooming House Index — Find a Room",
@@ -14,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <SupportChatWidget />
+      </body>
     </html>
   );
 }

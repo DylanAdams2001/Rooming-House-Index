@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slider": "^1.1.2",
@@ -24,6 +25,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "recharts": "^2.12.2",
+    "resend": "^6.18.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7"
   },
