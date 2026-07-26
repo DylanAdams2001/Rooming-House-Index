@@ -83,11 +83,46 @@ export async function POST(req: Request) {
 
   if (!owner?.email) return NextResponse.json({ ok: true });
 
+  // The tenant already filled this in before they could enquire at all — pass
+  // it straight through rather than making the manager log in just to see who
+  // they're talking to.
+  const { data: tenant } = await supabase
+    .from("users")
+    .select("email, full_name, phone")
+    .eq("id", conversation.tenant_id)
+    .maybeSingle();
+
+  const { data: profile } = await supabase
+    .from("tenant_profiles")
+    .select("*")
+    .eq("user_id", conversation.tenant_id)
+    .maybeSingle();
+
+  const applicantLines = [
+    `Name: ${tenant?.full_name ?? "Not provided"}`,
+    `Email: ${tenant?.email ?? "Not provided"}`,
+    `Phone: ${tenant?.phone ?? "Not provided"}`,
+    profile?.employment_status
+      ? `Employment: ${profile.employment_status}${profile.occupation ? ` — ${profile.occupation}` : ""}`
+      : null,
+    profile?.weekly_income_range ? `Income: ${profile.weekly_income_range}` : null,
+    `Occupants: ${profile?.num_occupants ?? 1}`,
+    `Pets: ${profile?.has_pets ? profile.pet_details || "Yes" : "No"}`,
+    `Smoker: ${profile?.is_smoker ? "Yes" : "No"}`,
+    profile?.preferred_move_in_date ? `Preferred move-in: ${profile.preferred_move_in_date}` : null,
+    profile?.reference_name
+      ? `Reference: ${profile.reference_name}${profile.reference_phone ? ` — ${profile.reference_phone}` : ""}`
+      : null,
+    profile?.additional_notes ? `Notes: ${profile.additional_notes}` : null,
+  ].filter(Boolean);
+
   await resend.emails.send({
     from: fromAddress,
     to: owner.email,
     subject: `New enquiry about ${listing.address}`,
-    text: `A tenant sent a message about your listing at ${listing.address}:\n\n"${payload.record.body}"\n\nReply here: ${SITE_URL}/partners/enquiries/${payload.record.conversation_id}`,
+    text: `A tenant sent a message about your listing at ${listing.address}:\n\n"${payload.record.body}"\n\nApplicant details:\n${applicantLines.join(
+      "\n"
+    )}\n\nReply here: ${SITE_URL}/partners/enquiries/${payload.record.conversation_id}`,
   });
 
   return NextResponse.json({ ok: true });

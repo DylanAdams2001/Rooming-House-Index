@@ -4,6 +4,10 @@ import { getListingTitle } from "@/lib/mock-listings";
 import { getApprovedListingById } from "@/lib/listings";
 import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { ChatThread } from "@/components/chat/chat-thread";
+import {
+  TenantApplicationSummary,
+  type TenantApplication,
+} from "@/components/partners/tenant-application-summary";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 
 export async function ListingConversationView({
@@ -49,13 +53,39 @@ export async function ListingConversationView({
   }
 
   let tenantEmail: string | null = null;
+  let application: TenantApplication | null = null;
   if (conversation && perspective === "manager") {
     const { data: tenant } = await supabase
       .from("users")
-      .select("email")
+      .select("email, full_name, phone")
       .eq("id", conversation.tenant_id)
       .maybeSingle();
     tenantEmail = tenant?.email ?? null;
+
+    const { data: profile } = await supabase
+      .from("tenant_profiles")
+      .select("*")
+      .eq("user_id", conversation.tenant_id)
+      .maybeSingle();
+
+    if (tenant && profile) {
+      application = {
+        fullName: tenant.full_name,
+        email: tenant.email,
+        phone: tenant.phone,
+        employmentStatus: profile.employment_status,
+        occupation: profile.occupation,
+        weeklyIncomeRange: profile.weekly_income_range,
+        numOccupants: profile.num_occupants,
+        hasPets: profile.has_pets,
+        petDetails: profile.pet_details,
+        isSmoker: profile.is_smoker,
+        preferredMoveInDate: profile.preferred_move_in_date,
+        referenceName: profile.reference_name,
+        referencePhone: profile.reference_phone,
+        additionalNotes: profile.additional_notes,
+      };
+    }
   }
 
   return (
@@ -96,6 +126,9 @@ export async function ListingConversationView({
                 </div>
               )}
             </Link>
+          )}
+          {perspective === "manager" && application && (
+            <TenantApplicationSummary application={application} />
           )}
           <ChatThread
             conversationId={conversation.id}

@@ -864,3 +864,21 @@ begin
   return v_conversation_id;
 end;
 $$;
+
+-- ─────────────────────────────────────────────────────────────
+-- tenant_profiles: let listing owners see the applicant's details
+-- A tenant already fills this in before they can enquire at all (see
+-- enquire-button.tsx) — this just lets the property manager whose room
+-- they enquired about actually read it, mirroring the existing
+-- "Conversation partners can view a tenant's application profile" policy
+-- which only covers the investor/service_provider marketplace, not listings.
+-- ─────────────────────────────────────────────────────────────
+create policy "Listing owners can view an enquiring tenant's application profile"
+  on public.tenant_profiles for select
+  using (
+    exists (
+      select 1 from public.listing_conversations c
+      join public.listings l on l.id::text = c.listing_id
+      where c.tenant_id = tenant_profiles.user_id and l.owner_id = auth.uid()
+    )
+  );
