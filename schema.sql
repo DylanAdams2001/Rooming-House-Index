@@ -1102,3 +1102,22 @@ create policy "Providers can upload their own quote documents"
 create policy "Providers can update their own quote documents"
   on storage.objects for update
   using (bucket_id = 'quote-documents' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Nothing previously moved a request out of 'pending' once a provider
+-- actually submitted a quote — admin used to flip this by hand when quotes
+-- were entered manually. Now that providers self-submit, the rate limiter
+-- (which blocks a new request in a category while one is still 'pending')
+-- would otherwise block forever even after a quote arrives.
+create or replace function public.handle_new_quote_submission()
+returns trigger as $$
+begin
+  update public.service_quote_requests
+  set status = 'quoted'
+  where id = new.request_id and status = 'pending';
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_quote_submitted
+  after insert on public.service_quote_quotes
+  for each row execute procedure public.handle_new_quote_submission();
