@@ -13,7 +13,9 @@ export default function InvestorQuoteConversationPage({
       requestId={params.requestId}
       providerId={params.providerId}
       backHref={`/dashboard/services/${category?.slug ?? params.category}`}
+      messagesHref={`/dashboard/quote-messages/${params.requestId}/${params.providerId}`}
       perspective="investor"
+      section="quote"
     />
   );
 }

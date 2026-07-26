@@ -5,24 +5,35 @@ import { QuoteRequestSummary } from "@/components/partners/quote-request-summary
 import { QuoteReplyStarter } from "@/components/partners/quote-reply-starter";
 import { QuoteSubmissionForm, type ExistingQuote } from "@/components/partners/quote-submission-form";
 import { QuoteCard } from "@/components/quote-card";
-import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 
-// Shared between the provider's view (/partners/quotes/[requestId]) and the
-// investor's view (/dashboard/services/[category]/requests/[requestId]) of a
-// single provider's thread on one quote request — perspective flips who "mine"
-// resolves to and which side's read-state column gets updated.
+// Shared between the provider's view (/partners/quotes/[requestId] and
+// /partners/quote-messages/[requestId]) and the investor's view
+// (/dashboard/services/.../requests/[requestId]/[providerId] and
+// /dashboard/quote-messages/[requestId]/[providerId]) of a single provider's
+// thread on one quote request. `section` splits the two concerns that used
+// to live on one page: "quote" shows the request + the formal price/document
+// (no chat at all), "messages" shows the conversation only (no quote tools) —
+// each reachable from its own portal tab, not nested inside the other.
 export async function QuoteConversationView({
   requestId,
   providerId,
   backHref,
+  messagesHref,
   perspective,
+  section,
 }: {
   requestId: string;
   // Which provider's thread on this request — required even from the investor
   // side, since a request can have a separate conversation per provider.
   providerId: string;
   backHref: string;
+  // Only used when section="quote" — link to this same request/provider pair's
+  // Messages-tab conversation, so there's still a way to jump into the chat.
+  messagesHref?: string;
   perspective: "investor" | "provider";
+  section: "quote" | "messages";
 }) {
   const supabase = createClient();
   const {
@@ -55,7 +66,7 @@ export async function QuoteConversationView({
     .eq("provider_id", providerId)
     .maybeSingle();
 
-  if (conversation) {
+  if (conversation && section === "messages") {
     const readColumn = perspective === "provider" ? "provider_last_read_at" : "investor_last_read_at";
     supabase
       .from("quote_conversations")
@@ -64,13 +75,14 @@ export async function QuoteConversationView({
       .then(() => {});
   }
 
-  const { data: initialMessages } = conversation
-    ? await supabase
-        .from("quote_messages")
-        .select("id, sender_id, body, created_at, is_provider")
-        .eq("conversation_id", conversation.id)
-        .order("created_at", { ascending: true })
-    : { data: [] };
+  const { data: initialMessages } =
+    conversation && section === "messages"
+      ? await supabase
+          .from("quote_messages")
+          .select("id, sender_id, body, created_at, is_provider")
+          .eq("conversation_id", conversation.id)
+          .order("created_at", { ascending: true })
+      : { data: [] };
 
   const { data: submittedQuote } = await supabase
     .from("service_quote_quotes")
@@ -108,55 +120,69 @@ export async function QuoteConversationView({
         }}
       />
 
-      {perspective === "provider" && (
-        <QuoteSubmissionForm
-          requestId={requestId}
-          providerId={providerId}
-          businessName={provider?.business_name ?? "Provider"}
-          existing={existingQuote}
-        />
+      {section === "quote" && (
+        <>
+          {perspective === "provider" && (
+            <QuoteSubmissionForm
+              requestId={requestId}
+              providerId={providerId}
+              businessName={provider?.business_name ?? "Provider"}
+              existing={existingQuote}
+            />
+          )}
+
+          {perspective === "investor" && submittedQuote && (
+            <div className="mb-4">
+              <QuoteCard
+                quote={{
+                  id: submittedQuote.id,
+                  providerName: provider?.business_name ?? "Provider",
+                  monthlyFeePct: submittedQuote.monthly_fee_pct,
+                  flatFee: submittedQuote.flat_fee,
+                  notes: submittedQuote.notes,
+                  documentUrl: submittedQuote.document_url,
+                }}
+              />
+            </div>
+          )}
+
+          {messagesHref && (
+            <Button asChild variant="outline">
+              <Link href={messagesHref}>
+                <MessageCircle className="mr-2 h-4 w-4" />
+                {conversation ? "View conversation" : "Message about this request"}
+              </Link>
+            </Button>
+          )}
+        </>
       )}
 
-      {perspective === "investor" && submittedQuote && (
-        <div className="mb-4">
-          <QuoteCard
-            quote={{
-              id: submittedQuote.id,
-              providerName: provider?.business_name ?? "Provider",
-              monthlyFeePct: submittedQuote.monthly_fee_pct,
-              flatFee: submittedQuote.flat_fee,
-              notes: submittedQuote.notes,
-              documentUrl: submittedQuote.document_url,
-            }}
-          />
-        </div>
-      )}
-
-      {!conversation ? (
-        perspective === "provider" ? (
-          <QuoteReplyStarter requestId={requestId} providerId={providerId} />
+      {section === "messages" &&
+        (!conversation ? (
+          perspective === "provider" ? (
+            <QuoteReplyStarter requestId={requestId} providerId={providerId} />
+          ) : (
+            <div className="rounded-card border border-dashed border-line bg-white p-8 text-center">
+              <p className="text-body">
+                {provider?.business_name ?? "This provider"} hasn&apos;t replied to your request yet.
+              </p>
+            </div>
+          )
         ) : (
-          <div className="rounded-card border border-dashed border-line bg-white p-8 text-center">
-            <p className="text-body">
-              {provider?.business_name ?? "This provider"} hasn&apos;t replied to your request yet.
-            </p>
-          </div>
-        )
-      ) : (
-        <ChatThread
-          conversationId={conversation.id}
-          currentUserId={user!.id}
-          otherPartyName={
-            perspective === "provider"
-              ? investor?.full_name ?? investor?.email ?? "Investor"
-              : provider?.business_name ?? "Provider"
-          }
-          initialMessages={initialMessages ?? []}
-          table="quote_messages"
-          businessSideReply={perspective === "provider"}
-          complianceNote="Every message here is tied to this specific quote request."
-        />
-      )}
+          <ChatThread
+            conversationId={conversation.id}
+            currentUserId={user!.id}
+            otherPartyName={
+              perspective === "provider"
+                ? investor?.full_name ?? investor?.email ?? "Investor"
+                : provider?.business_name ?? "Provider"
+            }
+            initialMessages={initialMessages ?? []}
+            table="quote_messages"
+            businessSideReply={perspective === "provider"}
+            complianceNote="Every message here is tied to this specific quote request."
+          />
+        ))}
     </div>
   );
 }

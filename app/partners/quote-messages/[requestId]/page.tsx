@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { QuoteConversationView } from "@/components/messages/quote-conversation-view";
 
-export default async function PartnersQuoteConversationPage({
+export default async function PartnersQuoteMessagesConversationPage({
   params,
 }: {
   params: { requestId: string };
@@ -26,10 +26,9 @@ export default async function PartnersQuoteConversationPage({
     <QuoteConversationView
       requestId={params.requestId}
       providerId={providerRow.id}
-      backHref="/partners/quotes"
-      messagesHref={`/partners/quote-messages/${params.requestId}`}
+      backHref="/partners/quote-messages"
       perspective="provider"
-      section="quote"
+      section="messages"
     />
   );
 }

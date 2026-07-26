@@ -8,9 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/back-link";
-import { MessageCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 // Quote-based categories (insurance, property-management) render user-specific
 // request data at request time, so they're excluded from static generation —
@@ -67,37 +64,6 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
         .eq("category", category.dbCategory)
         .order("created_at", { ascending: false });
       requests = (data ?? []) as unknown as Request[];
-    }
-
-    const requestIds = requests.map((r) => r.id);
-    let conversationsByRequest = new Map<
-      string,
-      { id: string; provider_id: string; last_message_at: string; investor_last_read_at: string | null; business_name: string }[]
-    >();
-    if (requestIds.length > 0) {
-      const { data: conversations } = await supabase
-        .from("quote_conversations")
-        .select("id, request_id, provider_id, last_message_at, investor_last_read_at, service_providers(business_name)")
-        .in("request_id", requestIds);
-
-      for (const c of (conversations ?? []) as unknown as {
-        id: string;
-        request_id: string;
-        provider_id: string;
-        last_message_at: string;
-        investor_last_read_at: string | null;
-        service_providers: { business_name: string } | null;
-      }[]) {
-        const list = conversationsByRequest.get(c.request_id) ?? [];
-        list.push({
-          id: c.id,
-          provider_id: c.provider_id,
-          last_message_at: c.last_message_at,
-          investor_last_read_at: c.investor_last_read_at,
-          business_name: c.service_providers?.business_name ?? "Provider",
-        });
-        conversationsByRequest.set(c.request_id, list);
-      }
     }
 
     return (
@@ -164,32 +130,6 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                             }}
                           />
                         ))}
-                      </div>
-                    )}
-
-                    {(conversationsByRequest.get(request.id) ?? []).length > 0 && (
-                      <div className="mt-4 space-y-2 border-t border-line pt-4">
-                        <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                          Provider replies
-                        </p>
-                        {(conversationsByRequest.get(request.id) ?? []).map((c) => {
-                          const unread =
-                            !c.investor_last_read_at ||
-                            new Date(c.last_message_at) > new Date(c.investor_last_read_at);
-                          return (
-                            <Link
-                              key={c.id}
-                              href={`/dashboard/services/${category.slug}/requests/${request.id}/${c.provider_id}`}
-                              className="flex items-center justify-between gap-3 rounded-btn border border-line px-4 py-2.5 text-sm transition-colors hover:bg-linen"
-                            >
-                              <span className={cn("flex items-center gap-2", unread && "font-semibold text-ink")}>
-                                {unread && <span className="h-2 w-2 rounded-full bg-ink" aria-hidden="true" />}
-                                {c.business_name}
-                              </span>
-                              <MessageCircle className="h-4 w-4 text-muted" />
-                            </Link>
-                          );
-                        })}
                       </div>
                     )}
                   </CardContent>
