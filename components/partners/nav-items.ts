@@ -26,6 +26,7 @@ export function getPartnerNavItems(
   if (role === "provider" || role === "admin") {
     if (isQuoteBased || role === "admin") {
       items.push({ href: "/partners/quotes", label: "Quote Requests", icon: MessageCircle });
+      items.push({ href: "/partners/quote-messages", label: "Messages", icon: MessageCircle });
     }
     if (!isQuoteBased || role === "admin") {
       items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });

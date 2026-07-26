@@ -30,7 +30,7 @@ export function PartnersTopbar({
 
   const menuItems = getPartnerNavItems(role, category).map((item) => {
     if (item.href === "/partners/enquiries") return { ...item, badgeCount: unreadEnquiryCount };
-    if (item.href === "/partners/quotes") return { ...item, badgeCount: unreadQuoteCount };
+    if (item.href === "/partners/quote-messages") return { ...item, badgeCount: unreadQuoteCount };
     return item;
   });
 
