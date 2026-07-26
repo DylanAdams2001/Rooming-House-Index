@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Check, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +27,7 @@ export function SupportChatWidget() {
   const [sending, setSending] = useState(false);
   const [escalated, setEscalated] = useState<"idle" | "offered" | "sending" | "sent">("idle");
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
+  const [summary, setSummary] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,6 +82,8 @@ export function SupportChatWidget() {
   }
 
   async function handleEscalate() {
+    const summaryText = summary.trim();
+    if (!summaryText) return;
     setEscalated("sending");
     try {
       const res = await fetch("/api/support-chat/escalate", {
@@ -88,6 +92,7 @@ export function SupportChatWidget() {
         body: JSON.stringify({
           messages: messages.map(({ role, content }) => ({ role, content })),
           contactEmail: accountEmail || undefined,
+          summary: summaryText,
         }),
       });
       setEscalated(res.ok ? "sent" : "offered");
@@ -146,8 +151,16 @@ export function SupportChatWidget() {
               <div className="rounded-card border border-line bg-offwhite p-3">
                 <div className="space-y-2">
                   <p className="text-sm text-body">
-                    Want me to send this conversation to our team?
+                    Want me to send this to our team? Briefly describe what you need help with:
                   </p>
+                  <Textarea
+                    value={summary}
+                    onChange={(e) => setSummary(e.target.value)}
+                    placeholder="e.g. I can't see my rental application, can someone check it?"
+                    rows={3}
+                    className="text-sm"
+                    disabled={escalated === "sending" || escalated === "sent"}
+                  />
                   <Button
                     type="button"
                     size="sm"
@@ -155,7 +168,9 @@ export function SupportChatWidget() {
                       "w-full transition-colors duration-300",
                       escalated === "sent" && "bg-green-600 hover:bg-green-600"
                     )}
-                    disabled={escalated === "sending" || escalated === "sent"}
+                    disabled={
+                      escalated === "sending" || escalated === "sent" || !summary.trim()
+                    }
                     onClick={handleEscalate}
                   >
                     {escalated === "sending" && (

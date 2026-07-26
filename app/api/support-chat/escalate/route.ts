@@ -15,16 +15,15 @@ export async function POST(req: Request) {
     );
   }
 
-  const { messages, contactEmail } = (await req.json()) as {
+  const { messages, contactEmail, summary } = (await req.json()) as {
     messages: { role: "user" | "assistant"; content: string }[];
     contactEmail?: string;
+    summary?: string;
   };
 
-  if (!Array.isArray(messages) || messages.length === 0) {
+  if (!Array.isArray(messages) || messages.length === 0 || !summary?.trim()) {
     return NextResponse.json({ error: "No conversation provided." }, { status: 400 });
   }
-
-  const lastVisitorMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
   const resend = new Resend(apiKey);
 
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
     to: SUPPORT_RECIPIENTS,
     replyTo: contactEmail || undefined,
     subject: "You have a new support chat message — Rooming House Index",
-    text: `A visitor on the support chat needs help the bot couldn't provide.\n\nTheir message: "${lastVisitorMessage}"\n\nContact email: ${
+    text: `A visitor on the support chat needs help the bot couldn't provide.\n\nWhat they need help with: "${summary.trim()}"\n\nContact email: ${
       contactEmail || "not provided — ask for one if you reply"
     }${contactEmail ? "\n\nJust hit reply to respond to them directly." : ""}`,
   });
