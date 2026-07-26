@@ -39,6 +39,7 @@ export function HeaderAuthButton() {
   const [fullName, setFullName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [isInvestor, setIsInvestor] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,6 +56,19 @@ export function HeaderAuthButton() {
       setAvatarUrl(profile?.avatar_url ?? null);
       setFullName(profile?.full_name ?? null);
       setIsInvestor(profile?.investor_access === "active");
+
+      // Same unread comparison as the account layout's badge — pulled and
+      // compared in JS since it's two columns on the same row, not something
+      // a Supabase filter can express directly.
+      const { data: conversations } = await supabase
+        .from("listing_conversations")
+        .select("last_message_at, tenant_last_read_at")
+        .eq("tenant_id", user.id);
+      setUnreadCount(
+        (conversations ?? []).filter(
+          (c) => !c.tenant_last_read_at || new Date(c.last_message_at) > new Date(c.tenant_last_read_at)
+        ).length
+      );
     }
 
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -78,6 +92,7 @@ export function HeaderAuthButton() {
         setFullName(null);
         setEmail(null);
         setIsInvestor(false);
+        setUnreadCount(0);
       }
       setLoaded(true);
     });
@@ -136,7 +151,7 @@ export function HeaderAuthButton() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Profile menu"
         aria-expanded={open}
-        className="flex h-10 w-10 shrink-0 rounded-full border border-line transition-colors hover:border-ink"
+        className="relative flex h-10 w-10 shrink-0 rounded-full border border-line transition-colors hover:border-ink"
       >
         <Avatar
           seed={userId}
@@ -144,6 +159,12 @@ export function HeaderAuthButton() {
           photoUrl={avatarUrl}
           className="h-full w-full text-base"
         />
+        {unreadCount > 0 && (
+          <span
+            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-600"
+            aria-label="Unread notifications"
+          />
+        )}
       </button>
 
       {open && (
@@ -166,6 +187,11 @@ export function HeaderAuthButton() {
             >
               <Icon className="h-4 w-4" />
               {label}
+              {href === "/account/messages" && unreadCount > 0 && (
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-medium text-white">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           ))}
           <div className="my-2 border-t border-line" />
