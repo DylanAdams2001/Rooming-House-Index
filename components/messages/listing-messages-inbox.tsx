@@ -122,7 +122,10 @@ export async function ListingMessagesInbox({
           {conversations.map((c) => {
             const listing = listingsById.get(c.listing_id) ?? null;
             return (
-              <Link key={c.id} href={`${basePath}/messages/${c.id}`}>
+              <Link
+                key={c.id}
+                href={`${basePath}/${perspective === "manager" ? "enquiries" : "messages"}/${c.id}`}
+              >
                 <Card className="transition-colors hover:bg-linen">
                   <CardContent className="flex items-center justify-between p-5">
                     <div>

@@ -74,13 +74,6 @@ export async function ListingConversationView({
             This conversation isn&apos;t available — either it doesn&apos;t exist, or messaging
             isn&apos;t connected to a live Supabase project yet.
           </p>
-          {error && <p className="mt-2 text-xs text-muted">Error: {error.message}</p>}
-          {!error && !conversation && (
-            <p className="mt-2 text-xs text-muted">
-              No error, but no row returned — most likely blocked by a row-level security
-              policy rather than missing data.
-            </p>
-          )}
         </div>
       ) : (
         <>
