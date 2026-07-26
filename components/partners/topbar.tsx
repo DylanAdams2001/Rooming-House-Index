@@ -12,21 +12,27 @@ export function PartnersTopbar({
   fullName,
   avatarUrl,
   role,
+  category,
   unreadEnquiryCount = 0,
+  unreadQuoteCount = 0,
 }: {
   userId: string;
   userEmail: string;
   fullName?: string | null;
   avatarUrl?: string | null;
   role: string | null | undefined;
+  category?: string | null;
   unreadEnquiryCount?: number;
+  unreadQuoteCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
-  const menuItems = getPartnerNavItems(role).map((item) =>
-    item.href === "/partners/enquiries" ? { ...item, badgeCount: unreadEnquiryCount } : item
-  );
+  const menuItems = getPartnerNavItems(role, category).map((item) => {
+    if (item.href === "/partners/enquiries") return { ...item, badgeCount: unreadEnquiryCount };
+    if (item.href === "/partners/quotes") return { ...item, badgeCount: unreadQuoteCount };
+    return item;
+  });
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -37,7 +43,7 @@ export function PartnersTopbar({
   return (
     <header className="flex h-20 min-w-0 items-center justify-between gap-4 border-b border-line bg-white px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <PartnersMobileNav role={role} />
+        <PartnersMobileNav role={role} category={category} />
         <span className="truncate font-display text-lg text-ink md:hidden">Partner Portal</span>
       </div>
       <AvatarMenu

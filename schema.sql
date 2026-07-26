@@ -908,3 +908,137 @@ create policy "Listing owners can update their own listing conversation read sta
     select 1 from public.listings l
     where l.id::text = listing_conversations.listing_id and l.owner_id = auth.uid()
   ));
+
+-- ═════════════════════════════════════════════════════════════
+-- Quote request messaging: investor <-> quote-based providers
+-- Insurance/property-management quote requests broadcast to every provider in
+-- that category (see app/api/webhooks/quote-request/route.ts) — this is what
+-- lets any of them start their own private thread with the investor about a
+-- specific request, independent of whether other providers also respond.
+-- Kept as its own table pair rather than overloading `conversations` (which
+-- is unique per investor+provider pair, and would collide across multiple
+-- requests to the same provider) or `listing_conversations` (a different
+-- domain entirely).
+-- ═════════════════════════════════════════════════════════════
+create table if not exists public.quote_conversations (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid not null references public.service_quote_requests (id) on delete cascade,
+  provider_id uuid not null references public.service_providers (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now(),
+  investor_last_read_at timestamptz,
+  provider_last_read_at timestamptz,
+
+  unique (request_id, provider_id)
+);
+
+alter table public.quote_conversations enable row level security;
+
+create policy "Investors can view conversations about their own quote requests"
+  on public.quote_conversations for select
+  using (exists (
+    select 1 from public.service_quote_requests r
+    where r.id = quote_conversations.request_id and r.user_id = auth.uid()
+  ));
+
+create policy "Investors can update read state on their own quote conversations"
+  on public.quote_conversations for update
+  using (exists (
+    select 1 from public.service_quote_requests r
+    where r.id = quote_conversations.request_id and r.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.service_quote_requests r
+    where r.id = quote_conversations.request_id and r.user_id = auth.uid()
+  ));
+
+create policy "Providers can view and manage conversations on their own requests"
+  on public.quote_conversations for all
+  using (exists (
+    select 1 from public.service_providers p
+    where p.id = quote_conversations.provider_id and p.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.service_providers p
+    where p.id = quote_conversations.provider_id and p.user_id = auth.uid()
+  ));
+
+create policy "Admins can view every quote conversation"
+  on public.quote_conversations for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists quote_conversations_request_id_idx on public.quote_conversations (request_id);
+create index if not exists quote_conversations_provider_id_idx on public.quote_conversations (provider_id);
+
+create table if not exists public.quote_messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.quote_conversations (id) on delete cascade,
+  sender_id uuid references public.users (id) on delete set null,
+  is_provider boolean not null default false,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.quote_messages enable row level security;
+
+create policy "Participants can view quote messages"
+  on public.quote_messages for select
+  using (exists (
+    select 1 from public.quote_conversations c
+    join public.service_quote_requests r on r.id = c.request_id
+    where c.id = conversation_id
+      and (
+        r.user_id = auth.uid()
+        or exists (
+          select 1 from public.service_providers p
+          where p.id = c.provider_id and p.user_id = auth.uid()
+        )
+      )
+  ));
+
+create policy "Participants can send quote messages"
+  on public.quote_messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (
+      select 1 from public.quote_conversations c
+      join public.service_quote_requests r on r.id = c.request_id
+      where c.id = conversation_id
+        and (
+          (is_provider = false and r.user_id = auth.uid())
+          or (
+            is_provider = true
+            and exists (
+              select 1 from public.service_providers p
+              where p.id = c.provider_id and p.user_id = auth.uid()
+            )
+          )
+        )
+    )
+  );
+
+create policy "Admins can view every quote message"
+  on public.quote_messages for select
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists quote_messages_conversation_id_idx on public.quote_messages (conversation_id);
+
+create or replace function public.handle_new_quote_message()
+returns trigger as $$
+begin
+  update public.quote_conversations
+  set last_message_at = new.created_at
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_quote_message_inserted
+  after insert on public.quote_messages
+  for each row execute procedure public.handle_new_quote_message();
+
+alter publication supabase_realtime add table public.quote_messages;

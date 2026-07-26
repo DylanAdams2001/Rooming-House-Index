@@ -12,12 +12,15 @@ type Message = {
   sender_id: string | null;
   body: string;
   created_at: string;
-  // Only present on listing_messages rows — used to tell an automated/manager
-  // system message apart from the tenant's own, since the legacy auto-reply has
-  // sender_id=null (not attributable to any specific account) rather than
-  // matching whichever manager account is currently viewing it.
+  // Only present on listing_messages/quote_messages rows — used to tell an
+  // automated/business-side message apart from the other party's, since the
+  // legacy listing auto-reply has sender_id=null (not attributable to any
+  // specific account) rather than matching whichever account is viewing it.
   is_manager?: boolean;
+  is_provider?: boolean;
 };
+
+type Table = "messages" | "listing_messages" | "quote_messages";
 
 export function ChatThread({
   conversationId,
@@ -25,18 +28,19 @@ export function ChatThread({
   otherPartyName,
   initialMessages,
   table = "messages",
-  isManagerReply = false,
+  businessSideReply = false,
   complianceNote = "All messages here are visible to Rooming House Index for payment and compliance purposes.",
 }: {
   conversationId: string;
   currentUserId: string;
   otherPartyName: string;
   initialMessages: Message[];
-  table?: "messages" | "listing_messages";
-  // Only meaningful for table="listing_messages" — true when the current user
-  // is the property manager replying (attributed via is_manager on the row),
-  // rather than the tenant who started the enquiry.
-  isManagerReply?: boolean;
+  table?: Table;
+  // Only meaningful for table="listing_messages" (is_manager) or
+  // table="quote_messages" (is_provider) — true when the current user is the
+  // business side of the conversation (property manager / quote provider)
+  // rather than the tenant/investor who started it.
+  businessSideReply?: boolean;
   complianceNote?: string;
 }) {
   const supabase = createClient();
@@ -80,24 +84,28 @@ export function ChatThread({
     setSending(true);
     setDraft("");
 
-    const { data, error } =
-      table === "listing_messages"
-        ? await supabase
-            .from("listing_messages")
-            .insert({
-              conversation_id: conversationId,
-              sender_id: currentUserId,
-              body,
-              is_manager: isManagerReply,
-            })
-            .select("id, sender_id, body, created_at, is_manager")
-            .single()
-        : await supabase
-            .from("messages")
-            .insert({ conversation_id: conversationId, sender_id: currentUserId, body })
-            .select("id, sender_id, body, created_at")
-            .single();
+    let result;
+    if (table === "listing_messages") {
+      result = await supabase
+        .from("listing_messages")
+        .insert({ conversation_id: conversationId, sender_id: currentUserId, body, is_manager: businessSideReply })
+        .select("id, sender_id, body, created_at, is_manager")
+        .single();
+    } else if (table === "quote_messages") {
+      result = await supabase
+        .from("quote_messages")
+        .insert({ conversation_id: conversationId, sender_id: currentUserId, body, is_provider: businessSideReply })
+        .select("id, sender_id, body, created_at, is_provider")
+        .single();
+    } else {
+      result = await supabase
+        .from("messages")
+        .insert({ conversation_id: conversationId, sender_id: currentUserId, body })
+        .select("id, sender_id, body, created_at")
+        .single();
+    }
 
+    const { data, error } = result;
     setSending(false);
 
     if (!error && data) {
@@ -119,14 +127,18 @@ export function ChatThread({
           </p>
         )}
         {messages.map((m) => {
-          // For the manager's own view of a listing conversation, "mine" means
-          // "sent by the property team" (is_manager), not "sent by this exact
-          // account" — otherwise the legacy system welcome message (sender_id
-          // null) would render as if the tenant had said it.
-          const mine =
-            table === "listing_messages" && isManagerReply
-              ? m.is_manager === true
-              : m.sender_id === currentUserId;
+          // For the business side's own view, "mine" means "sent by the
+          // business side" (is_manager / is_provider), not "sent by this
+          // exact account" — otherwise the legacy listing auto-reply
+          // (sender_id null) would render as if the other party had said it.
+          let mine: boolean;
+          if (table === "listing_messages" && businessSideReply) {
+            mine = m.is_manager === true;
+          } else if (table === "quote_messages" && businessSideReply) {
+            mine = m.is_provider === true;
+          } else {
+            mine = m.sender_id === currentUserId;
+          }
           return (
             <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
               <div

@@ -7,10 +7,16 @@ import { Menu, X, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPartnerNavItems, isPartnerNavItemActive } from "./nav-items";
 
-export function PartnersMobileNav({ role }: { role: string | null | undefined }) {
+export function PartnersMobileNav({
+  role,
+  category,
+}: {
+  role: string | null | undefined;
+  category?: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const items = getPartnerNavItems(role);
+  const items = getPartnerNavItems(role, category);
 
   return (
     <div className="md:hidden">

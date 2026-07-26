@@ -43,9 +43,30 @@ export default async function PartnersLayout({ children }: { children: React.Rea
     }
   }
 
+  let category: string | null = null;
+  let unreadQuoteCount = 0;
+  if (profile.role === "provider") {
+    const { data: providerRow } = await supabase
+      .from("service_providers")
+      .select("id, category")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    category = providerRow?.category ?? null;
+
+    if (providerRow) {
+      const { data: conversations } = await supabase
+        .from("quote_conversations")
+        .select("last_message_at, provider_last_read_at")
+        .eq("provider_id", providerRow.id);
+      unreadQuoteCount = (conversations ?? []).filter(
+        (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
+      ).length;
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-white">
-      <PartnersSidebar role={profile.role} />
+      <PartnersSidebar role={profile.role} category={category} />
       <div className="flex min-w-0 flex-1 flex-col">
         <PartnersTopbar
           userId={user.id}
@@ -53,7 +74,9 @@ export default async function PartnersLayout({ children }: { children: React.Rea
           fullName={profile?.full_name ?? null}
           avatarUrl={profile?.avatar_url ?? null}
           role={profile?.role ?? null}
+          category={category}
           unreadEnquiryCount={unreadEnquiryCount}
+          unreadQuoteCount={unreadQuoteCount}
         />
         <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
           {children}

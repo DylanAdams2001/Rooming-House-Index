@@ -147,7 +147,7 @@ export async function ListingConversationView({
             otherPartyName={perspective === "manager" ? tenantEmail ?? "Tenant" : "Property Team"}
             initialMessages={initialMessages ?? []}
             table="listing_messages"
-            isManagerReply={perspective === "manager"}
+            businessSideReply={perspective === "manager"}
             complianceNote={
               perspective === "manager"
                 ? "Replies here are sent to the tenant as the property team."

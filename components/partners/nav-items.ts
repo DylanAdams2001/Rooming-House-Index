@@ -6,15 +6,30 @@ export type PartnerNavItem = {
   icon: LucideIcon;
 };
 
+// Categories run as "submit once, we bring back multiple quotes" (see
+// lib/service-categories.ts quoteBased) never have a self-serve directory a
+// member messages directly — they only ever get quote requests, so those
+// providers see "Quote Requests" instead of "Messages".
+const QUOTE_BASED_CATEGORIES = ["insurance", "property_management"];
+
 // Unlike every other nav-items.ts in this codebase (static arrays), this one is a
 // function of role — /partners is a single shared portal whose sections show or
 // hide depending on whether the signed-in account is a service provider, a
 // property manager, or an admin (who sees everything).
-export function getPartnerNavItems(role: string | null | undefined): PartnerNavItem[] {
+export function getPartnerNavItems(
+  role: string | null | undefined,
+  category?: string | null
+): PartnerNavItem[] {
   const items: PartnerNavItem[] = [];
+  const isQuoteBased = !!category && QUOTE_BASED_CATEGORIES.includes(category);
 
   if (role === "provider" || role === "admin") {
-    items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });
+    if (isQuoteBased || role === "admin") {
+      items.push({ href: "/partners/quotes", label: "Quote Requests", icon: MessageCircle });
+    }
+    if (!isQuoteBased || role === "admin") {
+      items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });
+    }
     items.push({ href: "/partners/profile", label: "Listing", icon: User });
   }
 

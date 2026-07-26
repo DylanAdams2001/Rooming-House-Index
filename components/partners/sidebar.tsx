@@ -6,9 +6,15 @@ import { cn } from "@/lib/utils";
 import { Building2 } from "lucide-react";
 import { getPartnerNavItems, isPartnerNavItemActive } from "./nav-items";
 
-export function PartnersSidebar({ role }: { role: string | null | undefined }) {
+export function PartnersSidebar({
+  role,
+  category,
+}: {
+  role: string | null | undefined;
+  category?: string | null;
+}) {
   const pathname = usePathname();
-  const items = getPartnerNavItems(role);
+  const items = getPartnerNavItems(role, category);
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-line bg-offwhite md:flex md:flex-col">
