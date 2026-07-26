@@ -3,6 +3,8 @@ import { Resend } from "resend";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
 import { serviceCategories } from "@/lib/service-categories";
+import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
+import { firstNameOf } from "@/lib/greeting";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -61,7 +63,7 @@ export async function POST(req: Request) {
     // The provider replied — notify the investor.
     const { data: investor } = await supabase
       .from("users")
-      .select("email")
+      .select("email, full_name")
       .eq("id", request.user_id)
       .maybeSingle();
 
@@ -69,12 +71,22 @@ export async function POST(req: Request) {
 
     const categorySlug =
       serviceCategories.find((c) => c.dbCategory === request.category)?.slug ?? request.category;
+    const name = firstNameOf(investor.full_name, investor.email);
+    const url = `${SITE_URL}/dashboard/services/${categorySlug}/requests/${conversation.request_id}/${conversation.provider_id}`;
+    const blocks: EmailBlock[] = [
+      {
+        type: "paragraph",
+        text: `${provider.business_name} just replied about your quote request for ${request.property_address}:`,
+      },
+      { type: "quote", text: payload.record.body },
+    ];
 
     const { error: sendError } = await resend.emails.send({
       from: `Rooming House Index <${fromAddress}>`,
       to: investor.email,
       subject: `NEW REPLY - ${request.property_address}`,
-      text: `${provider.business_name} replied about your quote request for ${request.property_address}:\n\n"${payload.record.body}"\n\nReply here: ${SITE_URL}/dashboard/services/${categorySlug}/requests/${conversation.request_id}/${conversation.provider_id}`,
+      html: renderEmailHtml({ heading: `Hi ${name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),
+      text: `Hi ${name}, you've got a reply\n\n${renderEmailText(blocks, { label: "View conversation", url })}`,
     });
 
     if (sendError) return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });
@@ -84,11 +96,18 @@ export async function POST(req: Request) {
   // The investor replied — notify the provider.
   if (!provider.contact_email) return NextResponse.json({ ok: true });
 
+  const url = `${SITE_URL}/partners/quotes/${conversation.request_id}`;
+  const blocks: EmailBlock[] = [
+    { type: "paragraph", text: `An investor just replied about their quote request for ${request.property_address}:` },
+    { type: "quote", text: payload.record.body },
+  ];
+
   const { error: sendError } = await resend.emails.send({
     from: `Rooming House Index <${fromAddress}>`,
     to: provider.contact_email,
     subject: `NEW REPLY - ${request.property_address}`,
-    text: `An investor replied about their quote request for ${request.property_address}:\n\n"${payload.record.body}"\n\nReply here: ${SITE_URL}/partners/quotes/${conversation.request_id}`,
+    html: renderEmailHtml({ heading: `Hi ${provider.business_name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),
+    text: `Hi ${provider.business_name}, you've got a reply\n\n${renderEmailText(blocks, { label: "View conversation", url })}`,
   });
 
   if (sendError) return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });

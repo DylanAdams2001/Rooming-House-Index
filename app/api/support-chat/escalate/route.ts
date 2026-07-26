@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
 
 export const runtime = "nodejs";
 
@@ -27,14 +28,24 @@ export async function POST(req: Request) {
 
   const resend = new Resend(apiKey);
 
+  const blocks: EmailBlock[] = [
+    { type: "paragraph", text: "A visitor on the support chat needs help the bot couldn't provide." },
+    { type: "quote", text: summary.trim() },
+    {
+      type: "paragraph",
+      text: contactEmail
+        ? `Contact email: ${contactEmail} — just hit reply to respond to them directly.`
+        : "No contact email was provided — ask for one if you reply.",
+    },
+  ];
+
   const { error } = await resend.emails.send({
     from: `Rooming House Index <${fromAddress}>`,
     to: SUPPORT_RECIPIENTS,
     replyTo: contactEmail || undefined,
     subject: "You have a new support chat message — Rooming House Index",
-    text: `A visitor on the support chat needs help the bot couldn't provide.\n\nWhat they need help with: "${summary.trim()}"\n\nContact email: ${
-      contactEmail || "not provided — ask for one if you reply"
-    }${contactEmail ? "\n\nJust hit reply to respond to them directly." : ""}`,
+    html: renderEmailHtml({ heading: "New support chat message", blocks }),
+    text: renderEmailText(blocks),
   });
 
   if (error) {

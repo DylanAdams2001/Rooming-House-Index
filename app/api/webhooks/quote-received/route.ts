@@ -3,6 +3,8 @@ import { Resend } from "resend";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
 import { serviceCategories } from "@/lib/service-categories";
+import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
+import { firstNameOf } from "@/lib/greeting";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -13,7 +15,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rooming-house-inde
 // notify_quote_received()) on service_quote_quotes INSERT — a provider's
 // formal quote submission (price + optional document), separate from the
 // quote_messages chat notifications. Emails the investor who submitted the
-// original request.
+// original request. Deliberately doesn't include the price itself — that's
+// what the Services page popup is for, this is just the heads-up.
 export async function POST(req: Request) {
   if (!isValidWebhookRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,8 +33,6 @@ export async function POST(req: Request) {
     record: {
       request_id: string;
       provider_name: string;
-      monthly_fee_pct: number | null;
-      flat_fee: string | null;
       notes: string | null;
     };
   };
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
 
   const { data: investor } = await supabase
     .from("users")
-    .select("email")
+    .select("email, full_name")
     .eq("id", request.user_id)
     .maybeSingle();
 
@@ -59,18 +60,30 @@ export async function POST(req: Request) {
 
   const categorySlug =
     serviceCategories.find((c) => c.dbCategory === request.category)?.slug ?? request.category;
+  const name = firstNameOf(investor.full_name, investor.email);
+  const url = `${SITE_URL}/dashboard/services/${categorySlug}`;
 
-  const fee = payload.record.monthly_fee_pct
-    ? `${payload.record.monthly_fee_pct}% of rent`
-    : payload.record.flat_fee ?? "Quote provided";
+  const blocks: EmailBlock[] = [
+    {
+      type: "paragraph",
+      text: `${payload.record.provider_name} just sent through a quote for ${request.property_address}.`,
+    },
+    ...(payload.record.notes
+      ? ([{ type: "quote", text: payload.record.notes }] as EmailBlock[])
+      : []),
+    { type: "paragraph", text: "Head over to your Services page to see the full details and compare it against anything else that's come in." },
+  ];
 
   const { error: sendError } = await resend.emails.send({
     from: `Rooming House Index <${fromAddress}>`,
     to: investor.email,
     subject: `NEW QUOTE - ${request.property_address}`,
-    text: `${payload.record.provider_name} sent you a quote for ${request.property_address}:\n\n${fee}${
-      payload.record.notes ? `\n\n${payload.record.notes}` : ""
-    }\n\nView it here: ${SITE_URL}/dashboard/services/${categorySlug}`,
+    html: renderEmailHtml({
+      heading: `Hi ${name}, great news!`,
+      blocks,
+      cta: { label: "View your quote", url },
+    }),
+    text: `Hi ${name}, great news!\n\n${renderEmailText(blocks, { label: "View your quote", url })}`,
   });
 
   if (sendError) return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });

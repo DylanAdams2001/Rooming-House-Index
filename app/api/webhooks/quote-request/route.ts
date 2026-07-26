@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
+import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rooming-house-index.vercel.app";
 
 // Configured as a Supabase Database Webhook on service_quote_requests INSERT.
 // Fans the new request out by category: a property-management quote goes to
@@ -59,23 +62,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const subject =
-    category === "property_management"
-      ? "New property management quote request"
-      : "New insurance quote request";
+  const categoryLabel = category === "property_management" ? "property management" : "insurance";
 
-  const text = `A new ${category.replace(
-    "_",
-    " "
-  )} quote request came in.\n\nProperty: ${property_address}\n${
-    number_of_rooms ? `Rooms: ${number_of_rooms}\n` : ""
-  }${notes ? `Notes: ${notes}\n` : ""}`;
+  const blocks: EmailBlock[] = [
+    { type: "paragraph", text: `A new ${categoryLabel} quote request just came in for ${property_address}.` },
+    {
+      type: "list",
+      items: [
+        ...(number_of_rooms ? [`${number_of_rooms} rooms`] : []),
+        ...(notes ? [`Notes: ${notes}`] : []),
+      ],
+    },
+    { type: "paragraph", text: "Head over to Quote Requests to reply with your quote." },
+  ];
 
   await resend.emails.send({
     from: `Rooming House Index <${fromAddress}>`,
     to: recipients,
-    subject,
-    text,
+    subject: `NEW QUOTE REQUEST - ${property_address}`,
+    html: renderEmailHtml({
+      heading: "A new quote request just came in",
+      blocks,
+      cta: { label: "View quote requests", url: `${SITE_URL}/partners/quotes` },
+    }),
+    text: renderEmailText(blocks, { label: "View quote requests", url: `${SITE_URL}/partners/quotes` }),
   });
 
   return NextResponse.json({ ok: true });

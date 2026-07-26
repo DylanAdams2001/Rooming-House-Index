@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
+import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
+import { firstNameOf } from "@/lib/greeting";
 
 export const runtime = "nodejs";
 // pg_net's own call timeout is set generously in the trigger function, but
@@ -64,11 +66,20 @@ export async function POST(req: Request) {
     // and a link straight back into their side of the conversation.
     if (!tenant?.email) return NextResponse.json({ ok: true });
 
+    const name = firstNameOf(tenant.full_name, tenant.email);
+    const url = `${SITE_URL}/account/messages/${payload.record.conversation_id}`;
+    const blocks: EmailBlock[] = [
+      { type: "paragraph", text: `The property team just replied about ${listing.address}:` },
+      { type: "quote", text: payload.record.body },
+      { type: "paragraph", text: "Jump back in whenever you're ready to keep the conversation going." },
+    ];
+
     const { error: sendError } = await resend.emails.send({
       from: `Rooming House Index <${fromAddress}>`,
       to: tenant.email,
       subject: `NEW REPLY - ${listing.address}`,
-      text: `The property team replied about ${listing.address}:\n\n"${payload.record.body}"\n\nReply here: ${SITE_URL}/account/messages/${payload.record.conversation_id}`,
+      html: renderEmailHtml({ heading: `Hi ${name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),
+      text: `Hi ${name}, you've got a reply\n\n${renderEmailText(blocks, { label: "View conversation", url })}`,
     });
 
     if (sendError) {
@@ -82,7 +93,7 @@ export async function POST(req: Request) {
 
   const { data: owner } = await supabase
     .from("users")
-    .select("email")
+    .select("email, full_name")
     .eq("id", listing.owner_id)
     .maybeSingle();
 
@@ -107,15 +118,23 @@ export async function POST(req: Request) {
       ? `Reference: ${profile.reference_name}${profile.reference_phone ? ` — ${profile.reference_phone}` : ""}`
       : null,
     profile?.additional_notes ? `Notes: ${profile.additional_notes}` : null,
-  ].filter(Boolean);
+  ].filter((line): line is string => !!line);
+
+  const name = firstNameOf(owner.full_name, owner.email);
+  const url = `${SITE_URL}/partners/enquiries/${payload.record.conversation_id}`;
+  const blocks: EmailBlock[] = [
+    { type: "paragraph", text: `A tenant just enquired about your listing at ${listing.address}:` },
+    { type: "quote", text: payload.record.body },
+    { type: "paragraph", text: "Here's what they've shared in their application so far:" },
+    { type: "list", items: applicantLines },
+  ];
 
   const { error: sendError } = await resend.emails.send({
     from: `Rooming House Index <${fromAddress}>`,
     to: owner.email,
     subject: `NEW ENQUIRY - ${listing.address}`,
-    text: `A tenant sent a message about your listing at ${listing.address}:\n\n"${payload.record.body}"\n\nApplicant details:\n${applicantLines.join(
-      "\n"
-    )}\n\nReply here: ${SITE_URL}/partners/enquiries/${payload.record.conversation_id}`,
+    html: renderEmailHtml({ heading: `Hi ${name}, new enquiry`, blocks, cta: { label: "Reply to enquiry", url } }),
+    text: `Hi ${name}, new enquiry\n\n${renderEmailText(blocks, { label: "Reply to enquiry", url })}`,
   });
 
   if (sendError) {

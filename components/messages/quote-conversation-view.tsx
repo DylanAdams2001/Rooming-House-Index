@@ -4,6 +4,7 @@ import { ChatThread } from "@/components/chat/chat-thread";
 import { QuoteRequestSummary } from "@/components/partners/quote-request-summary";
 import { QuoteReplyStarter } from "@/components/partners/quote-reply-starter";
 import { QuoteSubmissionForm, type ExistingQuote } from "@/components/partners/quote-submission-form";
+import { QuoteCard } from "@/components/quote-card";
 import { ArrowLeft } from "lucide-react";
 
 // Shared between the provider's view (/partners/quotes/[requestId]) and the
@@ -71,25 +72,23 @@ export async function QuoteConversationView({
         .order("created_at", { ascending: true })
     : { data: [] };
 
-  let existingQuote: ExistingQuote | null = null;
-  if (perspective === "provider") {
-    const { data } = await supabase
-      .from("service_quote_quotes")
-      .select("id, monthly_fee_pct, flat_fee, notes, document_url")
-      .eq("request_id", requestId)
-      .eq("provider_id", providerId)
-      .maybeSingle();
-    if (data) {
-      existingQuote = {
-        id: data.id,
-        feeType: data.flat_fee ? "flat" : "monthly_pct",
-        monthlyFeePct: data.monthly_fee_pct,
-        flatFee: data.flat_fee,
-        notes: data.notes,
-        documentUrl: data.document_url,
-      };
-    }
-  }
+  const { data: submittedQuote } = await supabase
+    .from("service_quote_quotes")
+    .select("id, monthly_fee_pct, flat_fee, notes, document_url")
+    .eq("request_id", requestId)
+    .eq("provider_id", providerId)
+    .maybeSingle();
+
+  const existingQuote: ExistingQuote | null = submittedQuote
+    ? {
+        id: submittedQuote.id,
+        feeType: submittedQuote.flat_fee ? "flat" : "monthly_pct",
+        monthlyFeePct: submittedQuote.monthly_fee_pct,
+        flatFee: submittedQuote.flat_fee,
+        notes: submittedQuote.notes,
+        documentUrl: submittedQuote.document_url,
+      }
+    : null;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
@@ -116,6 +115,21 @@ export async function QuoteConversationView({
           businessName={provider?.business_name ?? "Provider"}
           existing={existingQuote}
         />
+      )}
+
+      {perspective === "investor" && submittedQuote && (
+        <div className="mb-4">
+          <QuoteCard
+            quote={{
+              id: submittedQuote.id,
+              providerName: provider?.business_name ?? "Provider",
+              monthlyFeePct: submittedQuote.monthly_fee_pct,
+              flatFee: submittedQuote.flat_fee,
+              notes: submittedQuote.notes,
+              documentUrl: submittedQuote.document_url,
+            }}
+          />
+        </div>
       )}
 
       {!conversation ? (
