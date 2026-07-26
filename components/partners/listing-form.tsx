@@ -59,6 +59,8 @@ export type ListingFormInitial = {
   address: string;
   suburbName: string;
   postcode: string;
+  lat?: number;
+  lng?: number;
   roomType: "Single" | "Shared";
   weeklyRate: string;
   availableFrom: string;
@@ -74,6 +76,12 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
   const [address, setAddress] = useState(initial?.address ?? "");
   const [suburbName, setSuburbName] = useState(initial?.suburbName ?? "");
   const [postcode, setPostcode] = useState(initial?.postcode ?? "");
+  // Only set from an actual Places selection (see handleAddressSelect) — typing
+  // an address by hand with no selection leaves this null, so the map correctly
+  // falls back to an approximate suburb-level pin instead of a stale/wrong one.
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    initial?.lat != null && initial?.lng != null ? { lat: initial.lat, lng: initial.lng } : null
+  );
   const [roomType, setRoomType] = useState<string>(initial?.roomType ?? "");
   const [weeklyRate, setWeeklyRate] = useState(initial?.weeklyRate ?? "");
   const [availableFrom, setAvailableFrom] = useState(initial?.availableFrom ?? "Available now");
@@ -129,9 +137,19 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
     setPhotos((prev) => prev.filter((p) => p !== url));
   }
 
+  function handleAddressChange(value: string) {
+    setAddress(value);
+    // Free typing (not a Places selection) invalidates any coordinates from a
+    // previous selection — cleared here so a stale pin never outlives the text
+    // it was resolved from; handleAddressSelect below re-sets it immediately
+    // afterward when the change was actually a Places selection.
+    setCoords(null);
+  }
+
   function handleAddressSelect(parts: AddressParts) {
     if (parts.suburb) setSuburbName(parts.suburb);
     if (parts.postcode) setPostcode(parts.postcode);
+    if (parts.lat != null && parts.lng != null) setCoords({ lat: parts.lat, lng: parts.lng });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -159,6 +177,12 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
       suburb_id: `${slugify(suburbName)}-${postcode.trim()}`,
       suburb_name: suburbName.trim(),
       address: address.trim(),
+      // Only true when we have real coordinates from a Places selection — this
+      // is what lets the listing map show the exact address (with Street View)
+      // instead of an approximate suburb-level pin.
+      address_verified: coords !== null,
+      lat: coords?.lat ?? null,
+      lng: coords?.lng ?? null,
       room_type: roomType,
       weekly_rate: Number(weeklyRate),
       available_from: availableFrom.trim(),
@@ -197,7 +221,7 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
           id="address"
           required
           value={address}
-          onChange={setAddress}
+          onChange={handleAddressChange}
           onPlaceSelect={handleAddressSelect}
           placeholder="15 Grace Street, St Albans VIC 3021"
         />

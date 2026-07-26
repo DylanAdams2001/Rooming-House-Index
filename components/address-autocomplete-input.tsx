@@ -20,6 +20,8 @@ const VIC_BOUNDS = {
 export type AddressParts = {
   suburb?: string;
   postcode?: string;
+  lat?: number;
+  lng?: number;
 };
 
 export function AddressAutocompleteInput({
@@ -76,7 +78,9 @@ export function AddressAutocompleteInput({
 
         element.addEventListener("gmp-select", async (event: any) => {
           const place = event.placePrediction.toPlace();
-          await place.fetchFields({ fields: ["formattedAddress", "addressComponents"] });
+          await place.fetchFields({
+            fields: ["formattedAddress", "addressComponents", "location"],
+          });
           onChangeRef.current(place.formattedAddress ?? "");
 
           if (onPlaceSelectRef.current) {
@@ -84,7 +88,9 @@ export function AddressAutocompleteInput({
               place.addressComponents ?? [];
             const suburb = components.find((c) => c.types.includes("locality"))?.longText;
             const postcode = components.find((c) => c.types.includes("postal_code"))?.longText;
-            onPlaceSelectRef.current({ suburb, postcode });
+            const lat = place.location?.lat?.();
+            const lng = place.location?.lng?.();
+            onPlaceSelectRef.current({ suburb, postcode, lat, lng });
           }
         });
 

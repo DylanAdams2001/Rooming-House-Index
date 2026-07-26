@@ -14,6 +14,11 @@ export type RoomListing = {
   // Only St Albans' is a real, verified address; the rest are placeholder
   // addresses for these demo listings, same spirit as the shared demo photos.
   addressVerified?: boolean;
+  // Exact geocoded coordinates from the property manager's address selection —
+  // when present, the listing map pins the real address instead of falling
+  // back to the suburb's centroid.
+  lat?: number;
+  lng?: number;
   roomType: "Single" | "Shared";
   weeklyRate: number;
   availableFrom: string;

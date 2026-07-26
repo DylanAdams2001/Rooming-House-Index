@@ -33,6 +33,8 @@ export default async function EditListingPage({ params }: { params: { id: string
             address: listing.address,
             suburbName: listing.suburb_name,
             postcode: postcodeMatch?.[1] ?? "",
+            lat: listing.lat ?? undefined,
+            lng: listing.lng ?? undefined,
             roomType: listing.room_type,
             weeklyRate: String(listing.weekly_rate),
             availableFrom: listing.available_from,

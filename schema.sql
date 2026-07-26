@@ -776,3 +776,14 @@ values
   ('approved', 'springvale-3171', 'Springvale', '70 Springvale Road, Springvale', false, 'Shared', 350, 'Available now',
    'Shared room close to Springvale station and the shopping precinct on Springvale Road.',
    array['/listings/dandenong-example/bedroom-2.jpg', '/listings/dandenong-example/kitchen-dining.jpg'], null);
+
+-- ─────────────────────────────────────────────────────────────
+-- listings: exact geocoded location
+-- Previously the listing detail map only ever showed the suburb's centroid
+-- (lib/mock-data.ts Suburb.lat/lng) regardless of address_verified — that flag
+-- only toggled the "approximate" caption, it never had real per-listing
+-- coordinates to plot instead. Adding these lets a property manager's actual
+-- selected address (captured via Places autocomplete) pin the exact spot.
+-- ─────────────────────────────────────────────────────────────
+alter table public.listings add column if not exists lat double precision;
+alter table public.listings add column if not exists lng double precision;

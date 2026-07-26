@@ -84,15 +84,15 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                   </CardContent>
                 </Card>
 
-                {suburb && (
+                {(listing.lat != null && listing.lng != null ? true : !!suburb) && (
                   <div className="mt-6">
                     <h2 className="mb-3 font-display text-lg text-ink">Location</h2>
                     <ListingMap
-                      lat={suburb.lat}
-                      lng={suburb.lng}
+                      lat={listing.lat ?? suburb!.lat}
+                      lng={listing.lng ?? suburb!.lng}
                       title={getListingTitle(listing)}
                       suburbName={listing.suburbName}
-                      approximate={!listing.addressVerified}
+                      approximate={!(listing.lat != null && listing.lng != null)}
                     />
                   </div>
                 )}

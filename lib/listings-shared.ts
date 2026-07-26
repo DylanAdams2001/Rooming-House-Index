@@ -6,6 +6,8 @@ export type ListingRow = {
   suburb_name: string;
   address: string;
   address_verified: boolean;
+  lat: number | null;
+  lng: number | null;
   room_type: string;
   weekly_rate: number;
   available_from: string;
@@ -15,7 +17,7 @@ export type ListingRow = {
 };
 
 export const LISTING_COLUMNS =
-  "id, suburb_id, suburb_name, address, address_verified, room_type, weekly_rate, available_from, description, photos, inspection_time";
+  "id, suburb_id, suburb_name, address, address_verified, lat, lng, room_type, weekly_rate, available_from, description, photos, inspection_time";
 
 export function mapListingRow(row: ListingRow): RoomListing {
   return {
@@ -24,6 +26,8 @@ export function mapListingRow(row: ListingRow): RoomListing {
     suburbName: row.suburb_name,
     address: row.address,
     addressVerified: row.address_verified,
+    lat: row.lat ?? undefined,
+    lng: row.lng ?? undefined,
     roomType: row.room_type as RoomListing["roomType"],
     weeklyRate: row.weekly_rate,
     availableFrom: row.available_from,
