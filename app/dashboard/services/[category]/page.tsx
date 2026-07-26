@@ -3,6 +3,7 @@ import { getServiceCategory, serviceCategories } from "@/lib/service-categories"
 import { getProvidersByCategory } from "@/lib/mock-providers";
 import { ProviderCard } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
+import { QuoteCard } from "@/components/quote-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
@@ -151,34 +152,17 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                     ) : (
                       <div className="space-y-3">
                         {request.service_quote_quotes.map((quote) => (
-                          <div
+                          <QuoteCard
                             key={quote.id}
-                            className="flex flex-col gap-1 rounded-btn border border-line p-4 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div>
-                              <p className="font-display text-base text-ink">
-                                {quote.provider_name}
-                              </p>
-                              {quote.notes && (
-                                <p className="mt-0.5 text-sm text-body">{quote.notes}</p>
-                              )}
-                              {quote.document_url && (
-                                <a
-                                  href={quote.document_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="mt-1 inline-block text-xs text-ink underline underline-offset-4"
-                                >
-                                  View quote document
-                                </a>
-                              )}
-                            </div>
-                            <p className="font-display text-lg text-ink">
-                              {quote.monthly_fee_pct
-                                ? `${quote.monthly_fee_pct}% of rent`
-                                : quote.flat_fee ?? "Quote provided"}
-                            </p>
-                          </div>
+                            quote={{
+                              id: quote.id,
+                              providerName: quote.provider_name,
+                              monthlyFeePct: quote.monthly_fee_pct,
+                              flatFee: quote.flat_fee,
+                              notes: quote.notes,
+                              documentUrl: quote.document_url,
+                            }}
+                          />
                         ))}
                       </div>
                     )}
