@@ -62,14 +62,20 @@ export async function POST(req: Request) {
   if (payload.record.is_manager) {
     // The property manager replied — notify the tenant, with the reply text
     // and a link straight back into their side of the conversation.
-    if (!tenant?.email) return NextResponse.json({ ok: true });
+    if (!tenant?.email) {
+      return NextResponse.json({ ok: false, reason: "tenant has no email on file" });
+    }
 
-    await resend.emails.send({
+    const { error: sendError } = await resend.emails.send({
       from: fromAddress,
       to: tenant.email,
       subject: `New reply about ${listing.address}`,
       text: `The property team replied about ${listing.address}:\n\n"${payload.record.body}"\n\nReply here: ${SITE_URL}/account/messages/${payload.record.conversation_id}`,
     });
+
+    if (sendError) {
+      return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });
+    }
 
     return NextResponse.json({ ok: true });
   }
@@ -105,7 +111,7 @@ export async function POST(req: Request) {
     profile?.additional_notes ? `Notes: ${profile.additional_notes}` : null,
   ].filter(Boolean);
 
-  await resend.emails.send({
+  const { error: sendError } = await resend.emails.send({
     from: fromAddress,
     to: owner.email,
     subject: `New enquiry about ${listing.address}`,
@@ -113,6 +119,10 @@ export async function POST(req: Request) {
       "\n"
     )}\n\nReply here: ${SITE_URL}/partners/enquiries/${payload.record.conversation_id}`,
   });
+
+  if (sendError) {
+    return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }
