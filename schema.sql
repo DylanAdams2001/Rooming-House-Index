@@ -823,3 +823,44 @@ create policy "Listing owners can reply about their listings"
       where c.id = conversation_id and l.owner_id = auth.uid()
     )
   );
+
+-- ─────────────────────────────────────────────────────────────
+-- enquire_on_listing: drop the automated "Property Team" welcome reply
+-- Now that a property manager has a real inbox (/partners/enquiries) and gets
+-- emailed the moment a tenant enquires, the canned welcome message (which
+-- always mentioned the inspection time whenever one existed, regardless of
+-- what the tenant actually asked) is no longer needed and risked looking like
+-- a mismatched, inaccurate auto-reply on a custom question. The tenant's
+-- message now just waits for a real reply.
+-- ─────────────────────────────────────────────────────────────
+create or replace function public.enquire_on_listing(
+  p_listing_id text,
+  p_listing_title text,
+  p_inspection_time text default null,
+  p_message text default null
+)
+returns uuid
+language plpgsql
+security definer
+as $$
+declare
+  v_conversation_id uuid;
+begin
+  select id into v_conversation_id
+  from public.listing_conversations
+  where listing_id = p_listing_id and tenant_id = auth.uid();
+
+  if v_conversation_id is null then
+    insert into public.listing_conversations (listing_id, tenant_id)
+    values (p_listing_id, auth.uid())
+    returning id into v_conversation_id;
+  end if;
+
+  if p_message is not null and length(trim(p_message)) > 0 then
+    insert into public.listing_messages (conversation_id, sender_id, is_manager, body)
+    values (v_conversation_id, auth.uid(), false, trim(p_message));
+  end if;
+
+  return v_conversation_id;
+end;
+$$;

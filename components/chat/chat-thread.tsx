@@ -9,9 +9,14 @@ import { cn } from "@/lib/utils";
 
 type Message = {
   id: string;
-  sender_id: string;
+  sender_id: string | null;
   body: string;
   created_at: string;
+  // Only present on listing_messages rows — used to tell an automated/manager
+  // system message apart from the tenant's own, since the legacy auto-reply has
+  // sender_id=null (not attributable to any specific account) rather than
+  // matching whichever manager account is currently viewing it.
+  is_manager?: boolean;
 };
 
 export function ChatThread({
@@ -75,16 +80,23 @@ export function ChatThread({
     setSending(true);
     setDraft("");
 
-    const { data, error } = await supabase
-      .from(table)
-      .insert({
-        conversation_id: conversationId,
-        sender_id: currentUserId,
-        body,
-        ...(table === "listing_messages" ? { is_manager: isManagerReply } : {}),
-      })
-      .select("id, sender_id, body, created_at")
-      .single();
+    const { data, error } =
+      table === "listing_messages"
+        ? await supabase
+            .from("listing_messages")
+            .insert({
+              conversation_id: conversationId,
+              sender_id: currentUserId,
+              body,
+              is_manager: isManagerReply,
+            })
+            .select("id, sender_id, body, created_at, is_manager")
+            .single()
+        : await supabase
+            .from("messages")
+            .insert({ conversation_id: conversationId, sender_id: currentUserId, body })
+            .select("id, sender_id, body, created_at")
+            .single();
 
     setSending(false);
 
@@ -107,7 +119,14 @@ export function ChatThread({
           </p>
         )}
         {messages.map((m) => {
-          const mine = m.sender_id === currentUserId;
+          // For the manager's own view of a listing conversation, "mine" means
+          // "sent by the property team" (is_manager), not "sent by this exact
+          // account" — otherwise the legacy system welcome message (sender_id
+          // null) would render as if the tenant had said it.
+          const mine =
+            table === "listing_messages" && isManagerReply
+              ? m.is_manager === true
+              : m.sender_id === currentUserId;
           return (
             <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
               <div

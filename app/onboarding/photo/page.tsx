@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { defaultDestination } from "@/lib/onboarding";
 import { StepHeader } from "@/components/onboarding/step-header";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
@@ -40,7 +39,9 @@ function PhotoForm() {
   async function advance() {
     if (!userId) return;
     await supabase.from("users").update({ onboarding_step: "complete" }).eq("id", userId);
-    router.push(explicitRedirectTo ?? defaultDestination(isInvestor ? "active" : "none"));
+    // Investors land in /dashboard as usual; a brand-new tenant account goes
+    // straight to /listings to start browsing rather than a mostly-empty /account.
+    router.push(explicitRedirectTo ?? (isInvestor ? "/dashboard" : "/listings"));
     router.refresh();
   }
 
