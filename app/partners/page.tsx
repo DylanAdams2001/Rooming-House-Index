@@ -102,7 +102,7 @@ export default async function PartnersHomePage() {
               </CardHeader>
               <CardContent>
                 <Button asChild size="sm" className="w-full">
-                  <Link href="/partners/listings">My Rooms</Link>
+                  <Link href="/partners/listings">Rooms</Link>
                 </Button>
               </CardContent>
             </Card>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getPartnerNavItems } from "./nav-items";
+import { getPartnerNavItems, isPartnerNavItemActive } from "./nav-items";
 
 export function PartnersMobileNav({ role }: { role: string | null | undefined }) {
   const [open, setOpen] = useState(false);
@@ -51,7 +51,7 @@ export function PartnersMobileNav({ role }: { role: string | null | undefined })
             </div>
             <nav className="flex-1 space-y-1 px-3 py-6">
               {items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const active = isPartnerNavItemActive(items, pathname, item.href);
                 const Icon = item.icon;
                 return (
                   <Link

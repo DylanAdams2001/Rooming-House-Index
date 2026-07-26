@@ -29,7 +29,7 @@ export default async function PartnersListingsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-ink">My Rooms</h1>
+          <h1 className="font-display text-3xl text-ink">Rooms</h1>
           <p className="mt-2 text-body">Manage the rooms you've listed.</p>
         </div>
         <Button asChild size="sm">

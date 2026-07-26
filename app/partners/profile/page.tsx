@@ -19,7 +19,7 @@ export default async function PartnersProfilePage() {
   if (!provider) {
     return (
       <div>
-        <h1 className="font-display text-3xl text-ink">My Listing</h1>
+        <h1 className="font-display text-3xl text-ink">Listing</h1>
         <div className="mt-8 rounded-card border border-dashed border-line bg-white p-12 text-center">
           <p className="text-body">
             No service provider listing found on this account yet.
@@ -33,7 +33,7 @@ export default async function PartnersProfilePage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-ink">My Listing</h1>
+      <h1 className="font-display text-3xl text-ink">Listing</h1>
       <p className="mt-2 text-body">
         Update the details members see for your {category?.label.toLowerCase() ?? "service"} listing.
       </p>
