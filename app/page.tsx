@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ListingCard } from "@/components/listing-card";
-import { getFeaturedListings } from "@/lib/mock-listings";
+import { getApprovedListings } from "@/lib/listings";
 import { ArrowRight, CalendarClock, MessageCircle, Search } from "lucide-react";
 
-export default function LandingPage() {
-  const featuredListings = getFeaturedListings(6);
+export default async function LandingPage() {
+  const featuredListings = (await getApprovedListings()).slice(0, 6);
 
   return (
     <div className="flex min-h-screen flex-col">

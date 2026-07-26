@@ -6,9 +6,11 @@ import { ArrowLeft } from "lucide-react";
 export async function ConversationView({
   conversationId,
   basePath,
+  perspective = "investor",
 }: {
   conversationId: string;
   basePath: string;
+  perspective?: "investor" | "provider";
 }) {
   const supabase = createClient();
   const {
@@ -17,7 +19,9 @@ export async function ConversationView({
 
   const { data: conversation, error } = await supabase
     .from("conversations")
-    .select("id, investor_id, provider_id, service_providers(business_name)")
+    .select(
+      "id, investor_id, provider_id, service_providers(business_name), users!conversations_investor_id_fkey(email)"
+    )
     .eq("id", conversationId)
     .maybeSingle();
 
@@ -51,8 +55,10 @@ export async function ConversationView({
           conversationId={conversation.id}
           currentUserId={user.id}
           otherPartyName={
-            (conversation.service_providers as unknown as { business_name: string } | null)
-              ?.business_name ?? "Provider"
+            perspective === "provider"
+              ? (conversation.users as unknown as { email: string } | null)?.email ?? "Member"
+              : (conversation.service_providers as unknown as { business_name: string } | null)
+                  ?.business_name ?? "Provider"
           }
           initialMessages={initialMessages ?? []}
         />

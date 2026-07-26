@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     if (data.user) {
       const { data: profile } = await supabase
         .from("users")
-        .select("onboarding_step, investor_access")
+        .select("onboarding_step, investor_access, role")
         .eq("id", data.user.id)
         .maybeSingle();
 
@@ -31,7 +31,9 @@ export async function GET(request: Request) {
         );
       }
       return NextResponse.redirect(
-        `${origin}${explicitDestination ?? defaultDestination(profile?.investor_access)}`
+        `${origin}${
+          explicitDestination ?? defaultDestination(profile?.investor_access, profile?.role)
+        }`
       );
     }
   }

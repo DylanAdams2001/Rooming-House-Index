@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { getListingById, getListingTitle } from "@/lib/mock-listings";
+import { getListingTitle, type RoomListing } from "@/lib/mock-listings";
+import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarClock, FileText, MessageCircle } from "lucide-react";
 
@@ -14,6 +15,7 @@ export default function EnquiriesPage() {
 
   const [loaded, setLoaded] = useState(false);
   const [enquiries, setEnquiries] = useState<EnquiryRow[]>([]);
+  const [listingsById, setListingsById] = useState<Map<string, RoomListing>>(new Map());
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -25,6 +27,16 @@ export default function EnquiriesPage() {
         .order("last_message_at", { ascending: false });
 
       setEnquiries(conversations ?? []);
+
+      const listingIds = Array.from(new Set((conversations ?? []).map((c) => c.listing_id)));
+      if (listingIds.length > 0) {
+        const { data: listingRows } = await supabase
+          .from("listings")
+          .select(LISTING_COLUMNS)
+          .in("id", listingIds);
+        setListingsById(new Map((listingRows ?? []).map((r) => [r.id, mapListingRow(r)])));
+      }
+
       setLoaded(true);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -52,7 +64,7 @@ export default function EnquiriesPage() {
         <div className="mt-8 space-y-3">
           <h2 className="text-xs font-medium uppercase tracking-wide text-muted">Your enquiries</h2>
           {enquiries.map((c) => {
-            const listing = getListingById(c.listing_id);
+            const listing = listingsById.get(c.listing_id) ?? null;
             return (
               <Link key={c.id} href={`/account/messages/${c.id}`}>
                 <Card className="transition-colors hover:bg-linen">

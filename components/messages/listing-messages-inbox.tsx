@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getListingById, getListingTitle } from "@/lib/mock-listings";
+import { getListingTitle } from "@/lib/mock-listings";
+import { getApprovedListingById } from "@/lib/listings";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
 
@@ -29,6 +30,14 @@ export async function ListingMessagesInbox() {
       conversations = data ?? [];
     }
   }
+
+  const listingsById = new Map(
+    await Promise.all(
+      conversations.map(
+        async (c) => [c.listing_id, await getApprovedListingById(c.listing_id)] as const
+      )
+    )
+  );
 
   return (
     <div>
@@ -62,7 +71,7 @@ export async function ListingMessagesInbox() {
       {!loadError && conversations.length > 0 && (
         <div className="mt-6 space-y-3">
           {conversations.map((c) => {
-            const listing = getListingById(c.listing_id);
+            const listing = listingsById.get(c.listing_id) ?? null;
             return (
               <Link key={c.id} href={`/account/messages/${c.id}`}>
                 <Card className="transition-colors hover:bg-linen">

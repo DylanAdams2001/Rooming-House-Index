@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getListingById, getListingTitle } from "@/lib/mock-listings";
+import { getListingTitle } from "@/lib/mock-listings";
+import { getApprovedListingById } from "@/lib/listings";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 
@@ -24,7 +25,7 @@ export async function ListingConversationView({ conversationId }: { conversation
         .order("created_at", { ascending: true })
     : { data: [] };
 
-  const listing = conversation ? getListingById(conversation.listing_id) : null;
+  const listing = conversation ? await getApprovedListingById(conversation.listing_id) : null;
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">

@@ -638,3 +638,141 @@ $$;
 create trigger trg_enforce_quote_request_rate_limit
   before insert on public.service_quote_requests
   for each row execute procedure public.enforce_quote_request_rate_limit();
+
+-- ═════════════════════════════════════════════════════════════
+-- Partner Portal: property managers & real room listings
+-- Adds a 'property_manager' account type (rooms they list, replacing what
+-- used to be mock-only data) alongside the existing 'provider' type — both
+-- get a single shared /partners portal, gated by role.
+-- ═════════════════════════════════════════════════════════════
+
+alter table public.users drop constraint if exists users_role_check;
+alter table public.users add constraint users_role_check
+  check (role in ('member', 'provider', 'admin', 'property_manager'));
+
+-- ─────────────────────────────────────────────────────────────
+-- listings
+-- Real room listings, replacing lib/mock-listings.ts. suburb_id/suburb_name
+-- stay loose text (no suburbs table to FK to, same as elsewhere in this
+-- schema). available_from stays free text ("Available now", "Available 1
+-- Aug") to match how property managers actually describe it, not a real date.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.listings (
+  id uuid primary key default gen_random_uuid(),
+  -- Nullable: the seeded sample listings below have no owning account.
+  owner_id uuid references public.users (id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  suburb_id text not null,
+  suburb_name text not null,
+  address text not null,
+  address_verified boolean not null default false,
+  room_type text not null check (room_type in ('Single', 'Shared')),
+  weekly_rate integer not null,
+  available_from text not null,
+  description text not null,
+  photos text[] not null default '{}',
+  inspection_time text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.listings enable row level security;
+
+create policy "Anyone can view approved listings"
+  on public.listings for select
+  using (status = 'approved');
+
+create policy "Owners can view and manage their own listings"
+  on public.listings for all
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+create policy "Admins can view and manage all listings"
+  on public.listings for all
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ))
+  with check (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
+
+create index if not exists listings_owner_id_idx on public.listings (owner_id);
+create index if not exists listings_status_idx on public.listings (status);
+
+-- ─────────────────────────────────────────────────────────────
+-- Storage: listing-photos
+-- Public bucket for property-manager-uploaded room photos, same folder-per-
+-- owner convention as the existing profile-photos bucket.
+-- ─────────────────────────────────────────────────────────────
+insert into storage.buckets (id, name, public)
+values ('listing-photos', 'listing-photos', true)
+on conflict (id) do nothing;
+
+create policy "Anyone can view listing photos"
+  on storage.objects for select
+  using (bucket_id = 'listing-photos');
+
+create policy "Owners can upload their own listing photos"
+  on storage.objects for insert
+  with check (bucket_id = 'listing-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Owners can update their own listing photos"
+  on storage.objects for update
+  using (bucket_id = 'listing-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Owners can delete their own listing photos"
+  on storage.objects for delete
+  using (bucket_id = 'listing-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- One-time seed of the 14 sample listings previously hardcoded in
+-- lib/mock-listings.ts, so /listings doesn't go blank the moment it switches
+-- from mock data to this table. Unowned (owner_id null), pre-approved.
+-- Photos keep pointing at their existing /public/listings/... paths.
+insert into public.listings
+  (status, suburb_id, suburb_name, address, address_verified, room_type, weekly_rate, available_from, description, photos, inspection_time)
+values
+  ('approved', 'st-albans-3021', 'St Albans', '15 Grace Street, St Albans', true, 'Single', 380, 'Available now',
+   'Immaculately presented studio room in a near-new, purpose-built rooming house — a rare standard for the area. This light-filled room is fully self-contained with its own kitchenette, reverse-cycle split-system air conditioning, built-in mirrored robe, and a private study nook, all finished with quality laminate flooring throughout. Residents also enjoy a large shared kitchen and dining space, perfect for entertaining or unwinding after work. Positioned in a quiet, well-maintained street close to St Albans station, Chinatown''s shops and eateries, and local bus routes. Presented in outstanding condition and available now — inspections highly recommended, this one won''t last.',
+   array['/listings/st-albans-example/room.jpg', '/listings/st-albans-example/kitchen.jpg'], 'Saturday 25 Jul, 10:00am - 10:30am'),
+  ('approved', 'footscray-3011', 'Footscray', '8 Nicholson Street, Footscray', false, 'Single', 350, 'Available now',
+   'Furnished single room, close to Footscray station and Vic Uni campus. Bills included.',
+   array['/listings/dandenong-example/bedroom-1.jpg', '/listings/dandenong-example/kitchenette-1.jpg'], 'Saturday 25 Jul, 11:00am - 11:30am'),
+  ('approved', 'footscray-3011', 'Footscray', '142 Barkly Street, Footscray', false, 'Shared', 350, 'Available 1 Aug',
+   'Shared twin room in a quiet 6-room house. Walking distance to Barkly Street shops.',
+   array['/listings/dandenong-example/bedroom-2.jpg', '/listings/dandenong-example/kitchenette-2.jpg'], null),
+  ('approved', 'werribee-3030', 'Werribee', '21 Watton Street, Werribee', false, 'Single', 350, 'Available now',
+   'Bright single room near Werribee Plaza. Off-street parking available.',
+   array['/listings/dandenong-example/bedroom-3.jpg', '/listings/dandenong-example/kitchen-dining.jpg'], null),
+  ('approved', 'werribee-3030', 'Werribee', '5 Comben Drive, Werribee', false, 'Single', 350, 'Available 15 Aug',
+   'Recently renovated room, walking distance to Werribee station.',
+   array['/listings/dandenong-example/bedroom-4.jpg', '/listings/dandenong-example/common-dining-laundry.jpg'], null),
+  ('approved', 'clayton-3168', 'Clayton', '33 Carinish Road, Clayton', false, 'Single', 350, 'Available now',
+   'Student-friendly single room, 5 minutes'' walk to Monash University Clayton campus.',
+   array['/listings/dandenong-example/bedroom-1.jpg', '/listings/dandenong-example/kitchen-dining.jpg'], 'Saturday 25 Jul, 1:00pm - 1:30pm'),
+  ('approved', 'clayton-3168', 'Clayton', '97 Clayton Road, Clayton', false, 'Shared', 350, 'Available now',
+   'Shared room in a well-maintained 8-room house, all bills and NBN included.',
+   array['/listings/dandenong-example/bedroom-2.jpg', '/listings/dandenong-example/common-dining-laundry.jpg'], null),
+  ('approved', 'dandenong-3175', 'Dandenong', '14 Foster Street, Dandenong', false, 'Single', 350, 'Available now',
+   'Modern single room near Dandenong Market, close to bus interchange.',
+   array['/listings/dandenong-example/bedroom-3.jpg', '/listings/dandenong-example/kitchenette-1.jpg', '/listings/dandenong-example/facade-sunset.jpg'], null),
+  ('approved', 'sunshine-3020', 'Sunshine', '6 Hampshire Road, Sunshine', false, 'Single', 350, 'Available now',
+   'Spacious single room, 8 minutes'' walk to Sunshine station. Onsite laundry.',
+   array['/listings/dandenong-example/bedroom-4.jpg', '/listings/dandenong-example/kitchenette-2.jpg'], null),
+  ('approved', 'sunshine-3020', 'Sunshine', '58 Anderson Road, Sunshine', false, 'Shared', 350, 'Available 1 Aug',
+   'Shared room in a renovated 7-room house near Sunshine Marketplace.',
+   array['/listings/dandenong-example/bedroom-1.jpg', '/listings/dandenong-example/bathroom.jpg'], null),
+  ('approved', 'broadmeadows-3047', 'Broadmeadows', '19 Dimboola Road, Broadmeadows', false, 'Single', 350, 'Available now',
+   'Single room close to Broadmeadows station and Hume Central shopping centre.',
+   array['/listings/dandenong-example/bedroom-2.jpg', '/listings/dandenong-example/kitchenette-1.jpg'], null),
+  ('approved', 'reservoir-3073', 'Reservoir', '11 Broadhurst Avenue, Reservoir', false, 'Single', 350, 'Available 1 Aug',
+   'Quiet single room in a well-kept house, close to Edwardes Lake Park.',
+   array['/listings/dandenong-example/bedroom-3.jpg', '/listings/dandenong-example/kitchenette-2.jpg'], null),
+  ('approved', 'frankston-3199', 'Frankston', '27 Beach Street, Frankston', false, 'Single', 350, 'Available now',
+   'Single room 10 minutes'' walk from Frankston station and the beach.',
+   array['/listings/dandenong-example/bedroom-4.jpg', '/listings/dandenong-example/kitchen-dining.jpg'], 'Saturday 25 Jul, 2:00pm - 2:30pm'),
+  ('approved', 'altona-3018', 'Altona', '4 Queen Street, Altona', false, 'Single', 350, 'Available now',
+   'Bright single room in a quiet street, short drive to Altona beach and station.',
+   array['/listings/dandenong-example/bedroom-1.jpg', '/listings/dandenong-example/kitchenette-2.jpg', '/listings/dandenong-example/facade-gate.jpg'], null),
+  ('approved', 'springvale-3171', 'Springvale', '70 Springvale Road, Springvale', false, 'Shared', 350, 'Available now',
+   'Shared room close to Springvale station and the shopping precinct on Springvale Road.',
+   array['/listings/dandenong-example/bedroom-2.jpg', '/listings/dandenong-example/kitchen-dining.jpg'], null);

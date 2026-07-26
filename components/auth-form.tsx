@@ -47,7 +47,7 @@ export function AuthForm({
 
     const { data: profile } = await supabase
       .from("users")
-      .select("onboarding_step, investor_access")
+      .select("onboarding_step, investor_access, role")
       .eq("id", userId)
       .maybeSingle();
 
@@ -58,7 +58,9 @@ export function AuthForm({
     if (onboardingPath) {
       router.push(appendRedirectTo(onboardingPath, explicitDestination));
     } else {
-      router.push(explicitDestination ?? defaultDestination(profile?.investor_access));
+      router.push(
+        explicitDestination ?? defaultDestination(profile?.investor_access, profile?.role)
+      );
     }
     router.refresh();
   }

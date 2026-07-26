@@ -30,10 +30,13 @@ export function appendRedirectTo(path: string, redirectTo?: string | null): stri
   return redirectTo ? `${path}?redirectTo=${encodeURIComponent(redirectTo)}` : path;
 }
 
-// Investors land in /dashboard, everyone else in /account — deliberately kept as
-// separate experiences (different nav, different content) even though it's one
-// login. Keyed on investor_access, the same flag middleware uses to gate /dashboard,
+// Investors land in /dashboard, partners (service providers / property managers)
+// land in /partners, everyone else in /account — deliberately kept as separate
+// experiences (different nav, different content) even though it's one login.
+// Partner role wins over investor_access if both apply, since it's the account's
+// primary identity. Keyed on the same fields middleware uses to gate each area,
 // so this always agrees with what a user is actually allowed to see.
-export function defaultDestination(investorAccess?: string | null): string {
+export function defaultDestination(investorAccess?: string | null, role?: string | null): string {
+  if (role === "provider" || role === "property_manager") return "/partners";
   return investorAccess === "active" ? "/dashboard" : "/account";
 }

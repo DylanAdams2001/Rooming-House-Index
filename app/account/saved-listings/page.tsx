@@ -1,15 +1,32 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getListingById } from "@/lib/mock-listings";
+import { createClient } from "@/lib/supabase/client";
+import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
+import type { RoomListing } from "@/lib/mock-listings";
 import { ListingCard } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
 import { useSavedListings } from "@/lib/use-saved-listings";
 import { X } from "lucide-react";
 
 export default function SavedListingsPage() {
+  const supabase = createClient();
   const { savedIds, loaded, removeSaved } = useSavedListings();
-  const saved = savedIds.map((id) => getListingById(id)).filter((l): l is NonNullable<typeof l> => !!l);
+  const [saved, setSaved] = useState<RoomListing[]>([]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    if (savedIds.length === 0) {
+      setSaved([]);
+      return;
+    }
+    supabase
+      .from("listings")
+      .select(LISTING_COLUMNS)
+      .in("id", savedIds)
+      .then(({ data }) => setSaved((data ?? []).map(mapListingRow)));
+  }, [loaded, savedIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>

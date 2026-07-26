@@ -1,0 +1,290 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { AddressAutocompleteInput } from "@/components/address-autocomplete-input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Check, Loader2, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const ROOM_TYPES = ["Single", "Shared"] as const;
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+export type ListingFormInitial = {
+  id?: string;
+  address: string;
+  suburbName: string;
+  postcode: string;
+  roomType: "Single" | "Shared";
+  weeklyRate: string;
+  availableFrom: string;
+  description: string;
+  inspectionTime: string;
+  photos: string[];
+};
+
+export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [address, setAddress] = useState(initial?.address ?? "");
+  const [suburbName, setSuburbName] = useState(initial?.suburbName ?? "");
+  const [postcode, setPostcode] = useState(initial?.postcode ?? "");
+  const [roomType, setRoomType] = useState<string>(initial?.roomType ?? "");
+  const [weeklyRate, setWeeklyRate] = useState(initial?.weeklyRate ?? "");
+  const [availableFrom, setAvailableFrom] = useState(initial?.availableFrom ?? "Available now");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [inspectionTime, setInspectionTime] = useState(initial?.inspectionTime ?? "");
+  const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
+  const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    setUploading(true);
+    setError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setUploading(false);
+      return;
+    }
+
+    const uploadedUrls: string[] = [];
+    for (const file of files) {
+      const ext = file.name.split(".").pop();
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("listing-photos")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) {
+        setError("Couldn't upload one or more photos — please try again.");
+        continue;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("listing-photos").getPublicUrl(path);
+      uploadedUrls.push(publicUrl);
+    }
+
+    setPhotos((prev) => [...prev, ...uploadedUrls]);
+    setUploading(false);
+    e.target.value = "";
+  }
+
+  function removePhoto(url: string) {
+    setPhotos((prev) => prev.filter((p) => p !== url));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("submitting");
+    setError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setStatus("idle");
+      return;
+    }
+
+    const payload = {
+      owner_id: user.id,
+      suburb_id: `${slugify(suburbName)}-${postcode.trim()}`,
+      suburb_name: suburbName.trim(),
+      address: address.trim(),
+      room_type: roomType,
+      weekly_rate: Number(weeklyRate),
+      available_from: availableFrom.trim(),
+      description: description.trim(),
+      photos,
+      inspection_time: inspectionTime.trim() || null,
+    };
+
+    const { error: writeError } = initial?.id
+      ? await supabase.from("listings").update(payload).eq("id", initial.id)
+      : await supabase.from("listings").insert({ ...payload, status: "pending" });
+
+    if (writeError) {
+      setStatus("idle");
+      setError("Couldn't save this listing — please try again.");
+      return;
+    }
+
+    setStatus("success");
+    router.push("/partners/listings");
+    router.refresh();
+  }
+
+  const busy = status !== "idle" || uploading;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6 rounded-card border border-line bg-white p-6">
+      <div className="space-y-2">
+        <Label htmlFor="address">Address</Label>
+        <AddressAutocompleteInput
+          id="address"
+          required
+          value={address}
+          onChange={setAddress}
+          placeholder="15 Grace Street, St Albans VIC 3021"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="suburbName">Suburb</Label>
+          <Input id="suburbName" required value={suburbName} onChange={(e) => setSuburbName(e.target.value)} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="postcode">Postcode</Label>
+          <Input id="postcode" required value={postcode} onChange={(e) => setPostcode(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label>Room type</Label>
+          <Select value={roomType} onValueChange={setRoomType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select one" />
+            </SelectTrigger>
+            <SelectContent>
+              {ROOM_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="weeklyRate">Weekly rate ($)</Label>
+          <Input
+            id="weeklyRate"
+            type="number"
+            min={0}
+            required
+            value={weeklyRate}
+            onChange={(e) => setWeeklyRate(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="availableFrom">Available from</Label>
+        <Input
+          id="availableFrom"
+          required
+          value={availableFrom}
+          onChange={(e) => setAvailableFrom(e.target.value)}
+          placeholder="Available now, or e.g. Available 1 Aug"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          rows={4}
+          required
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="inspectionTime">Inspection time (optional)</Label>
+        <Input
+          id="inspectionTime"
+          value={inspectionTime}
+          onChange={(e) => setInspectionTime(e.target.value)}
+          placeholder="Saturday 25 Jul, 10:00am - 10:30am"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Photos</Label>
+        {photos.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+            {photos.map((url) => (
+              <div key={url} className="group relative aspect-square overflow-hidden rounded-btn border border-line">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="Room photo" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(url)}
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-label="Remove photo"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink underline underline-offset-4">
+          {uploading ? "Uploading…" : "Add photos"}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handlePhotoUpload}
+            disabled={uploading}
+            className="hidden"
+          />
+        </label>
+      </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <Button
+        type="submit"
+        className={cn(
+          "w-full transition-colors duration-300",
+          status === "success" && "bg-green-600 hover:bg-green-600"
+        )}
+        disabled={busy}
+      >
+        {status === "submitting" && (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+          </>
+        )}
+        {status === "success" && (
+          <>
+            <Check className="mr-2 h-4 w-4" /> Saved
+          </>
+        )}
+        {status === "idle" && (initial?.id ? "Save changes" : "Submit listing for review")}
+      </Button>
+    </form>
+  );
+}

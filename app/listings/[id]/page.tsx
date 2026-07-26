@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getListingById, getListingTitle, mockListings } from "@/lib/mock-listings";
+import { getListingTitle } from "@/lib/mock-listings";
+import { getApprovedListingById } from "@/lib/listings";
 import { getSuburbById } from "@/lib/mock-data";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -13,12 +14,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 
-export function generateStaticParams() {
-  return mockListings.map((l) => ({ id: l.id }));
-}
-
-export default function ListingDetailPage({ params }: { params: { id: string } }) {
-  const listing = getListingById(params.id);
+// A live, admin-moderated table can't be enumerated at build time — dynamic
+// rendering instead of generateStaticParams/ISR keeps a newly-approved
+// listing visible immediately, with no staleness window to reason about.
+export default async function ListingDetailPage({ params }: { params: { id: string } }) {
+  const listing = await getApprovedListingById(params.id);
 
   if (!listing) {
     notFound();
