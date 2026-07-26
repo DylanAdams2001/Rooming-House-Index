@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { appendRedirectTo, defaultDestination, getOnboardingPath } from "@/lib/onboarding";
+import { createProviderListing } from "@/lib/provider-signup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ export function AuthForm({
   onAuthenticated,
   onSwitchMode,
   signupRole,
+  signupProviderCategory,
 }: {
   mode: "login" | "signup";
   redirectTo?: string;
@@ -32,6 +34,11 @@ export function AuthForm({
   // at all (it redirects through /auth/callback instead), so this also has to be
   // threaded through the callback URL for that path to end up in the same place.
   signupRole?: string;
+  // Only meaningful alongside signupRole="provider" — private per-category
+  // signup links (e.g. /signup/provider/insurance) pass this so the new
+  // account also gets a pre-approved service_providers row in that category,
+  // not just the role flip. { dbValue, label } matches lib/service-categories.ts.
+  signupProviderCategory?: { dbValue: string; label: string };
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -50,6 +57,20 @@ export function AuthForm({
   async function routeAfterAuth(userId: string) {
     if (onAuthenticated) {
       onAuthenticated(userId);
+      return;
+    }
+
+    if (signupRole === "provider" && signupProviderCategory) {
+      const { data: authUser } = await supabase.auth.getUser();
+      await createProviderListing(
+        supabase,
+        userId,
+        authUser.user?.email ?? "",
+        signupProviderCategory.dbValue,
+        signupProviderCategory.label
+      );
+      router.push("/partners");
+      router.refresh();
       return;
     }
 
@@ -88,6 +109,10 @@ export function AuthForm({
     }
     if (signupRole) {
       callbackUrl.searchParams.set("assignRole", signupRole);
+    }
+    if (signupProviderCategory) {
+      callbackUrl.searchParams.set("providerCategoryValue", signupProviderCategory.dbValue);
+      callbackUrl.searchParams.set("providerCategoryLabel", signupProviderCategory.label);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({

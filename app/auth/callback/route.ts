@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { appendRedirectTo, defaultDestination, getOnboardingPath } from "@/lib/onboarding";
+import { createProviderListing } from "@/lib/provider-signup";
 
 // Supabase redirects here after a successful Google OAuth login (see
 // supabase.auth.signInWithOAuth in components/auth-form.tsx). Exchanges the
@@ -11,6 +12,8 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const redirectToParam = searchParams.get("redirectTo");
   const assignRole = searchParams.get("assignRole");
+  const providerCategoryValue = searchParams.get("providerCategoryValue");
+  const providerCategoryLabel = searchParams.get("providerCategoryLabel");
   const explicitDestination =
     redirectToParam && redirectToParam.startsWith("/") ? redirectToParam : null;
 
@@ -22,6 +25,17 @@ export async function GET(request: Request) {
       // Private, hand-sent signup links (e.g. /signup/property-manager) carry this
       // through so Google OAuth signups land in /partners with the right role too,
       // same as the email/password path in components/auth-form.tsx.
+      if (assignRole === "provider" && providerCategoryValue && providerCategoryLabel) {
+        await createProviderListing(
+          supabase,
+          data.user.id,
+          data.user.email ?? "",
+          providerCategoryValue,
+          providerCategoryLabel
+        );
+        return NextResponse.redirect(`${origin}/partners`);
+      }
+
       if (assignRole) {
         await supabase.from("users").update({ role: assignRole }).eq("id", data.user.id);
         return NextResponse.redirect(`${origin}/partners`);

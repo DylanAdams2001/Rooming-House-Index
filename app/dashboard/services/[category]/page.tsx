@@ -5,7 +5,6 @@ import { ProviderCard } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/back-link";
 import { MessageCircle } from "lucide-react";
@@ -214,14 +213,9 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
     <div>
       <BackLink href="/dashboard/services" label="Services" />
 
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-        <div>
-          <h1 className="font-display text-3xl text-ink">{category.label}</h1>
-          <p className="mt-2 text-body">{category.description}</p>
-        </div>
-        <Button asChild variant="outline">
-          <Link href={`/dashboard/services/${category.slug}/join`}>List your business</Link>
-        </Button>
+      <div>
+        <h1 className="font-display text-3xl text-ink">{category.label}</h1>
+        <p className="mt-2 text-body">{category.description}</p>
       </div>
 
       <p className="mt-6 text-sm text-muted">
