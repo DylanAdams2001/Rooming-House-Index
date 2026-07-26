@@ -42,14 +42,19 @@ export async function POST(req: Request) {
   const supabase = createServiceRoleClient();
   const resend = new Resend(apiKey);
 
-  const { data: conversation } = await supabase
+  const { data: conversation, error: conversationError } = await supabase
     .from("listing_conversations")
     .select("listing_id, tenant_id")
     .eq("id", payload.record.conversation_id)
     .maybeSingle();
 
   if (!conversation) {
-    return NextResponse.json({ ok: true, _debug: "no conversation found for conversation_id" });
+    return NextResponse.json({
+      ok: true,
+      _debug: "no conversation found for conversation_id",
+      _debugConversationId: payload.record.conversation_id,
+      _debugError: conversationError,
+    });
   }
 
   // These three only depend on the conversation row, not on each other —
