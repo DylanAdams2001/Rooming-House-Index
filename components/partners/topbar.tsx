@@ -12,15 +12,21 @@ export function PartnersTopbar({
   fullName,
   avatarUrl,
   role,
+  unreadEnquiryCount = 0,
 }: {
   userId: string;
   userEmail: string;
   fullName?: string | null;
   avatarUrl?: string | null;
   role: string | null | undefined;
+  unreadEnquiryCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
+
+  const menuItems = getPartnerNavItems(role).map((item) =>
+    item.href === "/partners/enquiries" ? { ...item, badgeCount: unreadEnquiryCount } : item
+  );
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -38,7 +44,7 @@ export function PartnersTopbar({
         userId={userId}
         name={fullName ?? userEmail}
         avatarUrl={avatarUrl}
-        items={getPartnerNavItems(role)}
+        items={menuItems}
         onLogout={handleLogout}
       />
     </header>

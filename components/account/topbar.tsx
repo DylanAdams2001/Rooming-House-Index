@@ -18,14 +18,20 @@ export function AccountTopbar({
   userEmail,
   fullName,
   avatarUrl,
+  unreadMessageCount = 0,
 }: {
   userId: string;
   userEmail: string;
   fullName?: string | null;
   avatarUrl?: string | null;
+  unreadMessageCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
+
+  const menuItems = MENU_ITEMS.map((item) =>
+    item.href === "/account/messages" ? { ...item, badgeCount: unreadMessageCount } : item
+  );
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -45,7 +51,7 @@ export function AccountTopbar({
         userId={userId}
         name={fullName ?? userEmail}
         avatarUrl={avatarUrl}
-        items={MENU_ITEMS}
+        items={menuItems}
         onLogout={handleLogout}
       />
     </header>
