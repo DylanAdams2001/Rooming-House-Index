@@ -5,6 +5,7 @@ import { getApprovedListingById } from "@/lib/listings";
 import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Shared between /account/messages (perspective="tenant", the default — one
 // thread per room a tenant has enquired about) and /partners/enquiries
@@ -23,8 +24,16 @@ export async function ListingMessagesInbox({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let conversations: { id: string; listing_id: string; last_message_at: string }[] = [];
+  let conversations: {
+    id: string;
+    listing_id: string;
+    last_message_at: string;
+    tenant_last_read_at: string | null;
+    manager_last_read_at: string | null;
+  }[] = [];
   let loadError: string | null = null;
+
+  const readColumn = perspective === "manager" ? "manager_last_read_at" : "tenant_last_read_at";
 
   if (user && perspective === "manager") {
     const { data: ownedListings, error: listingsError } = await supabase
@@ -39,7 +48,7 @@ export async function ListingMessagesInbox({
       if (listingIds.length > 0) {
         const { data, error } = await supabase
           .from("listing_conversations")
-          .select("id, listing_id, last_message_at")
+          .select("id, listing_id, last_message_at, tenant_last_read_at, manager_last_read_at")
           .in("listing_id", listingIds)
           .order("last_message_at", { ascending: false });
 
@@ -53,7 +62,7 @@ export async function ListingMessagesInbox({
   } else if (user) {
     const { data, error } = await supabase
       .from("listing_conversations")
-      .select("id, listing_id, last_message_at")
+      .select("id, listing_id, last_message_at, tenant_last_read_at, manager_last_read_at")
       .eq("tenant_id", user.id)
       .order("last_message_at", { ascending: false });
 
@@ -121,6 +130,8 @@ export async function ListingMessagesInbox({
         <div className="mt-6 space-y-3">
           {conversations.map((c) => {
             const listing = listingsById.get(c.listing_id) ?? null;
+            const lastReadAt = c[readColumn];
+            const unread = !lastReadAt || new Date(c.last_message_at) > new Date(lastReadAt);
             return (
               <Link
                 key={c.id}
@@ -128,13 +139,26 @@ export async function ListingMessagesInbox({
               >
                 <Card className="transition-colors hover:bg-linen">
                   <CardContent className="flex items-center justify-between p-5">
-                    <div>
-                      <p className="font-display text-lg text-ink">
-                        {listing ? getListingTitle(listing) : "Listing"}
-                      </p>
-                      <p className="text-xs text-muted">
-                        Last message {new Date(c.last_message_at).toLocaleString("en-AU")}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      {unread && (
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full bg-ink"
+                          aria-label="Unread"
+                        />
+                      )}
+                      <div>
+                        <p
+                          className={cn(
+                            "font-display text-lg text-ink",
+                            unread && "font-semibold"
+                          )}
+                        >
+                          {listing ? getListingTitle(listing) : "Listing"}
+                        </p>
+                        <p className="text-xs text-muted">
+                          Last message {new Date(c.last_message_at).toLocaleString("en-AU")}
+                        </p>
+                      </div>
                     </div>
                     <MessageCircle className="h-5 w-5 text-muted" />
                   </CardContent>

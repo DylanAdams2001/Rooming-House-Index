@@ -38,6 +38,17 @@ export async function ListingConversationView({
         .order("created_at", { ascending: true })
     : { data: [] };
 
+  if (conversation) {
+    // Fire-and-forget: mark this side as having seen the conversation up to
+    // now, so the inbox list's unread indicator clears once they've opened it.
+    const readColumn = perspective === "manager" ? "manager_last_read_at" : "tenant_last_read_at";
+    supabase
+      .from("listing_conversations")
+      .update({ [readColumn]: new Date().toISOString() })
+      .eq("id", conversation.id)
+      .then(() => {});
+  }
+
   let listing = null;
   if (conversation) {
     if (perspective === "manager") {

@@ -882,3 +882,29 @@ create policy "Listing owners can view an enquiring tenant's application profile
       where c.tenant_id = tenant_profiles.user_id and l.owner_id = auth.uid()
     )
   );
+
+-- ─────────────────────────────────────────────────────────────
+-- listing_conversations: per-side read tracking
+-- Lets each side's inbox show an unread indicator — otherwise the only way to
+-- know a new reply had arrived was to already be inside that conversation.
+-- Two separate columns since there are exactly two sides to a listing
+-- conversation (the tenant, and whichever single account owns the listing).
+-- ─────────────────────────────────────────────────────────────
+alter table public.listing_conversations add column if not exists tenant_last_read_at timestamptz;
+alter table public.listing_conversations add column if not exists manager_last_read_at timestamptz;
+
+create policy "Tenants can update their own listing conversation read state"
+  on public.listing_conversations for update
+  using (auth.uid() = tenant_id)
+  with check (auth.uid() = tenant_id);
+
+create policy "Listing owners can update their own listing conversation read state"
+  on public.listing_conversations for update
+  using (exists (
+    select 1 from public.listings l
+    where l.id::text = listing_conversations.listing_id and l.owner_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.listings l
+    where l.id::text = listing_conversations.listing_id and l.owner_id = auth.uid()
+  ));
