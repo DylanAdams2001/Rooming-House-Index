@@ -24,9 +24,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No conversation provided." }, { status: 400 });
   }
 
-  const transcript = messages
-    .map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`)
-    .join("\n\n");
+  const lastVisitorMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
   const resend = new Resend(apiKey);
 
@@ -34,10 +32,10 @@ export async function POST(req: Request) {
     from: fromAddress,
     to: SUPPORT_RECIPIENTS,
     replyTo: contactEmail || undefined,
-    subject: "Support chat escalation — Rooming House Index",
-    text: `A visitor's support chat needs a human follow-up.\n\nContact email: ${
-      contactEmail || "not provided"
-    }\n\nConversation:\n\n${transcript}`,
+    subject: "You have a new support chat message — Rooming House Index",
+    text: `A visitor on the support chat needs help the bot couldn't provide.\n\nTheir message: "${lastVisitorMessage}"\n\nContact email: ${
+      contactEmail || "not provided — ask for one if you reply"
+    }${contactEmail ? "\n\nJust hit reply to respond to them directly." : ""}`,
   });
 
   if (error) {
