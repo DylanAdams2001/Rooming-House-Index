@@ -43,23 +43,62 @@ export async function MessagesInbox({
       loadError = providerError.message;
     } else {
       const providerIds = (providerRows ?? []).map((p) => p.id);
-      if (providerIds.length > 0) {
-        const [{ data: conversations, error }, { data: quoteConversations }] = await Promise.all([
-          supabase
-            .from("conversations")
-            .select(
-              "id, last_message_at, provider_last_read_at, users!conversations_investor_id_fkey(email), messages!inner(id)"
-            )
-            .in("provider_id", providerIds),
-          supabase
-            .from("quote_conversations")
-            .select(
-              "id, request_id, last_message_at, provider_last_read_at, service_quote_requests(property_address), quote_messages!inner(id)"
-            )
-            .in("provider_id", providerIds),
+
+      // Property managers' tenant room enquiries (listing_conversations) merge
+      // in here too — one Messages inbox for the whole account, rather than a
+      // separate Enquiries tab. Harmless no-op query for providers who don't
+      // own any listings (regular service providers).
+      const { data: ownedListings } = await supabase.from("listings").select("id, address").eq("owner_id", user.id);
+      const listingsById = new Map((ownedListings ?? []).map((l) => [l.id, l.address]));
+      const listingIds = Array.from(listingsById.keys());
+
+      if (providerIds.length > 0 || listingIds.length > 0) {
+        const [
+          { data: conversations, error },
+          { data: quoteConversations },
+          { data: listingConversations },
+        ] = await Promise.all([
+          providerIds.length > 0
+            ? supabase
+                .from("conversations")
+                .select(
+                  "id, last_message_at, provider_last_read_at, users!conversations_investor_id_fkey(email), messages!inner(id)"
+                )
+                .in("provider_id", providerIds)
+            : Promise.resolve({ data: [], error: null }),
+          providerIds.length > 0
+            ? supabase
+                .from("quote_conversations")
+                .select(
+                  "id, request_id, last_message_at, provider_last_read_at, service_quote_requests(property_address), quote_messages!inner(id)"
+                )
+                .in("provider_id", providerIds)
+            : Promise.resolve({ data: [] }),
+          listingIds.length > 0
+            ? supabase
+                .from("listing_conversations")
+                .select("id, listing_id, last_message_at, manager_last_read_at, listing_messages!inner(id)")
+                .in("listing_id", listingIds)
+            : Promise.resolve({ data: [] }),
         ]);
 
         if (error) loadError = error.message;
+
+        for (const c of (listingConversations ?? []) as unknown as {
+          id: string;
+          listing_id: string;
+          last_message_at: string;
+          manager_last_read_at: string | null;
+        }[]) {
+          items.push({
+            id: `enquiry-${c.id}`,
+            title: listingsById.get(c.listing_id) ?? "Room enquiry",
+            subtitle: "Room enquiry",
+            lastMessageAt: c.last_message_at,
+            unread: !c.manager_last_read_at || new Date(c.last_message_at) > new Date(c.manager_last_read_at),
+            href: `${basePath}/enquiries/${c.id}`,
+          });
+        }
 
         for (const c of (conversations ?? []) as unknown as {
           id: string;
@@ -155,7 +194,7 @@ export async function MessagesInbox({
       <h1 className="font-display text-3xl text-ink">Messages</h1>
       <p className="mt-2 text-body">
         {perspective === "provider"
-          ? "Your conversations with members, including quote requests."
+          ? "Your conversations with members, including quote requests and room enquiries."
           : "Your conversations with service providers, including quote requests."}
       </p>
 

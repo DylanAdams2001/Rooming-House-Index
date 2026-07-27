@@ -41,7 +41,8 @@ export function getPartnerNavItems(
   if (role === "property_manager" || role === "admin") {
     items.push({ href: "/partners/listings", label: "Rooms", icon: ListChecks });
     items.push({ href: "/partners/listings/new", label: "Add Room", icon: Plus });
-    items.push({ href: "/partners/enquiries", label: "Enquiries", icon: MessageCircle });
+    // Room enquiries live in the unified Messages tab above now, not a
+    // separate Enquiries tab.
   }
 
   return items;

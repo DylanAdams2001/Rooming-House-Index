@@ -13,7 +13,6 @@ export function PartnersTopbar({
   avatarUrl,
   role,
   category,
-  unreadEnquiryCount = 0,
   unreadMessageCount = 0,
 }: {
   userId: string;
@@ -22,17 +21,14 @@ export function PartnersTopbar({
   avatarUrl?: string | null;
   role: string | null | undefined;
   category?: string | null;
-  unreadEnquiryCount?: number;
   unreadMessageCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
-  const menuItems = getPartnerNavItems(role, category).map((item) => {
-    if (item.href === "/partners/enquiries") return { ...item, badgeCount: unreadEnquiryCount };
-    if (item.href === "/partners/messages") return { ...item, badgeCount: unreadMessageCount };
-    return item;
-  });
+  const menuItems = getPartnerNavItems(role, category).map((item) =>
+    item.href === "/partners/messages" ? { ...item, badgeCount: unreadMessageCount } : item
+  );
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -43,12 +39,7 @@ export function PartnersTopbar({
   return (
     <header className="flex h-20 min-w-0 items-center justify-between gap-4 border-b border-line bg-white px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <PartnersMobileNav
-          role={role}
-          category={category}
-          unreadEnquiryCount={unreadEnquiryCount}
-          unreadMessageCount={unreadMessageCount}
-        />
+        <PartnersMobileNav role={role} category={category} unreadMessageCount={unreadMessageCount} />
         <span className="truncate font-display text-lg text-ink md:hidden">Partner Portal</span>
       </div>
       <AvatarMenu

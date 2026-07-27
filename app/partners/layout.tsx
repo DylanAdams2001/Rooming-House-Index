@@ -27,25 +27,10 @@ export default async function PartnersLayout({ children }: { children: React.Rea
 
   // Same JS-side comparison as the account layout's unread count — "unread"
   // compares two columns on the same row, which a Supabase filter can't
-  // express directly.
-  let unreadEnquiryCount = 0;
-  if (profile.role === "property_manager" || profile.role === "admin") {
-    const { data: ownedListings } = await supabase.from("listings").select("id").eq("owner_id", user.id);
-    const listingIds = (ownedListings ?? []).map((l) => l.id);
-    if (listingIds.length > 0) {
-      const { data: conversations } = await supabase
-        .from("listing_conversations")
-        .select("last_message_at, manager_last_read_at")
-        .in("listing_id", listingIds);
-      unreadEnquiryCount = (conversations ?? []).filter(
-        (c) => !c.manager_last_read_at || new Date(c.last_message_at) > new Date(c.manager_last_read_at)
-      ).length;
-    }
-  }
-
-  // Merged into one count since the Messages inbox itself merges regular
-  // marketplace conversations with quote-request conversations into a
-  // single list, rather than splitting them across two tabs.
+  // express directly. Merged into one count since the Messages inbox itself
+  // merges marketplace conversations, quote-request conversations, and (for
+  // property managers) tenant room enquiries into a single list, rather than
+  // splitting them across separate tabs.
   let category: string | null = null;
   let unreadMessageCount = 0;
   if (profile.role === "provider" || profile.role === "property_manager") {
@@ -56,35 +41,49 @@ export default async function PartnersLayout({ children }: { children: React.Rea
       .maybeSingle();
     category = providerRow?.category ?? null;
 
-    if (providerRow) {
-      const [{ data: conversations }, { data: quoteConversations }] = await Promise.all([
-        supabase
-          .from("conversations")
-          .select("last_message_at, provider_last_read_at")
-          .eq("provider_id", providerRow.id),
-        supabase
-          .from("quote_conversations")
-          .select("last_message_at, provider_last_read_at")
-          .eq("provider_id", providerRow.id),
-      ]);
-      unreadMessageCount =
-        (conversations ?? []).filter(
-          (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
-        ).length +
-        (quoteConversations ?? []).filter(
-          (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
-        ).length;
+    let listingIds: string[] = [];
+    if (profile.role === "property_manager") {
+      const { data: ownedListings } = await supabase.from("listings").select("id").eq("owner_id", user.id);
+      listingIds = (ownedListings ?? []).map((l) => l.id);
     }
+
+    const [{ data: conversations }, { data: quoteConversations }, { data: listingConversations }] =
+      await Promise.all([
+        providerRow
+          ? supabase
+              .from("conversations")
+              .select("last_message_at, provider_last_read_at")
+              .eq("provider_id", providerRow.id)
+          : Promise.resolve({ data: [] }),
+        providerRow
+          ? supabase
+              .from("quote_conversations")
+              .select("last_message_at, provider_last_read_at")
+              .eq("provider_id", providerRow.id)
+          : Promise.resolve({ data: [] }),
+        listingIds.length > 0
+          ? supabase
+              .from("listing_conversations")
+              .select("last_message_at, manager_last_read_at")
+              .in("listing_id", listingIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+    unreadMessageCount =
+      (conversations ?? []).filter(
+        (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
+      ).length +
+      (quoteConversations ?? []).filter(
+        (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
+      ).length +
+      (listingConversations ?? []).filter(
+        (c) => !c.manager_last_read_at || new Date(c.last_message_at) > new Date(c.manager_last_read_at)
+      ).length;
   }
 
   return (
     <div className="flex min-h-screen bg-white">
-      <PartnersSidebar
-        role={profile.role}
-        category={category}
-        unreadEnquiryCount={unreadEnquiryCount}
-        unreadMessageCount={unreadMessageCount}
-      />
+      <PartnersSidebar role={profile.role} category={category} unreadMessageCount={unreadMessageCount} />
       <div className="flex min-w-0 flex-1 flex-col">
         <PartnersTopbar
           userId={user.id}
@@ -93,7 +92,6 @@ export default async function PartnersLayout({ children }: { children: React.Rea
           avatarUrl={profile?.avatar_url ?? null}
           role={profile?.role ?? null}
           category={category}
-          unreadEnquiryCount={unreadEnquiryCount}
           unreadMessageCount={unreadMessageCount}
         />
         <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">

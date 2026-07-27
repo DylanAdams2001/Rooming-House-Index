@@ -10,12 +10,10 @@ import { getPartnerNavItems, isPartnerNavItemActive } from "./nav-items";
 export function PartnersMobileNav({
   role,
   category,
-  unreadEnquiryCount = 0,
   unreadMessageCount = 0,
 }: {
   role: string | null | undefined;
   category?: string | null;
-  unreadEnquiryCount?: number;
   unreadMessageCount?: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -63,9 +61,7 @@ export function PartnersMobileNav({
               {items.map((item) => {
                 const active = isPartnerNavItemActive(items, pathname, item.href);
                 const Icon = item.icon;
-                const unread =
-                  (item.href === "/partners/enquiries" && unreadEnquiryCount > 0) ||
-                  (item.href === "/partners/messages" && unreadMessageCount > 0);
+                const unread = item.href === "/partners/messages" && unreadMessageCount > 0;
                 return (
                   <Link
                     key={item.href}
