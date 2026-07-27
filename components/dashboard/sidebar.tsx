@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Building2, ChevronDown } from "lucide-react";
 import { navItems } from "./nav-items";
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
   const pathname = usePathname();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
@@ -75,6 +75,8 @@ export function DashboardSidebar() {
             );
           }
 
+          const unread = item.href === "/dashboard/messages" && unreadMessageCount > 0;
+
           return (
             <Link
               key={item.href}
@@ -90,6 +92,12 @@ export function DashboardSidebar() {
             >
               <Icon className="h-4 w-4" />
               {item.label}
+              {unread && (
+                <span
+                  className="ml-auto h-2 w-2 shrink-0 rounded-full bg-red-600"
+                  aria-label="Unread"
+                />
+              )}
             </Link>
           );
         })}

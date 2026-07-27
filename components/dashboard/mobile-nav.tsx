@@ -7,7 +7,7 @@ import { Menu, X, Building2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { navItems } from "./nav-items";
 
-export function MobileNav() {
+export function MobileNav({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
   const [open, setOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const pathname = usePathname();
@@ -106,6 +106,8 @@ export function MobileNav() {
                   );
                 }
 
+                const unread = item.href === "/dashboard/messages" && unreadMessageCount > 0;
+
                 return (
                   <Link
                     key={item.href}
@@ -120,6 +122,12 @@ export function MobileNav() {
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
+                    {unread && (
+                      <span
+                        className="ml-auto h-2 w-2 shrink-0 rounded-full bg-red-600"
+                        aria-label="Unread"
+                      />
+                    )}
                   </Link>
                 );
               })}

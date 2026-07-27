@@ -42,7 +42,7 @@ export function DashboardTopbar({
   return (
     <header className="flex h-20 min-w-0 items-center justify-between gap-4 border-b border-line bg-white px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <MobileNav />
+        <MobileNav unreadMessageCount={unreadMessageCount} />
         <span className="truncate font-display text-lg text-ink md:hidden">
           Rooming House Index
         </span>

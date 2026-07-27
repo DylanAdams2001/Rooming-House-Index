@@ -36,7 +36,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   return (
     <div className="flex min-h-screen bg-white">
-      <AccountSidebar />
+      <AccountSidebar unreadMessageCount={unreadMessageCount} />
       <div className="flex min-w-0 flex-1 flex-col">
         <AccountTopbar
           userId={user.id}

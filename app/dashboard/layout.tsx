@@ -42,7 +42,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-white">
-      <DashboardSidebar />
+      <DashboardSidebar unreadMessageCount={unreadMessageCount} />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardTopbar
           userId={user.id}

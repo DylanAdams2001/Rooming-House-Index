@@ -79,7 +79,12 @@ export default async function PartnersLayout({ children }: { children: React.Rea
 
   return (
     <div className="flex min-h-screen bg-white">
-      <PartnersSidebar role={profile.role} category={category} />
+      <PartnersSidebar
+        role={profile.role}
+        category={category}
+        unreadEnquiryCount={unreadEnquiryCount}
+        unreadMessageCount={unreadMessageCount}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <PartnersTopbar
           userId={user.id}

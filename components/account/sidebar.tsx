@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Building2 } from "lucide-react";
 import { accountNavItems } from "./nav-items";
 
-export function AccountSidebar() {
+export function AccountSidebar({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
   const pathname = usePathname();
 
   return (
@@ -21,6 +21,7 @@ export function AccountSidebar() {
         {accountNavItems.map((item) => {
           const active = pathname.startsWith(item.href);
           const Icon = item.icon;
+          const unread = item.href === "/account/messages" && unreadMessageCount > 0;
           return (
             <Link
               key={item.href}
@@ -32,6 +33,12 @@ export function AccountSidebar() {
             >
               <Icon className="h-4 w-4" />
               {item.label}
+              {unread && (
+                <span
+                  className="ml-auto h-2 w-2 shrink-0 rounded-full bg-red-600"
+                  aria-label="Unread"
+                />
+              )}
             </Link>
           );
         })}
