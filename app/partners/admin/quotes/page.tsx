@@ -1,0 +1,147 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { serviceCategories } from "@/lib/service-categories";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const STATUS_STYLES: Record<string, string> = {
+  quoted: "border-green-600 bg-green-600 text-white",
+  pending: "border-line bg-linen text-ink",
+  closed: "border-line bg-offwhite text-muted",
+};
+
+export default async function AdminQuotesPage() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+    isAdmin = profile?.role === "admin";
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="rounded-card border border-dashed border-line bg-white p-12 text-center">
+        <p className="text-body">This page is restricted to admin accounts.</p>
+      </div>
+    );
+  }
+
+  const { data: requests } = await supabase
+    .from("service_quote_requests")
+    .select("id, property_address, category, status, created_at, user_id")
+    .order("created_at", { ascending: false });
+
+  const requestIds = (requests ?? []).map((r) => r.id);
+  const investorIds = Array.from(new Set((requests ?? []).map((r) => r.user_id)));
+
+  const [{ data: investors }, { data: quotes }, { data: quoteConversations }] = await Promise.all([
+    investorIds.length > 0
+      ? supabase.from("users").select("id, full_name, email").in("id", investorIds)
+      : Promise.resolve({ data: [] }),
+    requestIds.length > 0
+      ? supabase
+          .from("service_quote_quotes")
+          .select("id, request_id, provider_id, provider_name, monthly_fee_pct, flat_fee")
+          .in("request_id", requestIds)
+      : Promise.resolve({ data: [] }),
+    requestIds.length > 0
+      ? supabase.from("quote_conversations").select("id, request_id, provider_id").in("request_id", requestIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const investorById = new Map((investors ?? []).map((i) => [i.id, i]));
+  const labelByCategory = new Map(serviceCategories.map((c) => [c.dbCategory, c.label]));
+  const quotesByRequest = new Map<string, typeof quotes>();
+  for (const q of quotes ?? []) {
+    quotesByRequest.set(q.request_id, [...(quotesByRequest.get(q.request_id) ?? []), q]);
+  }
+  const conversationIdByRequestAndProvider = new Map(
+    (quoteConversations ?? []).map((c) => [`${c.request_id}:${c.provider_id}`, c.id])
+  );
+
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <FileText className="h-6 w-6 text-ink" />
+        <h1 className="font-display text-3xl text-ink">All Quotes</h1>
+      </div>
+      <p className="mt-2 text-body">
+        Every quote request across every category, and the quotes submitted against each one.
+      </p>
+
+      {(!requests || requests.length === 0) && (
+        <div className="mt-8 rounded-card border border-dashed border-line bg-white p-12 text-center">
+          <p className="text-body">No quote requests yet.</p>
+        </div>
+      )}
+
+      {requests && requests.length > 0 && (
+        <div className="mt-6 space-y-3">
+          {requests.map((request) => {
+            const investor = investorById.get(request.user_id);
+            const requestQuotes = quotesByRequest.get(request.id) ?? [];
+            return (
+              <Card key={request.id}>
+                <CardContent className="p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-display text-lg text-ink">{request.property_address}</p>
+                      <p className="text-xs text-muted">
+                        {labelByCategory.get(request.category) ?? request.category} · Investor:{" "}
+                        {investor?.full_name ?? investor?.email ?? "Investor"} · Submitted{" "}
+                        {new Date(request.created_at).toLocaleDateString("en-AU")}
+                      </p>
+                    </div>
+                    <Badge className={cn(STATUS_STYLES[request.status])}>{request.status}</Badge>
+                  </div>
+
+                  {requestQuotes.length === 0 ? (
+                    <p className="mt-3 text-sm text-muted">No quotes submitted yet.</p>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      {requestQuotes.map((quote) => {
+                        const conversationId = conversationIdByRequestAndProvider.get(
+                          `${quote.request_id}:${quote.provider_id}`
+                        );
+                        const fee = quote.monthly_fee_pct
+                          ? `${quote.monthly_fee_pct}% of rent`
+                          : quote.flat_fee ?? "Quote provided";
+                        const row = (
+                          <div className="flex items-center justify-between rounded-btn border border-line p-3 text-sm">
+                            <span className="text-ink">{quote.provider_name}</span>
+                            <span className="text-muted">{fee}</span>
+                          </div>
+                        );
+                        return conversationId ? (
+                          <Link
+                            key={quote.id}
+                            href={`/partners/admin/conversations/quote-${conversationId}`}
+                            className="block transition-colors hover:bg-linen"
+                          >
+                            {row}
+                          </Link>
+                        ) : (
+                          <div key={quote.id}>{row}</div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

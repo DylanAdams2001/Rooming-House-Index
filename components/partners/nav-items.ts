@@ -1,4 +1,4 @@
-import { Home, ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
+import { FileText, Home, ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
 
 export type PartnerNavItem = {
   href: string;
@@ -28,6 +28,7 @@ export function getPartnerNavItems(
     return [
       { href: "/partners", label: "Business Partners", icon: ShieldCheck },
       { href: "/partners/admin/listings", label: "All Listings", icon: Home },
+      { href: "/partners/admin/quotes", label: "All Quotes", icon: FileText },
       { href: "/partners/admin/conversations", label: "All Conversations", icon: ShieldCheck },
       { href: "/partners/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
     ];
