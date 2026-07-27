@@ -32,6 +32,9 @@ export async function MessagesInbox({
 
   const items: InboxItem[] = [];
   let loadError: string | null = null;
+  // TEMPORARY debug info — remove once the "partners inbox shows empty"
+  // report is diagnosed. Only rendered in the empty state, never logged.
+  let debugInfo: Record<string, unknown> | null = null;
 
   if (user && perspective === "provider") {
     const { data: providerRows, error: providerError } = await supabase
@@ -52,11 +55,18 @@ export async function MessagesInbox({
       const listingsById = new Map((ownedListings ?? []).map((l) => [l.id, l.address]));
       const listingIds = Array.from(listingsById.keys());
 
+      debugInfo = {
+        userId: user.id,
+        providerIds,
+        listingIds,
+        providerError: providerError ?? null,
+      };
+
       if (providerIds.length > 0 || listingIds.length > 0) {
         const [
           { data: conversations, error },
-          { data: quoteConversations },
-          { data: listingConversations },
+          { data: quoteConversations, error: quoteError },
+          { data: listingConversations, error: listingError },
         ] = await Promise.all([
           providerIds.length > 0
             ? supabase
@@ -73,14 +83,24 @@ export async function MessagesInbox({
                   "id, request_id, last_message_at, provider_last_read_at, service_quote_requests(property_address), quote_messages!inner(id)"
                 )
                 .in("provider_id", providerIds)
-            : Promise.resolve({ data: [] }),
+            : Promise.resolve({ data: [], error: null }),
           listingIds.length > 0
             ? supabase
                 .from("listing_conversations")
                 .select("id, listing_id, last_message_at, manager_last_read_at, listing_messages!inner(id)")
                 .in("listing_id", listingIds)
-            : Promise.resolve({ data: [] }),
+            : Promise.resolve({ data: [], error: null }),
         ]);
+
+        debugInfo = {
+          ...debugInfo,
+          conversationsCount: conversations?.length ?? null,
+          conversationsError: error ?? null,
+          quoteConversationsCount: quoteConversations?.length ?? null,
+          quoteConversationsError: quoteError ?? null,
+          listingConversationsCount: listingConversations?.length ?? null,
+          listingConversationsError: listingError ?? null,
+        };
 
         if (error) loadError = error.message;
 
@@ -220,6 +240,11 @@ export async function MessagesInbox({
               </Link>
               .
             </p>
+          )}
+          {debugInfo && (
+            <pre className="mt-6 overflow-x-auto rounded-btn border border-line bg-offwhite p-3 text-left text-[10px] text-muted">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
           )}
         </div>
       )}
