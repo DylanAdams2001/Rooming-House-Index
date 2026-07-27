@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AvatarMenu } from "@/components/avatar-menu";
-import { Bookmark, MessageCircle, User, Wrench } from "lucide-react";
+import { Bookmark, MessageCircle, ShieldCheck, User, Wrench } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 
 const MENU_ITEMS = [
@@ -11,6 +11,14 @@ const MENU_ITEMS = [
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/services", label: "Services", icon: Wrench },
   { href: "/dashboard/settings", label: "Profile", icon: User },
+];
+
+// Flat equivalent of the sidebar's collapsible "Partner Portal" group —
+// this dropdown has no group/children concept, so each item shows individually.
+const ADMIN_MENU_ITEMS = [
+  { href: "/partners", label: "Business Partners", icon: ShieldCheck },
+  { href: "/partners/admin/conversations", label: "All Conversations", icon: ShieldCheck },
+  { href: "/partners/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
 ];
 
 export function DashboardTopbar({
@@ -31,9 +39,12 @@ export function DashboardTopbar({
   const router = useRouter();
   const supabase = createClient();
 
-  const menuItems = MENU_ITEMS.map((item) =>
-    item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
-  );
+  const menuItems = [
+    ...MENU_ITEMS.map((item) =>
+      item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
+    ),
+    ...(role === "admin" ? ADMIN_MENU_ITEMS : []),
+  ];
 
   async function handleLogout() {
     await supabase.auth.signOut();

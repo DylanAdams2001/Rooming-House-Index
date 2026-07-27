@@ -1,4 +1,4 @@
-import { ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
+import { LineChart, ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
 
 export type PartnerNavItem = {
   href: string;
@@ -29,6 +29,9 @@ export function getPartnerNavItems(
       { href: "/partners", label: "Business Partners", icon: ShieldCheck },
       { href: "/partners/admin/conversations", label: "All Conversations", icon: ShieldCheck },
       { href: "/partners/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
+      // Admin is also an investor and wants the suburb/market data view —
+      // unlike the tenant account (removed on request), this one's wanted.
+      { href: "/dashboard", label: "Investor Dashboard", icon: LineChart },
     ];
   }
 

@@ -5,6 +5,7 @@ import {
   List,
   MapPin,
   MessageCircle,
+  ShieldCheck,
   User,
   Wrench,
   type LucideIcon,
@@ -44,9 +45,21 @@ const BASE_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
 
-// Admin's home base is the Partners portal (Business Partners directory,
-// every conversation, partner signup links) — nothing admin-specific belongs
-// in the investor dashboard nav anymore.
-export function getDashboardNavItems(_role: string | null | undefined): NavItem[] {
-  return BASE_NAV_ITEMS;
+// Admin's home base is the investor dashboard, same as everyone else — the
+// Partner Portal (Business Partners directory, every conversation, partner
+// signup links) is just one collapsible menu group inside it, not a
+// separate landing experience.
+const PARTNER_PORTAL_NAV_ITEM: NavItem = {
+  href: "/partners",
+  label: "Partner Portal",
+  icon: ShieldCheck,
+  children: [
+    { label: "Business Partners", href: "/partners" },
+    { label: "All Conversations", href: "/partners/admin/conversations" },
+    { label: "Partner Signup Links", href: "/partners/admin/partner-links" },
+  ],
+};
+
+export function getDashboardNavItems(role: string | null | undefined): NavItem[] {
+  return role === "admin" ? [...BASE_NAV_ITEMS, PARTNER_PORTAL_NAV_ITEM] : BASE_NAV_ITEMS;
 }
