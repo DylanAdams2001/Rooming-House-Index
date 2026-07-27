@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SupportChatWidget } from "@/components/support-chat-widget";
+import { TopProgressBar } from "@/components/top-progress-bar";
 
 export const metadata: Metadata = {
   title: "Rooming House Index — Find a Room",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <TopProgressBar />
         {children}
         <SupportChatWidget />
       </body>
