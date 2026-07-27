@@ -1147,3 +1147,37 @@ create policy "Providers can update read state on their own conversations"
     select 1 from public.service_providers p
     where p.id = conversations.provider_id and p.user_id = auth.uid()
   ));
+
+-- ─────────────────────────────────────────────────────────────
+-- users: let providers/property managers see who they're talking to
+-- public.users previously only had "view your own row" — nothing let a
+-- provider read even the basic name/email of the investor in a conversation
+-- with them, or a property manager read an enquiring tenant's name/email.
+-- That's why quote-request-summary.tsx was showing "Not provided": the
+-- query wasn't erroring, RLS was just silently returning nothing.
+-- ─────────────────────────────────────────────────────────────
+create policy "Providers can view basic info of investors they're talking to"
+  on public.users for select
+  using (
+    exists (
+      select 1 from public.conversations c
+      join public.service_providers p on p.id = c.provider_id
+      where c.investor_id = users.id and p.user_id = auth.uid()
+    )
+    or exists (
+      select 1 from public.quote_conversations qc
+      join public.service_quote_requests r on r.id = qc.request_id
+      join public.service_providers p on p.id = qc.provider_id
+      where r.user_id = users.id and p.user_id = auth.uid()
+    )
+  );
+
+create policy "Listing owners can view basic info of enquiring tenants"
+  on public.users for select
+  using (
+    exists (
+      select 1 from public.listing_conversations lc
+      join public.listings l on l.id::text = lc.listing_id
+      where lc.tenant_id = users.id and l.owner_id = auth.uid()
+    )
+  );
