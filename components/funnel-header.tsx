@@ -15,7 +15,7 @@ export function FunnelHeader() {
   return (
     <header className="border-b border-line/50 bg-ink">
       <div className="container-page flex h-16 items-center justify-between">
-        <span className="font-display text-lg tracking-tight text-white">Rooming House Index</span>
+        <span className="font-display text-lg tracking-tight text-white">Rooming House Standard</span>
         <button
           type="button"
           onClick={() => setShowAuthModal(true)}

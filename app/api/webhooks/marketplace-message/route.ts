@@ -68,9 +68,9 @@ export async function POST(req: Request) {
     ];
 
     const { error: sendError } = await resend.emails.send({
-      from: `Rooming House Index <${fromAddress}>`,
+      from: `Rooming House Standard <${fromAddress}>`,
       to: provider.contact_email,
-      subject: "NEW MESSAGE - Rooming House Index",
+      subject: "NEW MESSAGE - Rooming House Standard",
       html: renderEmailHtml({ heading: `Hi ${provider.business_name}, new message`, blocks, cta: { label: "View conversation", url } }),
       text: `Hi ${provider.business_name}, new message\n\n${renderEmailText(blocks, { label: "View conversation", url })}`,
     });
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
   ];
 
   const { error: sendError } = await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: investor.email,
     subject: `NEW REPLY - ${provider.business_name}`,
     html: renderEmailHtml({ heading: `Hi ${name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),

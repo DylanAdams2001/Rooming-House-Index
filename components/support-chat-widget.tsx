@@ -17,7 +17,7 @@ type ChatMessage = {
 const GREETING: ChatMessage = {
   role: "assistant",
   content:
-    "Hi! I'm the Rooming House Index support assistant. Ask me anything about listings, applications, or investor data.",
+    "Hi! I'm the Rooming House Standard support assistant. Ask me anything about listings, applications, or investor data.",
 };
 
 export function SupportChatWidget() {

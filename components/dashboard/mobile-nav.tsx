@@ -45,7 +45,7 @@ export function MobileNav({
                 className="flex items-center gap-2 font-display text-lg text-ink"
               >
                 <Building2 className="h-5 w-5" />
-                Rooming House Index
+                Rooming House Standard
               </Link>
               <button
                 type="button"

@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     ];
 
     const { error: sendError } = await resend.emails.send({
-      from: `Rooming House Index <${fromAddress}>`,
+      from: `Rooming House Standard <${fromAddress}>`,
       to: tenant.email,
       subject: `NEW REPLY - ${listing.address}`,
       html: renderEmailHtml({ heading: `Hi ${name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
   ];
 
   const { error: sendError } = await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: owner.email,
     subject: `NEW ENQUIRY - ${listing.address}`,
     html: renderEmailHtml({ heading: `Hi ${name}, new enquiry`, blocks, cta: { label: "Reply to enquiry", url } }),

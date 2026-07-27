@@ -75,7 +75,7 @@ export async function POST(req: Request) {
   ];
 
   await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: recipients,
     subject: `NEW QUOTE REQUEST - ${property_address}`,
     html: renderEmailHtml({

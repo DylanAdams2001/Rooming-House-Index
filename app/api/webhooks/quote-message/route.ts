@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     ];
 
     const { error: sendError } = await resend.emails.send({
-      from: `Rooming House Index <${fromAddress}>`,
+      from: `Rooming House Standard <${fromAddress}>`,
       to: investor.email,
       subject: `NEW REPLY - ${request.property_address}`,
       html: renderEmailHtml({ heading: `Hi ${name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
   ];
 
   const { error: sendError } = await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: provider.contact_email,
     subject: `NEW REPLY - ${request.property_address}`,
     html: renderEmailHtml({ heading: `Hi ${provider.business_name}, you've got a reply`, blocks, cta: { label: "View conversation", url } }),

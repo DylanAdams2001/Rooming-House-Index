@@ -30,7 +30,7 @@ export function ChatThread({
   initialMessages,
   table = "messages",
   businessSideReply = false,
-  complianceNote = "All messages here are visible to Rooming House Index for payment and compliance purposes.",
+  complianceNote = "All messages here are visible to Rooming House Standard for payment and compliance purposes.",
 }: {
   conversationId: string;
   currentUserId: string;

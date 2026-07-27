@@ -75,7 +75,7 @@ export async function POST(req: Request) {
   ];
 
   const { error: sendError } = await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: investor.email,
     subject: `NEW QUOTE - ${request.property_address}`,
     html: renderEmailHtml({

@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 const ESCALATE_MARKER = "[[ESCALATE]]";
 
-const SYSTEM_PROMPT = `You are the support assistant for Rooming House Index, a website that lists self-contained rooming house rooms across Victoria, Australia, and also sells suburb-level market data to property investors.
+const SYSTEM_PROMPT = `You are the support assistant for Rooming House Standard, a website that lists self-contained rooming house rooms across Victoria, Australia, and also sells suburb-level market data to property investors.
 
 What the site does:
 - Renters can browse room listings at /listings with photos, pricing, and inspection times without needing an account.

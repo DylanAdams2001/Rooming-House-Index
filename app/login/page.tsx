@@ -9,7 +9,7 @@ export default function LoginPage({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-offwhite px-6">
       <Link href="/" className="mb-10 font-display text-2xl text-ink">
-        Rooming House Index
+        Rooming House Standard
       </Link>
       <div className="w-full max-w-sm rounded-card border border-line bg-white p-8">
         <h1 className="mb-1 text-center font-display text-2xl text-ink">Welcome back</h1>

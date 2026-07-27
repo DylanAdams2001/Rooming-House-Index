@@ -51,7 +51,7 @@ export function DashboardTopbar({
       <div className="flex min-w-0 items-center gap-3">
         <MobileNav role={role} unreadMessageCount={unreadMessageCount} />
         <span className="truncate font-display text-lg text-ink md:hidden">
-          Rooming House Index
+          Rooming House Standard
         </span>
       </div>
       <AvatarMenu

@@ -7,7 +7,7 @@ export function SiteHeader() {
     <header className="border-b border-line bg-white">
       <div className="container-page flex h-20 items-center justify-between">
         <Link href="/" className="font-display text-xl tracking-tight text-ink">
-          Rooming House Index
+          Rooming House Standard
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-body md:flex">
           <Link href="/listings" className="hover:text-ink">

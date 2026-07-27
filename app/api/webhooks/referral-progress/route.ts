@@ -70,7 +70,7 @@ export async function POST(req: Request) {
   ];
 
   const { error: sendError } = await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: ["dylan@keyspaceproperty.com.au", "aaron@keyspaceproperty.com.au"],
     subject: `Referral reward earned — ${referrerName}`,
     html: renderEmailHtml({

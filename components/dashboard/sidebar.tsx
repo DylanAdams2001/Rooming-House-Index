@@ -23,7 +23,7 @@ export function DashboardSidebar({
       <div className="flex h-20 items-center border-b border-line px-6">
         <Link href="/dashboard" className="flex items-center gap-2 font-display text-lg text-ink">
           <Building2 className="h-5 w-5" />
-          Rooming House Index
+          Rooming House Standard
         </Link>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-6">

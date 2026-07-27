@@ -60,7 +60,7 @@ export function renderEmailHtml({
           <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
             <tr>
               <td style="background-color:#1a1a1a;padding:22px 32px;">
-                <span style="font-family:Georgia,Cambria,'Times New Roman',serif;font-size:18px;color:#ffffff;letter-spacing:0.01em;">Rooming House Index</span>
+                <span style="font-family:Georgia,Cambria,'Times New Roman',serif;font-size:18px;color:#ffffff;letter-spacing:0.01em;">Rooming House Standard</span>
               </td>
             </tr>
             <tr>
@@ -74,7 +74,7 @@ export function renderEmailHtml({
             </tr>
             <tr>
               <td style="padding:20px 32px;border-top:1px solid #e5e7eb;">
-                <span style="font-size:12px;color:#999999;">Rooming House Index &middot; Victoria, Australia</span>
+                <span style="font-size:12px;color:#999999;">Rooming House Standard &middot; Victoria, Australia</span>
               </td>
             </tr>
           </table>

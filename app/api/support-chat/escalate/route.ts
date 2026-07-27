@@ -40,10 +40,10 @@ export async function POST(req: Request) {
   ];
 
   const { error } = await resend.emails.send({
-    from: `Rooming House Index <${fromAddress}>`,
+    from: `Rooming House Standard <${fromAddress}>`,
     to: SUPPORT_RECIPIENTS,
     replyTo: contactEmail || undefined,
-    subject: "You have a new support chat message — Rooming House Index",
+    subject: "You have a new support chat message — Rooming House Standard",
     html: renderEmailHtml({ heading: "New support chat message", blocks }),
     text: renderEmailText(blocks),
   });
