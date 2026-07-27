@@ -46,18 +46,16 @@ const BASE_NAV_ITEMS: NavItem[] = [
 ];
 
 // Unlike the rest of this static array, the Admin group only shows for
-// role='admin' — these pages (compliance oversight, private partner signup
-// links) were previously only reachable by typing the URL directly.
+// role='admin'. All Conversations / Partner Signup Links live in the
+// Partners portal nav only now, not duplicated here — this investor
+// dashboard just needs Business Partners plus a way back to the other
+// portals, since admin's home base is /dashboard/admin.
 const ADMIN_NAV_ITEM: NavItem = {
   href: "/dashboard/admin",
   label: "Admin",
   icon: ShieldCheck,
   children: [
     { label: "Business Partners", href: "/dashboard/admin" },
-    { label: "All Conversations", href: "/dashboard/admin/conversations" },
-    { label: "Partner Signup Links", href: "/dashboard/admin/partner-links" },
-    // Admin has no restrictions on any portal — quick links to jump straight
-    // into the other two account experiences from wherever they're standing.
     { label: "Tenant Account", href: "/account" },
     { label: "Partners Portal", href: "/partners" },
   ],
