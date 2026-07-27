@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FileText, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,6 +15,7 @@ export type QuoteCardData = {
 };
 
 export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestId?: string }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const fee = quote.monthlyFeePct ? `${quote.monthlyFeePct}% of rent` : quote.flatFee ?? "Quote provided";
 
@@ -25,7 +27,12 @@ export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestI
         .from("service_quote_requests")
         .update({ quotes_viewed_at: new Date().toISOString() })
         .eq("id", requestId)
-        .then(() => {});
+        .then(({ error }) => {
+          // The dot itself is computed server-side off quotes_viewed_at, so the
+          // parent route needs to re-fetch for it to actually disappear — without
+          // this it stays lit until the next full page load.
+          if (!error) router.refresh();
+        });
     }
   }
 
