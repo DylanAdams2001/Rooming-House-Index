@@ -1325,3 +1325,59 @@ create policy "Admins can manage every provider listing"
   with check (exists (
     select 1 from public.users where id = auth.uid() and role = 'admin'
   ));
+
+-- ─────────────────────────────────────────────────────────────
+-- Referral program: invite 3 friends who become active investors, earn a
+-- $10k builder credit. referral_code is a short, stable, shareable per-user
+-- code (generated server-side, never client-supplied); referred_by records
+-- who invited a given user, stamped right after signup if they arrived via
+-- a ?ref= link. A referral only "counts" once the referred user actually
+-- becomes an active investor (investor_access='active'), not at signup.
+-- ─────────────────────────────────────────────────────────────
+alter table public.users add column if not exists referral_code text unique;
+alter table public.users add column if not exists referred_by uuid references public.users (id);
+-- Guards against emailing admin more than once for the same reward crossing.
+alter table public.users add column if not exists referral_reward_notified_at timestamptz;
+
+create index if not exists users_referred_by_idx on public.users (referred_by);
+
+update public.users set referral_code = substr(id::text, 1, 8) where referral_code is null;
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.users (id, email, referral_code)
+  values (new.id, new.email, substr(new.id::text, 1, 8));
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- Resolves a referral code to the referrer's id without needing any new
+-- SELECT policy on public.users — security definer bypasses RLS internally,
+-- same technique used elsewhere in this schema to avoid the self-reference
+-- recursion trap on this table.
+create or replace function public.resolve_referrer_id(p_referral_code text)
+returns uuid
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select id from public.users where referral_code = p_referral_code;
+$$;
+
+grant execute on function public.resolve_referrer_id(text) to authenticated;
+
+create or replace function public.count_successful_referrals(p_user_id uuid)
+returns integer
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select count(*)::int
+  from public.users
+  where referred_by = p_user_id and investor_access = 'active';
+$$;
+
+grant execute on function public.count_successful_referrals(uuid) to authenticated;

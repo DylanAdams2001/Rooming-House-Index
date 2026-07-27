@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/auth-form";
 export default function SignupPage({
   searchParams,
 }: {
-  searchParams: { redirectTo?: string };
+  searchParams: { redirectTo?: string; ref?: string };
 }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-offwhite px-6">
@@ -16,7 +16,7 @@ export default function SignupPage({
         <p className="mb-8 text-center text-sm text-muted">
           One profile for enquiring about rooms — investor data is an optional add-on once you're in.
         </p>
-        <AuthForm mode="signup" redirectTo={searchParams.redirectTo} />
+        <AuthForm mode="signup" redirectTo={searchParams.redirectTo} referralCode={searchParams.ref} />
       </div>
     </div>
   );

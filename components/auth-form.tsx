@@ -17,6 +17,7 @@ export function AuthForm({
   onSwitchMode,
   signupRole,
   signupProviderCategory,
+  referralCode,
 }: {
   mode: "login" | "signup";
   redirectTo?: string;
@@ -42,6 +43,10 @@ export function AuthForm({
   // (service_providers row), not two separate account types.
   // { dbValue, label } matches lib/service-categories.ts.
   signupProviderCategory?: { dbValue: string; label: string };
+  // From a referral link (?ref=CODE on /signup) — stamped onto the new
+  // account's referred_by column right after signup. Only ever acted on in
+  // signup mode; harmless if present during a login.
+  referralCode?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -61,6 +66,18 @@ export function AuthForm({
     if (onAuthenticated) {
       onAuthenticated(userId);
       return;
+    }
+
+    if (mode === "signup" && referralCode) {
+      const { data: referrerId } = await supabase.rpc("resolve_referrer_id", {
+        p_referral_code: referralCode,
+      });
+      // .is("referred_by", null) is belt-and-suspenders — a brand-new row is
+      // always null here anyway — and referrerId !== userId blocks someone
+      // "referring" themselves with their own link.
+      if (referrerId && referrerId !== userId) {
+        await supabase.from("users").update({ referred_by: referrerId }).eq("id", userId).is("referred_by", null);
+      }
     }
 
     if (signupProviderCategory) {
@@ -119,6 +136,9 @@ export function AuthForm({
     if (signupProviderCategory) {
       callbackUrl.searchParams.set("providerCategoryValue", signupProviderCategory.dbValue);
       callbackUrl.searchParams.set("providerCategoryLabel", signupProviderCategory.label);
+    }
+    if (mode === "signup" && referralCode) {
+      callbackUrl.searchParams.set("ref", referralCode);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({

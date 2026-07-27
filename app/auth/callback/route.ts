@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   const assignRole = searchParams.get("assignRole");
   const providerCategoryValue = searchParams.get("providerCategoryValue");
   const providerCategoryLabel = searchParams.get("providerCategoryLabel");
+  const referralCode = searchParams.get("ref");
   const explicitDestination =
     redirectToParam && redirectToParam.startsWith("/") ? redirectToParam : null;
 
@@ -22,6 +23,19 @@ export async function GET(request: Request) {
     const { data } = await supabase.auth.exchangeCodeForSession(code);
 
     if (data.user) {
+      if (referralCode) {
+        const { data: referrerId } = await supabase.rpc("resolve_referrer_id", {
+          p_referral_code: referralCode,
+        });
+        if (referrerId && referrerId !== data.user.id) {
+          await supabase
+            .from("users")
+            .update({ referred_by: referrerId })
+            .eq("id", data.user.id)
+            .is("referred_by", null);
+        }
+      }
+
       // Private, hand-sent signup links (e.g. /signup/property-manager) carry this
       // through so Google OAuth signups land in /partners with the right role too,
       // same as the email/password path in components/auth-form.tsx.

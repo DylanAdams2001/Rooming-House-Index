@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SuburbCard } from "@/components/suburb-card";
+import { ReferralCard } from "@/components/referral-card";
 import { dashboardStats, suburbs } from "@/lib/mock-data";
 import {
   Building2,
@@ -49,6 +50,20 @@ export default async function DashboardHomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  let referralCode: string | null = null;
+  let referralCount = 0;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("referral_code")
+      .eq("id", user.id)
+      .maybeSingle();
+    referralCode = profile?.referral_code ?? null;
+
+    const { data: count } = await supabase.rpc("count_successful_referrals", { p_user_id: user.id });
+    referralCount = count ?? 0;
+  }
+
   const stats = [
     {
       label: "Total Suburbs Tracked",
@@ -88,6 +103,8 @@ export default async function DashboardHomePage() {
       <p className="mt-2 text-body">
         Here&apos;s the current state of the rooming house market across Victoria.
       </p>
+
+      {referralCode && <ReferralCard referralCode={referralCode} referralCount={referralCount} />}
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
