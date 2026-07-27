@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AvatarMenu } from "@/components/avatar-menu";
-import { Bookmark, MessageCircle, User, Wrench } from "lucide-react";
+import { Bookmark, MessageCircle, ShieldCheck, User, Wrench } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 
 const MENU_ITEMS = [
@@ -13,25 +13,35 @@ const MENU_ITEMS = [
   { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
 
+const ADMIN_MENU_ITEMS = [
+  { href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck },
+  { href: "/dashboard/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
+];
+
 export function DashboardTopbar({
   userId,
   userEmail,
   fullName,
   avatarUrl,
+  role,
   unreadMessageCount = 0,
 }: {
   userId: string;
   userEmail: string;
   fullName?: string | null;
   avatarUrl?: string | null;
+  role?: string | null;
   unreadMessageCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
-  const menuItems = MENU_ITEMS.map((item) =>
-    item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
-  );
+  const menuItems = [
+    ...MENU_ITEMS.map((item) =>
+      item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
+    ),
+    ...(role === "admin" ? ADMIN_MENU_ITEMS : []),
+  ];
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -42,7 +52,7 @@ export function DashboardTopbar({
   return (
     <header className="flex h-20 min-w-0 items-center justify-between gap-4 border-b border-line bg-white px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <MobileNav unreadMessageCount={unreadMessageCount} />
+        <MobileNav role={role} unreadMessageCount={unreadMessageCount} />
         <span className="truncate font-display text-lg text-ink md:hidden">
           Rooming House Index
         </span>

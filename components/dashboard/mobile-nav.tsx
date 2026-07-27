@@ -5,12 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Building2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { navItems } from "./nav-items";
+import { getDashboardNavItems } from "./nav-items";
 
-export function MobileNav({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
+export function MobileNav({
+  role,
+  unreadMessageCount = 0,
+}: {
+  role?: string | null;
+  unreadMessageCount?: number;
+}) {
   const [open, setOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const pathname = usePathname();
+  const navItems = getDashboardNavItems(role);
 
   return (
     <div className="md:hidden">

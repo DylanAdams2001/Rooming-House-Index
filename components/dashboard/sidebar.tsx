@@ -5,11 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Building2, ChevronDown } from "lucide-react";
-import { navItems } from "./nav-items";
+import { getDashboardNavItems } from "./nav-items";
 
-export function DashboardSidebar({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
+export function DashboardSidebar({
+  role,
+  unreadMessageCount = 0,
+}: {
+  role?: string | null;
+  unreadMessageCount?: number;
+}) {
   const pathname = usePathname();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const navItems = getDashboardNavItems(role);
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-line bg-offwhite md:flex md:flex-col">

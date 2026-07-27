@@ -19,7 +19,7 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supabase
     .from("users")
-    .select("email, full_name, avatar_url")
+    .select("email, full_name, avatar_url, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -42,13 +42,14 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-white">
-      <DashboardSidebar unreadMessageCount={unreadMessageCount} />
+      <DashboardSidebar role={profile?.role ?? null} unreadMessageCount={unreadMessageCount} />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardTopbar
           userId={user.id}
           userEmail={profile?.email ?? user.email ?? ""}
           fullName={profile?.full_name ?? null}
           avatarUrl={profile?.avatar_url ?? null}
+          role={profile?.role ?? null}
           unreadMessageCount={unreadMessageCount}
         />
         <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">

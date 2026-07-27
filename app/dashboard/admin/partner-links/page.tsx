@@ -57,7 +57,10 @@ export default async function PartnerLinksPage() {
         </Card>
 
         {serviceCategories
-          .filter((c) => !c.comingSoon)
+          // property_management is handled exclusively by the Property Manager
+          // link above — a single merged account, not a second provider-only
+          // signup path for the same category (see lib/provider-signup.ts).
+          .filter((c) => !c.comingSoon && c.dbCategory !== "property_management")
           .map((category) => (
             <Card key={category.slug}>
               <CardContent className="flex items-center justify-between gap-4 p-5">

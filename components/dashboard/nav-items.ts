@@ -5,6 +5,7 @@ import {
   List,
   MapPin,
   MessageCircle,
+  ShieldCheck,
   User,
   Wrench,
   type LucideIcon,
@@ -19,7 +20,7 @@ export type NavItem = {
   children?: { label: string; href?: string; comingSoon?: boolean }[];
 };
 
-export const navItems: NavItem[] = [
+const BASE_NAV_ITEMS: NavItem[] = [
   { href: "/listings", label: "Listings", icon: List, external: true },
   { href: "/dashboard/suburbs", label: "Suburb Explorer", icon: Compass },
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
@@ -43,3 +44,20 @@ export const navItems: NavItem[] = [
   },
   { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
+
+// Unlike the rest of this static array, the Admin group only shows for
+// role='admin' — these pages (compliance oversight, private partner signup
+// links) were previously only reachable by typing the URL directly.
+const ADMIN_NAV_ITEM: NavItem = {
+  href: "/dashboard/admin",
+  label: "Admin",
+  icon: ShieldCheck,
+  children: [
+    { label: "All Conversations", href: "/dashboard/admin/conversations" },
+    { label: "Partner Signup Links", href: "/dashboard/admin/partner-links" },
+  ],
+};
+
+export function getDashboardNavItems(role: string | null | undefined): NavItem[] {
+  return role === "admin" ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS;
+}

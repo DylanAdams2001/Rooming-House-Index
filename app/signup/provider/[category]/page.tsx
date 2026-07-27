@@ -17,10 +17,17 @@ export default function ProviderSignupPage({ params }: { params: { category: str
   const category = getServiceCategory(params.category);
   const [mode, setMode] = useState<"signup" | "login">("signup");
 
-  if (!category) {
+  // property_management is handled exclusively by /signup/property-manager —
+  // a single merged account (role='property_manager' + a service_providers
+  // row), not a second role='provider' signup path for the same category.
+  if (!category || category.dbCategory === "property_management") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-offwhite px-6 text-center">
-        <p className="text-body">Unknown provider category.</p>
+        <p className="text-body">
+          {category
+            ? "Property managers sign up at /signup/property-manager instead."
+            : "Unknown provider category."}
+        </p>
       </div>
     );
   }
