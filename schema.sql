@@ -1155,32 +1155,60 @@ create policy "Providers can update read state on their own conversations"
 -- with them, or a property manager read an enquiring tenant's name/email.
 -- That's why quote-request-summary.tsx was showing "Not provided": the
 -- query wasn't erroring, RLS was just silently returning nothing.
+--
+-- These checks are wrapped in `security definer` functions rather than
+-- inlined directly into the policy: conversations/quote_conversations/
+-- listing_conversations/listings all have their own "Admins can view every
+-- X" policy that queries public.users (role = 'admin') — an inline subquery
+-- here would re-trigger THIS SAME users policy while evaluating that admin
+-- policy, which is infinite recursion Postgres refuses to run ("infinite
+-- recursion detected in policy for relation \"users\""). A security definer
+-- function runs as its (superuser) owner, which bypasses RLS on the tables
+-- it queries internally, breaking the cycle.
 -- ─────────────────────────────────────────────────────────────
+create or replace function public.is_investor_of_providers_conversation(target_user_id uuid, viewer_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.conversations c
+    join public.service_providers p on p.id = c.provider_id
+    where c.investor_id = target_user_id and p.user_id = viewer_id
+  )
+  or exists (
+    select 1 from public.quote_conversations qc
+    join public.service_quote_requests r on r.id = qc.request_id
+    join public.service_providers p on p.id = qc.provider_id
+    where r.user_id = target_user_id and p.user_id = viewer_id
+  );
+$$;
+
+create or replace function public.is_tenant_of_owners_listing(target_user_id uuid, viewer_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.listing_conversations lc
+    join public.listings l on l.id::text = lc.listing_id
+    where lc.tenant_id = target_user_id and l.owner_id = viewer_id
+  );
+$$;
+
+drop policy if exists "Providers can view basic info of investors they're talking to" on public.users;
 create policy "Providers can view basic info of investors they're talking to"
   on public.users for select
-  using (
-    exists (
-      select 1 from public.conversations c
-      join public.service_providers p on p.id = c.provider_id
-      where c.investor_id = users.id and p.user_id = auth.uid()
-    )
-    or exists (
-      select 1 from public.quote_conversations qc
-      join public.service_quote_requests r on r.id = qc.request_id
-      join public.service_providers p on p.id = qc.provider_id
-      where r.user_id = users.id and p.user_id = auth.uid()
-    )
-  );
+  using (public.is_investor_of_providers_conversation(users.id, auth.uid()));
 
+drop policy if exists "Listing owners can view basic info of enquiring tenants" on public.users;
 create policy "Listing owners can view basic info of enquiring tenants"
   on public.users for select
-  using (
-    exists (
-      select 1 from public.listing_conversations lc
-      join public.listings l on l.id::text = lc.listing_id
-      where lc.tenant_id = users.id and l.owner_id = auth.uid()
-    )
-  );
+  using (public.is_tenant_of_owners_listing(users.id, auth.uid()));
 
 -- ─────────────────────────────────────────────────────────────
 -- Stamp the SENDER's own last_read_at when they send a message.
