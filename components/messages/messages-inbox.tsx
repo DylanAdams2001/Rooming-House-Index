@@ -48,13 +48,13 @@ export async function MessagesInbox({
           supabase
             .from("conversations")
             .select(
-              "id, last_message_at, provider_last_read_at, users!conversations_investor_id_fkey(email)"
+              "id, last_message_at, provider_last_read_at, users!conversations_investor_id_fkey(email), messages!inner(id)"
             )
             .in("provider_id", providerIds),
           supabase
             .from("quote_conversations")
             .select(
-              "id, request_id, last_message_at, provider_last_read_at, service_quote_requests(property_address)"
+              "id, request_id, last_message_at, provider_last_read_at, service_quote_requests(property_address), quote_messages!inner(id)"
             )
             .in("provider_id", providerIds),
         ]);
@@ -99,12 +99,14 @@ export async function MessagesInbox({
     const [{ data: conversations, error }, { data: quoteConversations }] = await Promise.all([
       supabase
         .from("conversations")
-        .select("id, last_message_at, investor_last_read_at, service_providers(business_name, category)")
+        .select(
+          "id, last_message_at, investor_last_read_at, service_providers(business_name, category), messages!inner(id)"
+        )
         .eq("investor_id", user.id),
       supabase
         .from("quote_conversations")
         .select(
-          "id, request_id, provider_id, last_message_at, investor_last_read_at, service_quote_requests(property_address), service_providers(business_name)"
+          "id, request_id, provider_id, last_message_at, investor_last_read_at, service_quote_requests(property_address), service_providers(business_name), quote_messages!inner(id)"
         ),
     ]);
 
