@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
-import { getServiceCategory, serviceCategories } from "@/lib/service-categories";
-import { getProvidersByCategory } from "@/lib/mock-providers";
-import { ProviderCard } from "@/components/provider-card";
+import { getServiceCategory } from "@/lib/service-categories";
+import { ProviderCard, type RealProvider } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
 import { QuoteCard } from "@/components/quote-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,14 +9,9 @@ import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/back-link";
 import { cn } from "@/lib/utils";
 
-// Quote-based categories (insurance, property-management) render user-specific
-// request data at request time, so they're excluded from static generation —
-// dynamicParams (default true) lets Next render them on demand instead.
-export function generateStaticParams() {
-  return serviceCategories
-    .filter((c) => !c.comingSoon && !c.quoteBased)
-    .map((c) => ({ category: c.slug }));
-}
+// Both branches below now render real, per-request Supabase data (quote
+// requests for the quoteBased categories, live approved providers for
+// everyone else) — nothing left here for generateStaticParams to prerender.
 
 type Quote = {
   id: string;
@@ -163,7 +157,17 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
     );
   }
 
-  const providers = getProvidersByCategory(category.dbCategory);
+  const supabase = createClient();
+  const { data: providerRows } = await supabase
+    .from("service_providers")
+    .select(
+      "slug, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
+    )
+    .eq("category", category.dbCategory)
+    .eq("status", "approved")
+    .order("business_name", { ascending: true });
+
+  const providers = (providerRows ?? []) as RealProvider[];
 
   return (
     <div>
@@ -185,7 +189,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {providers.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} categorySlug={category.slug} />
+            <ProviderCard key={provider.slug} provider={provider} categorySlug={category.slug} />
           ))}
         </div>
       )}

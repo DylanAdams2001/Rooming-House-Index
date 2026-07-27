@@ -22,9 +22,17 @@ export async function createProviderListing(
 ) {
   await supabase.from("users").update({ role }).eq("id", userId);
 
+  // Real signups never set a human-readable slug (that was only ever done by
+  // the old mock-provider seed script) — but the public directory/profile
+  // pages and StartConversationButton all route/match on slug, not the
+  // internal uuid, so one needs to exist from the moment this row is
+  // created. Doesn't need to be pretty, just stable and unique.
+  const slug = `${categoryDbValue}-${userId.slice(0, 8)}`;
+
   await supabase.from("service_providers").insert({
     user_id: userId,
     category: categoryDbValue,
+    slug,
     business_name: `New ${categoryLabel} Provider`,
     description: "",
     contact_email: userEmail,

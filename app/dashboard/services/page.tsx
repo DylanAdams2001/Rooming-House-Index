@@ -1,11 +1,22 @@
 import Link from "next/link";
 import { serviceCategories } from "@/lib/service-categories";
-import { getProvidersByCategory } from "@/lib/mock-providers";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const supabase = createClient();
+  const { data: providerRows } = await supabase
+    .from("service_providers")
+    .select("category")
+    .eq("status", "approved");
+
+  const countsByCategory = new Map<string, number>();
+  for (const row of providerRows ?? []) {
+    countsByCategory.set(row.category, (countsByCategory.get(row.category) ?? 0) + 1);
+  }
+
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">Services</h1>
@@ -16,7 +27,7 @@ export default function ServicesPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {serviceCategories.map((category) => {
-          const count = getProvidersByCategory(category.dbCategory).length;
+          const count = countsByCategory.get(category.dbCategory) ?? 0;
           const content = (
             <Card
               className={
