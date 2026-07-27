@@ -1435,3 +1435,28 @@ begin
   return new;
 end;
 $$ language plpgsql security definer;
+
+-- ─────────────────────────────────────────────────────────────
+-- File attachments in chat — one optional attachment per message, across
+-- all three message tables (marketplace, quote, listing). Body stays
+-- required, but an attachment-only message just sends an empty string.
+-- ─────────────────────────────────────────────────────────────
+alter table public.messages add column if not exists attachment_url text;
+alter table public.messages add column if not exists attachment_name text;
+alter table public.quote_messages add column if not exists attachment_url text;
+alter table public.quote_messages add column if not exists attachment_name text;
+alter table public.listing_messages add column if not exists attachment_url text;
+alter table public.listing_messages add column if not exists attachment_name text;
+
+insert into storage.buckets (id, name, public)
+values ('message-attachments', 'message-attachments', true)
+on conflict (id) do nothing;
+
+create policy "Anyone can view message attachments"
+  on storage.objects for select
+  using (bucket_id = 'message-attachments');
+
+create policy "Authenticated users can upload their own message attachments"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'message-attachments' and (storage.foldername(name))[1] = auth.uid()::text);

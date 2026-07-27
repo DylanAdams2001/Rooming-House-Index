@@ -33,7 +33,7 @@ export async function ListingConversationView({
   const { data: initialMessages } = conversation
     ? await supabase
         .from("listing_messages")
-        .select("id, sender_id, body, created_at, is_manager")
+        .select("id, sender_id, body, created_at, is_manager, attachment_url, attachment_name")
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true })
     : { data: [] };

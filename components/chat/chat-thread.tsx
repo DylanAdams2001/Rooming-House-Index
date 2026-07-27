@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Paperclip, Send, X, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -19,9 +19,18 @@ type Message = {
   // specific account) rather than matching whichever account is viewing it.
   is_manager?: boolean;
   is_provider?: boolean;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
 };
 
 type Table = "messages" | "listing_messages" | "quote_messages";
+
+const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "avif"];
+
+function isImageAttachment(name?: string | null) {
+  const ext = name?.split(".").pop()?.toLowerCase();
+  return !!ext && IMAGE_EXTENSIONS.includes(ext);
+}
 
 export function ChatThread({
   conversationId,
@@ -49,7 +58,11 @@ export function ChatThread({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [pendingFile, setPendingFile] = useState<{ url: string; name: string } | null>(null);
+  const [attachError, setAttachError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Opening this conversation marks it read server-side (in the page that
@@ -89,30 +102,71 @@ export function ChatThread({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAttachError(null);
+    setUploading(true);
+
+    const ext = file.name.split(".").pop();
+    const path = `${currentUserId}/${conversationId}-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("message-attachments")
+      .upload(path, file);
+
+    setUploading(false);
+    if (uploadError) {
+      setAttachError("Couldn't attach that file — please try again.");
+      return;
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("message-attachments").getPublicUrl(path);
+    setPendingFile({ url: publicUrl, name: file.name });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function sendMessage() {
     const body = draft.trim();
-    if (!body) return;
+    if (!body && !pendingFile) return;
     setSending(true);
     setDraft("");
+    const attachment = pendingFile;
+    setPendingFile(null);
+
+    const attachmentColumns = { attachment_url: attachment?.url ?? null, attachment_name: attachment?.name ?? null };
 
     let result;
     if (table === "listing_messages") {
       result = await supabase
         .from("listing_messages")
-        .insert({ conversation_id: conversationId, sender_id: currentUserId, body, is_manager: businessSideReply })
-        .select("id, sender_id, body, created_at, is_manager")
+        .insert({
+          conversation_id: conversationId,
+          sender_id: currentUserId,
+          body,
+          is_manager: businessSideReply,
+          ...attachmentColumns,
+        })
+        .select("id, sender_id, body, created_at, is_manager, attachment_url, attachment_name")
         .single();
     } else if (table === "quote_messages") {
       result = await supabase
         .from("quote_messages")
-        .insert({ conversation_id: conversationId, sender_id: currentUserId, body, is_provider: businessSideReply })
-        .select("id, sender_id, body, created_at, is_provider")
+        .insert({
+          conversation_id: conversationId,
+          sender_id: currentUserId,
+          body,
+          is_provider: businessSideReply,
+          ...attachmentColumns,
+        })
+        .select("id, sender_id, body, created_at, is_provider, attachment_url, attachment_name")
         .single();
     } else {
       result = await supabase
         .from("messages")
-        .insert({ conversation_id: conversationId, sender_id: currentUserId, body })
-        .select("id, sender_id, body, created_at")
+        .insert({ conversation_id: conversationId, sender_id: currentUserId, body, ...attachmentColumns })
+        .select("id, sender_id, body, created_at, attachment_url, attachment_name")
         .single();
     }
 
@@ -159,7 +213,32 @@ export function ChatThread({
                   mine ? "bg-ink text-white" : "bg-offwhite text-ink"
                 )}
               >
-                <p>{m.body}</p>
+                {m.attachment_url && (
+                  isImageAttachment(m.attachment_name) ? (
+                    <a href={m.attachment_url} target="_blank" rel="noreferrer" className="block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={m.attachment_url}
+                        alt={m.attachment_name ?? "Attachment"}
+                        className="mb-2 max-h-64 w-full rounded-btn object-cover"
+                      />
+                    </a>
+                  ) : (
+                    <a
+                      href={m.attachment_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={cn(
+                        "mb-2 flex items-center gap-2 rounded-btn border px-3 py-2 text-xs underline underline-offset-2",
+                        mine ? "border-white/30" : "border-line"
+                      )}
+                    >
+                      <FileText className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{m.attachment_name ?? "Attachment"}</span>
+                    </a>
+                  )
+                )}
+                {m.body && <p>{m.body}</p>}
                 <p
                   className={cn(
                     "mt-1 text-[10px]",
@@ -178,23 +257,53 @@ export function ChatThread({
         <div ref={bottomRef} />
       </div>
 
-      <form
-        className="flex items-center gap-3 border-t border-line p-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          sendMessage();
-        }}
-      >
-        <Input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Write a message…"
-          disabled={sending}
-        />
-        <Button type="submit" size="icon" disabled={sending || !draft.trim()}>
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      <div className="border-t border-line p-4">
+        {attachError && <p className="mb-2 text-xs text-red-600">{attachError}</p>}
+        {pendingFile && (
+          <div className="mb-2 flex items-center justify-between rounded-btn border border-line bg-offwhite px-3 py-2 text-xs">
+            <span className="flex items-center gap-2 truncate">
+              <Paperclip className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{pendingFile.name}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setPendingFile(null)}
+              aria-label="Remove attachment"
+              className="shrink-0 text-muted hover:text-ink"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+        <form
+          className="flex items-center gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendMessage();
+          }}
+        >
+          <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden" />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            disabled={uploading || sending}
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="Attach a file"
+          >
+            <Paperclip className="h-4 w-4" />
+          </Button>
+          <Input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={uploading ? "Uploading attachment…" : "Write a message…"}
+            disabled={sending}
+          />
+          <Button type="submit" size="icon" disabled={sending || uploading || (!draft.trim() && !pendingFile)}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

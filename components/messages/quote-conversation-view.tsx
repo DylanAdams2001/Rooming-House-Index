@@ -79,7 +79,7 @@ export async function QuoteConversationView({
     conversation && section === "messages"
       ? await supabase
           .from("quote_messages")
-          .select("id, sender_id, body, created_at, is_provider")
+          .select("id, sender_id, body, created_at, is_provider, attachment_url, attachment_name")
           .eq("conversation_id", conversation.id)
           .order("created_at", { ascending: true })
       : { data: [] };
