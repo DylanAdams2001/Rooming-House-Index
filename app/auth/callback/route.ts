@@ -23,6 +23,22 @@ export async function GET(request: Request) {
     const { data } = await supabase.auth.exchangeCodeForSession(code);
 
     if (data.user) {
+      // Google's OAuth profile includes a photo — use it as the default
+      // avatar so users don't have to re-upload one they already have.
+      // Guarded to never overwrite a photo they've since set/changed
+      // themselves (e.g. via /onboarding/photo or /account/settings).
+      const googleAvatarUrl =
+        (data.user.user_metadata?.avatar_url as string | undefined) ??
+        (data.user.user_metadata?.picture as string | undefined) ??
+        null;
+      if (googleAvatarUrl) {
+        await supabase
+          .from("users")
+          .update({ avatar_url: googleAvatarUrl })
+          .eq("id", data.user.id)
+          .is("avatar_url", null);
+      }
+
       if (referralCode) {
         const { data: referrerId } = await supabase.rpc("resolve_referrer_id", {
           p_referral_code: referralCode,
