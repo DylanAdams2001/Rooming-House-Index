@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { isValidWebhookRequest } from "@/lib/webhook-auth";
 import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
 
 export const runtime = "nodejs";
@@ -15,8 +14,13 @@ const REFERRAL_GOAL = 3;
 // bail out fast for the vast majority of updates that aren't a referred
 // user's investor_access flipping to 'active' for the first time. Only that
 // moment counts as a "successful" referral, not signup itself.
+// Uses its own secret (REFERRAL_WEBHOOK_SECRET) rather than the shared
+// SUPABASE_WEBHOOK_SECRET every other webhook route uses — that one got set
+// as a Vercel "Sensitive" env var at some point, which is write-only and can
+// never be viewed again, so there was no way to reuse it for this trigger.
 export async function POST(req: Request) {
-  if (!isValidWebhookRequest(req)) {
+  const expected = process.env.REFERRAL_WEBHOOK_SECRET;
+  if (!expected || req.headers.get("x-webhook-secret") !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
