@@ -45,19 +45,14 @@ const BASE_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
 
-// Admin's home base is the investor dashboard, same as everyone else — the
-// Partner Portal (Business Partners directory, every conversation, partner
-// signup links) is just one collapsible menu group inside it, not a
-// separate landing experience.
+// Admin's home base is the investor dashboard, same as everyone else — this
+// is a plain link straight into the Partner Portal, not a dropdown. The
+// portal itself has its own nav (Business Partners, All Conversations,
+// Partner Signup Links) once you're in there.
 const PARTNER_PORTAL_NAV_ITEM: NavItem = {
   href: "/partners",
   label: "Partner Portal",
   icon: ShieldCheck,
-  children: [
-    { label: "Business Partners", href: "/partners" },
-    { label: "All Conversations", href: "/partners/admin/conversations" },
-    { label: "Partner Signup Links", href: "/partners/admin/partner-links" },
-  ],
 };
 
 export function getDashboardNavItems(role: string | null | undefined): NavItem[] {

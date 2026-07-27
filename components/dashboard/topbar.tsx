@@ -13,13 +13,7 @@ const MENU_ITEMS = [
   { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
 
-// Flat equivalent of the sidebar's collapsible "Partner Portal" group —
-// this dropdown has no group/children concept, so each item shows individually.
-const ADMIN_MENU_ITEMS = [
-  { href: "/partners", label: "Business Partners", icon: ShieldCheck },
-  { href: "/partners/admin/conversations", label: "All Conversations", icon: ShieldCheck },
-  { href: "/partners/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
-];
+const ADMIN_MENU_ITEMS = [{ href: "/partners", label: "Partner Portal", icon: ShieldCheck }];
 
 export function DashboardTopbar({
   userId,
