@@ -5,11 +5,11 @@ import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
 
 // Private signup link, not linked anywhere public — Dylan sends this directly to
-// a hand-picked property manager. Unlike the normal /signup flow, it flips the
-// new account straight to role='property_manager' (via AuthForm's signupRole
-// prop, which handles both the email/password and Google OAuth paths) and sends
-// them into /partners, skipping the investor/tenant onboarding wizard entirely —
-// no business profile to collect, per the "keep it minimal" call on this feature.
+// a hand-picked property manager. One account handles both sides of their work:
+// managing room listings/tenant enquiries (role='property_manager') AND
+// replying to investor quote requests for property management services (a
+// service_providers row, category='property_management') — deliberately not
+// two separate accounts, since the same person handles both.
 export default function PropertyManagerSignupPage() {
   const [mode, setMode] = useState<"signup" | "login">("signup");
 
@@ -23,11 +23,12 @@ export default function PropertyManagerSignupPage() {
           Property manager sign up
         </h1>
         <p className="mb-8 text-center text-sm text-muted">
-          Set a password to create your partner account and start listing rooms.
+          Set a password to create your partner account.
         </p>
         <AuthForm
           mode={mode}
           signupRole="property_manager"
+          signupProviderCategory={{ dbValue: "property_management", label: "Property Management" }}
           onSwitchMode={() => setMode(mode === "signup" ? "login" : "signup")}
         />
       </div>

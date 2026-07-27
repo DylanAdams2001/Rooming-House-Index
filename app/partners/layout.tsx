@@ -48,7 +48,7 @@ export default async function PartnersLayout({ children }: { children: React.Rea
   // single list, rather than splitting them across two tabs.
   let category: string | null = null;
   let unreadMessageCount = 0;
-  if (profile.role === "provider") {
+  if (profile.role === "provider" || profile.role === "property_manager") {
     const { data: providerRow } = await supabase
       .from("service_providers")
       .select("id, category")

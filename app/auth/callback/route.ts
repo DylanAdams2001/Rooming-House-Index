@@ -25,11 +25,12 @@ export async function GET(request: Request) {
       // Private, hand-sent signup links (e.g. /signup/property-manager) carry this
       // through so Google OAuth signups land in /partners with the right role too,
       // same as the email/password path in components/auth-form.tsx.
-      if (assignRole === "provider" && providerCategoryValue && providerCategoryLabel) {
+      if (providerCategoryValue && providerCategoryLabel) {
         await createProviderListing(
           supabase,
           data.user.id,
           data.user.email ?? "",
+          assignRole ?? "provider",
           providerCategoryValue,
           providerCategoryLabel
         );

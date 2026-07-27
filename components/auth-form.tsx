@@ -34,10 +34,13 @@ export function AuthForm({
   // at all (it redirects through /auth/callback instead), so this also has to be
   // threaded through the callback URL for that path to end up in the same place.
   signupRole?: string;
-  // Only meaningful alongside signupRole="provider" — private per-category
-  // signup links (e.g. /signup/provider/insurance) pass this so the new
-  // account also gets a pre-approved service_providers row in that category,
-  // not just the role flip. { dbValue, label } matches lib/service-categories.ts.
+  // Private per-category signup links (e.g. /signup/provider/insurance,
+  // /signup/property-manager) pass this so the new account also gets a
+  // pre-approved service_providers row in that category, not just the role
+  // flip — a property manager is one account that both manages room
+  // listings/tenant enquiries (role) and replies to investor quote requests
+  // (service_providers row), not two separate account types.
+  // { dbValue, label } matches lib/service-categories.ts.
   signupProviderCategory?: { dbValue: string; label: string };
 }) {
   const router = useRouter();
@@ -60,12 +63,13 @@ export function AuthForm({
       return;
     }
 
-    if (signupRole === "provider" && signupProviderCategory) {
+    if (signupProviderCategory) {
       const { data: authUser } = await supabase.auth.getUser();
       await createProviderListing(
         supabase,
         userId,
         authUser.user?.email ?? "",
+        signupRole ?? "provider",
         signupProviderCategory.dbValue,
         signupProviderCategory.label
       );

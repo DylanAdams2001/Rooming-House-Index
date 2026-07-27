@@ -22,9 +22,13 @@ export function getPartnerNavItems(
 ): PartnerNavItem[] {
   const items: PartnerNavItem[] = [];
   const isQuoteBased = !!category && QUOTE_BASED_CATEGORIES.includes(category);
+  // A property manager is always in the (inherently quote-based)
+  // property_management category — no need to check their actual category
+  // value the way a regular provider's is checked.
+  const hasServiceProviderRow = role === "provider" || role === "property_manager" || role === "admin";
 
-  if (role === "provider" || role === "admin") {
-    if (isQuoteBased || role === "admin") {
+  if (hasServiceProviderRow) {
+    if (isQuoteBased || role === "property_manager" || role === "admin") {
       items.push({ href: "/partners/quotes", label: "Quote Requests", icon: MessageCircle });
     }
     // One shared inbox regardless of category — it merges regular marketplace
