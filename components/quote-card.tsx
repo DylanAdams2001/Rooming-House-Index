@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FileText, X } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export type QuoteCardData = {
   id: string;
@@ -12,15 +13,27 @@ export type QuoteCardData = {
   documentUrl: string | null;
 };
 
-export function QuoteCard({ quote }: { quote: QuoteCardData }) {
+export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestId?: string }) {
   const [open, setOpen] = useState(false);
   const fee = quote.monthlyFeePct ? `${quote.monthlyFeePct}% of rent` : quote.flatFee ?? "Quote provided";
+
+  function handleOpen() {
+    setOpen(true);
+    if (requestId) {
+      const supabase = createClient();
+      supabase
+        .from("service_quote_requests")
+        .update({ quotes_viewed_at: new Date().toISOString() })
+        .eq("id", requestId)
+        .then(() => {});
+    }
+  }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
         className="flex w-full flex-col gap-1 rounded-btn border border-line p-4 text-left transition-colors hover:border-ink hover:bg-linen sm:flex-row sm:items-center sm:justify-between"
       >
         <div>

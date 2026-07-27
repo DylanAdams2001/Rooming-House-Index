@@ -1181,3 +1181,82 @@ create policy "Listing owners can view basic info of enquiring tenants"
       where lc.tenant_id = users.id and l.owner_id = auth.uid()
     )
   );
+
+-- ─────────────────────────────────────────────────────────────
+-- Stamp the SENDER's own last_read_at when they send a message.
+-- Previously only last_message_at was updated on insert, so a sender's own
+-- last_read_at (set whenever they last opened the conversation) stayed in the
+-- past — making last_message_at > last_read_at true for them too, and their
+-- own account showed a false "unread" dot for a message they just sent,
+-- clearing only once they reopened the conversation and the page re-fetched.
+-- ─────────────────────────────────────────────────────────────
+create or replace function public.handle_new_message()
+returns trigger as $$
+begin
+  update public.conversations
+  set last_message_at = new.created_at,
+      investor_last_read_at = case when new.sender_id = investor_id then new.created_at else investor_last_read_at end,
+      provider_last_read_at = case
+        when new.sender_id in (select user_id from public.service_providers where id = provider_id)
+          then new.created_at
+        else provider_last_read_at
+      end
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create or replace function public.handle_new_listing_message()
+returns trigger as $$
+begin
+  update public.listing_conversations
+  set last_message_at = new.created_at,
+      tenant_last_read_at = case when not new.is_manager then new.created_at else tenant_last_read_at end,
+      manager_last_read_at = case when new.is_manager then new.created_at else manager_last_read_at end
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create or replace function public.handle_new_quote_message()
+returns trigger as $$
+begin
+  update public.quote_conversations
+  set last_message_at = new.created_at,
+      investor_last_read_at = case when not new.is_provider then new.created_at else investor_last_read_at end,
+      provider_last_read_at = case when new.is_provider then new.created_at else provider_last_read_at end
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- ─────────────────────────────────────────────────────────────
+-- Unread indicators for quote requests themselves (not just messages).
+-- ─────────────────────────────────────────────────────────────
+
+-- Investor side: a red dot for "a new quote came in that you haven't opened yet".
+alter table public.service_quote_requests add column if not exists quotes_viewed_at timestamptz;
+
+-- Provider side: a per-provider record of whether they've ever opened a given
+-- request at all — a brand-new request has no quote_conversations row yet
+-- (that's only created once a provider replies), so message-based unread
+-- tracking can't tell "never opened" apart from "nothing to read".
+create table if not exists public.quote_request_views (
+  request_id uuid not null references public.service_quote_requests (id) on delete cascade,
+  provider_id uuid not null references public.service_providers (id) on delete cascade,
+  viewed_at timestamptz not null default now(),
+  primary key (request_id, provider_id)
+);
+
+alter table public.quote_request_views enable row level security;
+
+create policy "Providers can record and view their own request views"
+  on public.quote_request_views for all
+  using (exists (
+    select 1 from public.service_providers p
+    where p.id = quote_request_views.provider_id and p.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.service_providers p
+    where p.id = quote_request_views.provider_id and p.user_id = auth.uid()
+  ));

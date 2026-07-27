@@ -45,7 +45,13 @@ export default async function PartnersQuotesPage() {
     .select("request_id, last_message_at, provider_last_read_at")
     .eq("provider_id", providerRow.id);
 
+  const { data: views } = await supabase
+    .from("quote_request_views")
+    .select("request_id")
+    .eq("provider_id", providerRow.id);
+
   const conversationsByRequest = new Map((conversations ?? []).map((c) => [c.request_id, c]));
+  const viewedRequestIds = new Set((views ?? []).map((v) => v.request_id));
 
   return (
     <div>
@@ -64,9 +70,10 @@ export default async function PartnersQuotesPage() {
           {requests.map((request) => {
             const conversation = conversationsByRequest.get(request.id);
             const unread =
-              !!conversation &&
-              (!conversation.provider_last_read_at ||
-                new Date(conversation.last_message_at) > new Date(conversation.provider_last_read_at));
+              !viewedRequestIds.has(request.id) ||
+              (!!conversation &&
+                (!conversation.provider_last_read_at ||
+                  new Date(conversation.last_message_at) > new Date(conversation.provider_last_read_at)));
             return (
               <Link key={request.id} href={`/partners/quotes/${request.id}`}>
                 <Card className="transition-colors hover:bg-linen">

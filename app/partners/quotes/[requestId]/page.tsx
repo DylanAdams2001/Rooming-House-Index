@@ -22,6 +22,14 @@ export default async function PartnersQuoteConversationPage({
     notFound();
   }
 
+  supabase
+    .from("quote_request_views")
+    .upsert(
+      { request_id: params.requestId, provider_id: providerRow.id, viewed_at: new Date().toISOString() },
+      { onConflict: "request_id,provider_id" }
+    )
+    .then(() => {});
+
   return (
     <QuoteConversationView
       requestId={params.requestId}

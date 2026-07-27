@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/back-link";
+import { cn } from "@/lib/utils";
 
 // Quote-based categories (insurance, property-management) render user-specific
 // request data at request time, so they're excluded from static generation —
@@ -25,6 +26,7 @@ type Quote = {
   flat_fee: string | null;
   notes: string | null;
   document_url: string | null;
+  created_at: string;
 };
 
 type Request = {
@@ -33,6 +35,7 @@ type Request = {
   number_of_rooms: number | null;
   status: "pending" | "quoted" | "closed";
   created_at: string;
+  quotes_viewed_at: string | null;
   service_quote_quotes: Quote[];
 };
 
@@ -59,7 +62,9 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
     if (user) {
       const { data } = await supabase
         .from("service_quote_requests")
-        .select("id, property_address, number_of_rooms, status, created_at, service_quote_quotes(*)")
+        .select(
+          "id, property_address, number_of_rooms, status, created_at, quotes_viewed_at, service_quote_quotes(*)"
+        )
         .eq("user_id", user.id)
         .eq("category", category.dbCategory)
         .order("created_at", { ascending: false });
@@ -96,45 +101,61 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                 </p>
               </div>
             ) : (
-              requests.map((request) => (
-                <Card key={request.id}>
-                  <CardHeader className="flex flex-row items-start justify-between gap-2">
-                    <div>
-                      <CardTitle>{request.property_address}</CardTitle>
-                      <p className="mt-1 text-sm text-muted">
-                        {request.number_of_rooms ? `${request.number_of_rooms} rooms · ` : ""}
-                        Submitted {new Date(request.created_at).toLocaleDateString("en-AU")}
-                      </p>
-                    </div>
-                    <Badge variant={request.status === "quoted" ? "high" : "outline"}>
-                      {STATUS_LABEL[request.status]}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent>
-                    {request.service_quote_quotes.length === 0 ? (
-                      <p className="text-sm text-body">
-                        We&apos;re sourcing quotes — this usually takes a few business days.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {request.service_quote_quotes.map((quote) => (
-                          <QuoteCard
-                            key={quote.id}
-                            quote={{
-                              id: quote.id,
-                              providerName: quote.provider_name,
-                              monthlyFeePct: quote.monthly_fee_pct,
-                              flatFee: quote.flat_fee,
-                              notes: quote.notes,
-                              documentUrl: quote.document_url,
-                            }}
-                          />
-                        ))}
+              requests.map((request) => {
+                const hasNewQuote =
+                  request.service_quote_quotes.length > 0 &&
+                  (!request.quotes_viewed_at ||
+                    request.service_quote_quotes.some(
+                      (q) => new Date(q.created_at) > new Date(request.quotes_viewed_at!)
+                    ));
+                return (
+                  <Card key={request.id}>
+                    <CardHeader className="flex flex-row items-start justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        {hasNewQuote && (
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-red-600" aria-label="Unread" />
+                        )}
+                        <div>
+                          <CardTitle className={cn(hasNewQuote && "font-semibold")}>
+                            {request.property_address}
+                          </CardTitle>
+                          <p className="mt-1 text-sm text-muted">
+                            {request.number_of_rooms ? `${request.number_of_rooms} rooms · ` : ""}
+                            Submitted {new Date(request.created_at).toLocaleDateString("en-AU")}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))
+                      <Badge variant={request.status === "quoted" ? "high" : "outline"}>
+                        {STATUS_LABEL[request.status]}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent>
+                      {request.service_quote_quotes.length === 0 ? (
+                        <p className="text-sm text-body">
+                          We&apos;re sourcing quotes — this usually takes a few business days.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {request.service_quote_quotes.map((quote) => (
+                            <QuoteCard
+                              key={quote.id}
+                              requestId={request.id}
+                              quote={{
+                                id: quote.id,
+                                providerName: quote.provider_name,
+                                monthlyFeePct: quote.monthly_fee_pct,
+                                flatFee: quote.flat_fee,
+                                notes: quote.notes,
+                                documentUrl: quote.document_url,
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })
             )}
           </div>
         </div>
