@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,11 +44,21 @@ export function ChatThread({
   businessSideReply?: boolean;
   complianceNote?: string;
 }) {
+  const router = useRouter();
   const supabase = createClient();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Opening this conversation marks it read server-side (in the page that
+    // renders this component), but the sidebar/topbar unread badge lives in a
+    // parent layout that Next.js doesn't re-fetch on a plain client-side
+    // navigation — so without this the dot stays lit until a manual reload.
+    router.refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
 
   useEffect(() => {
     const channel = supabase
@@ -110,6 +121,7 @@ export function ChatThread({
 
     if (!error && data) {
       setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, data]));
+      router.refresh();
     }
   }
 

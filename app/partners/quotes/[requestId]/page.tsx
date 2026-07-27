@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { QuoteConversationView } from "@/components/messages/quote-conversation-view";
+import { MarkReadRefresher } from "@/components/mark-read-refresher";
 
 export default async function PartnersQuoteConversationPage({
   params,
@@ -31,13 +32,16 @@ export default async function PartnersQuoteConversationPage({
     .then(() => {});
 
   return (
-    <QuoteConversationView
-      requestId={params.requestId}
-      providerId={providerRow.id}
-      backHref="/partners/quotes"
-      messagesHref={`/partners/quote-messages/${params.requestId}`}
-      perspective="provider"
-      section="quote"
-    />
+    <>
+      <MarkReadRefresher watch={params.requestId} />
+      <QuoteConversationView
+        requestId={params.requestId}
+        providerId={providerRow.id}
+        backHref="/partners/quotes"
+        messagesHref={`/partners/quote-messages/${params.requestId}`}
+        perspective="provider"
+        section="quote"
+      />
+    </>
   );
 }
