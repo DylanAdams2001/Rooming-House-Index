@@ -1381,3 +1381,57 @@ as $$
 $$;
 
 grant execute on function public.count_successful_referrals(uuid) to authenticated;
+
+-- ─────────────────────────────────────────────────────────────
+-- Messages inbox redesign: show a last-message preview snippet (like every
+-- real messaging app) instead of a generic "Direct message"/"Quote request"
+-- label. last_message_at alone wasn't enough — this stores the actual body
+-- text alongside it, updated by the same triggers, so the inbox list never
+-- needs a second per-conversation query to fetch it.
+-- ─────────────────────────────────────────────────────────────
+alter table public.conversations add column if not exists last_message_body text;
+alter table public.quote_conversations add column if not exists last_message_body text;
+alter table public.listing_conversations add column if not exists last_message_body text;
+
+create or replace function public.handle_new_message()
+returns trigger as $$
+begin
+  update public.conversations
+  set last_message_at = new.created_at,
+      last_message_body = new.body,
+      investor_last_read_at = case when new.sender_id = investor_id then new.created_at else investor_last_read_at end,
+      provider_last_read_at = case
+        when new.sender_id in (select user_id from public.service_providers where id = provider_id)
+          then new.created_at
+        else provider_last_read_at
+      end
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create or replace function public.handle_new_listing_message()
+returns trigger as $$
+begin
+  update public.listing_conversations
+  set last_message_at = new.created_at,
+      last_message_body = new.body,
+      tenant_last_read_at = case when not new.is_manager then new.created_at else tenant_last_read_at end,
+      manager_last_read_at = case when new.is_manager then new.created_at else manager_last_read_at end
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create or replace function public.handle_new_quote_message()
+returns trigger as $$
+begin
+  update public.quote_conversations
+  set last_message_at = new.created_at,
+      last_message_body = new.body,
+      investor_last_read_at = case when not new.is_provider then new.created_at else investor_last_read_at end,
+      provider_last_read_at = case when new.is_provider then new.created_at else provider_last_read_at end
+  where id = new.conversation_id;
+  return new;
+end;
+$$ language plpgsql security definer;

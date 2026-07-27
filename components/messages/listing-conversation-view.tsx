@@ -63,7 +63,7 @@ export async function ListingConversationView({
     }
   }
 
-  let tenantEmail: string | null = null;
+  let tenantName: string | null = null;
   let application: TenantApplication | null = null;
   if (conversation && perspective === "manager") {
     const { data: tenant } = await supabase
@@ -71,7 +71,7 @@ export async function ListingConversationView({
       .select("email, full_name, phone")
       .eq("id", conversation.tenant_id)
       .maybeSingle();
-    tenantEmail = tenant?.email ?? null;
+    tenantName = tenant?.full_name ?? tenant?.email ?? null;
 
     const { data: profile } = await supabase
       .from("tenant_profiles")
@@ -127,7 +127,7 @@ export async function ListingConversationView({
                 <p className="font-display text-base text-ink">{getListingTitle(listing)}</p>
                 <p className="text-xs text-muted">
                   {listing.roomType} room · ${listing.weeklyRate}/wk
-                  {perspective === "manager" && tenantEmail ? ` · Tenant: ${tenantEmail}` : ""}
+                  {perspective === "manager" && tenantName ? ` · Tenant: ${tenantName}` : ""}
                 </p>
               </div>
               {listing.inspectionTime && (
@@ -144,7 +144,7 @@ export async function ListingConversationView({
           <ChatThread
             conversationId={conversation.id}
             currentUserId={user.id}
-            otherPartyName={perspective === "manager" ? tenantEmail ?? "Tenant" : "Property Team"}
+            otherPartyName={perspective === "manager" ? tenantName ?? "Tenant" : "Property Team"}
             initialMessages={initialMessages ?? []}
             table="listing_messages"
             businessSideReply={perspective === "manager"}

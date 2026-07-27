@@ -1,23 +1,33 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/ui/card";
+import { Avatar } from "@/components/avatar";
 import { MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type InboxItem = {
   id: string;
   title: string;
-  subtitle: string;
+  // Small context line above the preview — e.g. the property a quote request
+  // or room enquiry is about. Omitted for plain direct-message conversations,
+  // where the title (contact name) already says everything needed.
+  context: string | null;
+  preview: string;
   lastMessageAt: string;
   unread: boolean;
   href: string;
 };
 
+function truncate(text: string, max = 80) {
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
 // Shared between /dashboard/messages and /account/messages (perspective="investor",
 // the default) and /partners/messages (perspective="provider"). One unified inbox —
 // merges the marketplace `conversations` table with quote-request conversations
 // (`quote_conversations`), sorted together by recency, rather than splitting quote
-// threads into a separate tab.
+// threads into a separate tab. Row layout follows the usual messaging-app
+// convention: contact name + avatar as the primary identity, with the last
+// message as a preview snippet underneath, rather than an address as the title.
 export async function MessagesInbox({
   basePath,
   perspective = "investor",
@@ -62,7 +72,7 @@ export async function MessagesInbox({
             ? supabase
                 .from("conversations")
                 .select(
-                  "id, last_message_at, provider_last_read_at, users!conversations_investor_id_fkey(email), messages!inner(id)"
+                  "id, last_message_at, last_message_body, provider_last_read_at, users!conversations_investor_id_fkey(full_name, email), messages!inner(id)"
                 )
                 .in("provider_id", providerIds)
             : Promise.resolve({ data: [], error: null }),
@@ -70,30 +80,48 @@ export async function MessagesInbox({
             ? supabase
                 .from("quote_conversations")
                 .select(
-                  "id, request_id, last_message_at, provider_last_read_at, service_quote_requests(property_address), quote_messages!inner(id)"
+                  "id, request_id, last_message_at, last_message_body, provider_last_read_at, service_quote_requests(property_address, users(full_name, email)), quote_messages!inner(id)"
                 )
                 .in("provider_id", providerIds)
             : Promise.resolve({ data: [], error: null }),
           listingIds.length > 0
             ? supabase
                 .from("listing_conversations")
-                .select("id, listing_id, last_message_at, manager_last_read_at, listing_messages!inner(id)")
+                .select(
+                  "id, listing_id, tenant_id, last_message_at, last_message_body, manager_last_read_at, listing_messages!inner(id)"
+                )
                 .in("listing_id", listingIds)
             : Promise.resolve({ data: [], error: null }),
         ]);
 
         if (error) loadError = error.message;
 
+        // listing_conversations has no single unambiguous FK to users PostgREST
+        // can auto-embed (learned the hard way earlier in this project) — a
+        // plain follow-up query for tenant names sidesteps that entirely.
+        const tenantIds = Array.from(
+          new Set((listingConversations ?? []).map((c) => c.tenant_id).filter(Boolean))
+        ) as string[];
+        const { data: tenants } =
+          tenantIds.length > 0
+            ? await supabase.from("users").select("id, full_name, email").in("id", tenantIds)
+            : { data: [] };
+        const tenantById = new Map((tenants ?? []).map((t) => [t.id, t]));
+
         for (const c of (listingConversations ?? []) as unknown as {
           id: string;
           listing_id: string;
+          tenant_id: string;
           last_message_at: string;
+          last_message_body: string | null;
           manager_last_read_at: string | null;
         }[]) {
+          const tenant = tenantById.get(c.tenant_id);
           items.push({
             id: `enquiry-${c.id}`,
-            title: listingsById.get(c.listing_id) ?? "Room enquiry",
-            subtitle: "Room enquiry",
+            title: tenant?.full_name ?? tenant?.email ?? "Tenant",
+            context: listingsById.get(c.listing_id) ?? "Room enquiry",
+            preview: c.last_message_body ? truncate(c.last_message_body) : "No messages yet",
             lastMessageAt: c.last_message_at,
             unread: !c.manager_last_read_at || new Date(c.last_message_at) > new Date(c.manager_last_read_at),
             href: `${basePath}/enquiries/${c.id}`,
@@ -103,13 +131,15 @@ export async function MessagesInbox({
         for (const c of (conversations ?? []) as unknown as {
           id: string;
           last_message_at: string;
+          last_message_body: string | null;
           provider_last_read_at: string | null;
-          users: { email: string } | null;
+          users: { full_name: string | null; email: string } | null;
         }[]) {
           items.push({
             id: `conv-${c.id}`,
-            title: c.users?.email ?? "Member",
-            subtitle: "Direct message",
+            title: c.users?.full_name ?? c.users?.email ?? "Member",
+            context: null,
+            preview: c.last_message_body ? truncate(c.last_message_body) : "No messages yet",
             lastMessageAt: c.last_message_at,
             unread: !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at),
             href: `${basePath}/messages/${c.id}`,
@@ -120,13 +150,19 @@ export async function MessagesInbox({
           id: string;
           request_id: string;
           last_message_at: string;
+          last_message_body: string | null;
           provider_last_read_at: string | null;
-          service_quote_requests: { property_address: string } | null;
+          service_quote_requests: {
+            property_address: string;
+            users: { full_name: string | null; email: string } | null;
+          } | null;
         }[]) {
+          const investor = c.service_quote_requests?.users;
           items.push({
             id: `quote-${c.id}`,
-            title: c.service_quote_requests?.property_address ?? "Quote request",
-            subtitle: "Quote request",
+            title: investor?.full_name ?? investor?.email ?? "Investor",
+            context: c.service_quote_requests?.property_address ?? "Quote request",
+            preview: c.last_message_body ? truncate(c.last_message_body) : "No messages yet",
             lastMessageAt: c.last_message_at,
             unread: !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at),
             href: `${basePath}/quote-messages/${c.request_id}`,
@@ -139,13 +175,13 @@ export async function MessagesInbox({
       supabase
         .from("conversations")
         .select(
-          "id, last_message_at, investor_last_read_at, service_providers(business_name, category), messages!inner(id)"
+          "id, last_message_at, last_message_body, investor_last_read_at, service_providers(business_name, category), messages!inner(id)"
         )
         .eq("investor_id", user.id),
       supabase
         .from("quote_conversations")
         .select(
-          "id, request_id, provider_id, last_message_at, investor_last_read_at, service_quote_requests(property_address), service_providers(business_name), quote_messages!inner(id)"
+          "id, request_id, provider_id, last_message_at, last_message_body, investor_last_read_at, service_quote_requests(property_address), service_providers(business_name), quote_messages!inner(id)"
         ),
     ]);
 
@@ -154,13 +190,15 @@ export async function MessagesInbox({
     for (const c of (conversations ?? []) as unknown as {
       id: string;
       last_message_at: string;
+      last_message_body: string | null;
       investor_last_read_at: string | null;
       service_providers: { business_name: string; category: string } | null;
     }[]) {
       items.push({
         id: `conv-${c.id}`,
         title: c.service_providers?.business_name ?? "Provider",
-        subtitle: "Direct message",
+        context: null,
+        preview: c.last_message_body ? truncate(c.last_message_body) : "No messages yet",
         lastMessageAt: c.last_message_at,
         unread: !c.investor_last_read_at || new Date(c.last_message_at) > new Date(c.investor_last_read_at),
         href: `${basePath}/messages/${c.id}`,
@@ -172,6 +210,7 @@ export async function MessagesInbox({
       request_id: string;
       provider_id: string;
       last_message_at: string;
+      last_message_body: string | null;
       investor_last_read_at: string | null;
       service_quote_requests: { property_address: string } | null;
       service_providers: { business_name: string } | null;
@@ -179,7 +218,8 @@ export async function MessagesInbox({
       items.push({
         id: `quote-${c.id}`,
         title: c.service_providers?.business_name ?? "Provider",
-        subtitle: c.service_quote_requests?.property_address ?? "Quote request",
+        context: c.service_quote_requests?.property_address ?? "Quote request",
+        preview: c.last_message_body ? truncate(c.last_message_body) : "No messages yet",
         lastMessageAt: c.last_message_at,
         unread: !c.investor_last_read_at || new Date(c.last_message_at) > new Date(c.investor_last_read_at),
         href: `${basePath}/quote-messages/${c.request_id}/${c.provider_id}`,
@@ -225,28 +265,36 @@ export async function MessagesInbox({
       )}
 
       {!loadError && items.length > 0 && (
-        <div className="mt-6 space-y-3">
+        <div className="mt-4 divide-y divide-line overflow-hidden rounded-card border border-line bg-white">
           {items.map((item) => (
-            <Link key={item.id} href={item.href}>
-              <Card className="transition-colors hover:bg-linen">
-                <CardContent className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-3">
-                    {item.unread && (
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-red-600" aria-label="Unread" />
-                    )}
-                    <div>
-                      <p className={cn("font-display text-lg text-ink", item.unread && "font-semibold")}>
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-muted">
-                        {item.subtitle} · Last message{" "}
-                        {new Date(item.lastMessageAt).toLocaleString("en-AU")}
-                      </p>
-                    </div>
-                  </div>
-                  <MessageCircle className="h-5 w-5 text-muted" />
-                </CardContent>
-              </Card>
+            <Link
+              key={item.id}
+              href={item.href}
+              className="flex items-center gap-3 p-4 transition-colors hover:bg-linen"
+            >
+              <Avatar seed={item.id} name={item.title} className="h-11 w-11 shrink-0 text-base" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className={cn("truncate font-display text-base text-ink", item.unread && "font-semibold")}>
+                    {item.title}
+                  </p>
+                  <span className="shrink-0 text-[11px] text-muted">
+                    {new Date(item.lastMessageAt).toLocaleString("en-AU", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                </div>
+                {item.context && (
+                  <p className="truncate text-xs text-muted">{item.context}</p>
+                )}
+                <p className={cn("mt-0.5 truncate text-sm", item.unread ? "font-medium text-ink" : "text-body")}>
+                  {item.preview}
+                </p>
+              </div>
+              {item.unread && (
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-600" aria-label="Unread" />
+              )}
             </Link>
           ))}
         </div>
