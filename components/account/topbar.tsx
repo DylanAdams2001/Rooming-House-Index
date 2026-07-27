@@ -3,33 +3,28 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AvatarMenu } from "@/components/avatar-menu";
-import { Bookmark, FileText, MessageCircle, User } from "lucide-react";
 import { AccountMobileNav } from "./mobile-nav";
-
-const MENU_ITEMS = [
-  { href: "/account/messages", label: "Messages", icon: MessageCircle },
-  { href: "/account/saved-listings", label: "Saved Listings", icon: Bookmark },
-  { href: "/account/enquiries", label: "Enquiries", icon: FileText },
-  { href: "/account/settings", label: "Profile", icon: User },
-];
+import { getAccountNavItems } from "./nav-items";
 
 export function AccountTopbar({
   userId,
   userEmail,
   fullName,
   avatarUrl,
+  role,
   unreadMessageCount = 0,
 }: {
   userId: string;
   userEmail: string;
   fullName?: string | null;
   avatarUrl?: string | null;
+  role?: string | null;
   unreadMessageCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
-  const menuItems = MENU_ITEMS.map((item) =>
+  const menuItems = getAccountNavItems(role).map((item) =>
     item.href === "/account/messages" ? { ...item, badgeCount: unreadMessageCount } : item
   );
 
@@ -42,7 +37,7 @@ export function AccountTopbar({
   return (
     <header className="flex h-20 min-w-0 items-center justify-between gap-4 border-b border-line bg-white px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <AccountMobileNav unreadMessageCount={unreadMessageCount} />
+        <AccountMobileNav role={role} unreadMessageCount={unreadMessageCount} />
         <span className="truncate font-display text-lg text-ink md:hidden">
           Rooming House Index
         </span>

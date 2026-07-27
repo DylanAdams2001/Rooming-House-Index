@@ -1,4 +1,4 @@
-import { ListChecks, MessageCircle, Plus, User, type LucideIcon } from "lucide-react";
+import { ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
 
 export type PartnerNavItem = {
   href: string;
@@ -43,6 +43,15 @@ export function getPartnerNavItems(
     items.push({ href: "/partners/listings/new", label: "Add Room", icon: Plus });
     // Room enquiries live in the unified Messages tab above now, not a
     // separate Enquiries tab.
+  }
+
+  // Admin has no restrictions on any portal — quick links to jump straight
+  // into the other two account experiences and the admin tools from here.
+  if (role === "admin") {
+    items.push({ href: "/dashboard", label: "Investor Dashboard", icon: ShieldCheck });
+    items.push({ href: "/account", label: "Tenant Account", icon: ShieldCheck });
+    items.push({ href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck });
+    items.push({ href: "/dashboard/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck });
   }
 
   return items;

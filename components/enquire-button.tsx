@@ -77,13 +77,14 @@ export function EnquireButton({
     // Investor and tenant experiences are kept deliberately separate — an investor
     // account enquiring on a room as a "tenant" would confuse the landlord side of
     // things, so this is blocked with an explanation rather than silently allowed.
+    // Admin is exempt — no restrictions on any portal for that account.
     const { data: profile } = await supabase
       .from("users")
-      .select("investor_access")
+      .select("investor_access, role")
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile?.investor_access === "active") {
+    if (profile?.investor_access === "active" && profile.role !== "admin") {
       setChecking(false);
       setError("You're signed in with an investor account. Enquiries are for room-seeker accounts only.");
       return;

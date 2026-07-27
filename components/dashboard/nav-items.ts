@@ -55,6 +55,10 @@ const ADMIN_NAV_ITEM: NavItem = {
   children: [
     { label: "All Conversations", href: "/dashboard/admin/conversations" },
     { label: "Partner Signup Links", href: "/dashboard/admin/partner-links" },
+    // Admin has no restrictions on any portal — quick links to jump straight
+    // into the other two account experiences from wherever they're standing.
+    { label: "Tenant Account", href: "/account" },
+    { label: "Partners Portal", href: "/partners" },
   ],
 };
 

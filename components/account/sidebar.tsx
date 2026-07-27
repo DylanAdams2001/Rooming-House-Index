@@ -4,10 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Building2 } from "lucide-react";
-import { accountNavItems } from "./nav-items";
+import { getAccountNavItems } from "./nav-items";
 
-export function AccountSidebar({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
+export function AccountSidebar({
+  role,
+  unreadMessageCount = 0,
+}: {
+  role?: string | null;
+  unreadMessageCount?: number;
+}) {
   const pathname = usePathname();
+  const accountNavItems = getAccountNavItems(role);
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-line bg-offwhite md:flex md:flex-col">

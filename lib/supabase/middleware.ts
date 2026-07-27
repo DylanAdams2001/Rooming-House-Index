@@ -75,7 +75,7 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (isAccountRoute && profile?.investor_access === "active") {
+    if (isAccountRoute && profile?.investor_access === "active" && profile.role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);

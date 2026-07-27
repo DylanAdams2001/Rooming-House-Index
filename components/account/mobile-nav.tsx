@@ -5,11 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { accountNavItems } from "./nav-items";
+import { getAccountNavItems } from "./nav-items";
 
-export function AccountMobileNav({ unreadMessageCount = 0 }: { unreadMessageCount?: number }) {
+export function AccountMobileNav({
+  role,
+  unreadMessageCount = 0,
+}: {
+  role?: string | null;
+  unreadMessageCount?: number;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const accountNavItems = getAccountNavItems(role);
 
   return (
     <div className="md:hidden">
