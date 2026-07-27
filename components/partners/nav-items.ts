@@ -70,8 +70,19 @@ export function isPartnerNavItemActive(
   pathname: string,
   href: string
 ): boolean {
+  // The listing edit page is shared — a property manager editing their own
+  // room, and admin editing any property manager's room from All Listings,
+  // both land on /partners/listings/[id]/edit. That path shares no prefix
+  // with admin's "All Listings" (/partners/admin/listings), so it would
+  // otherwise only ever prefix-match the portal home ("/partners"),
+  // highlighting Business Partners instead. Only remap when the admin nav
+  // (the one with an All Listings item) is what's actually being rendered.
+  const isAdminNav = items.some((item) => item.href === "/partners/admin/listings");
+  const effectivePathname =
+    isAdminNav && pathname.startsWith("/partners/listings/") ? "/partners/admin/listings" : pathname;
+
   const matches = items.filter(
-    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`)
+    (item) => effectivePathname === item.href || effectivePathname.startsWith(`${item.href}/`)
   );
   if (matches.length === 0) return false;
   const longest = matches.reduce((a, b) => (b.href.length > a.href.length ? b : a));
