@@ -125,7 +125,7 @@ export default async function AdminConversationsPage() {
       {!error && (
         <div className="mt-6 space-y-3">
           {rows.map((row) => (
-            <Link key={row.id} href={`/dashboard/admin/conversations/${row.id}`}>
+            <Link key={row.id} href={`/partners/admin/conversations/${row.id}`}>
               <Card className="transition-colors hover:bg-linen">
                 <CardContent className="flex items-center justify-between p-5">
                   <div>

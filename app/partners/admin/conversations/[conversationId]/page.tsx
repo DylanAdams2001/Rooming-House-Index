@@ -144,7 +144,7 @@ export default async function AdminConversationPage({
   return (
     <div>
       <Link
-        href="/dashboard/admin/conversations"
+        href="/partners/admin/conversations"
         className="mb-4 flex items-center gap-2 text-sm text-body hover:text-ink"
       >
         <ArrowLeft className="h-4 w-4" />

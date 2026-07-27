@@ -39,7 +39,6 @@ export function appendRedirectTo(path: string, redirectTo?: string | null): stri
 // home base is the Business Partners directory, not any one investor/tenant/
 // partner experience — those are all still reachable from there.
 export function defaultDestination(investorAccess?: string | null, role?: string | null): string {
-  if (role === "admin") return "/dashboard/admin";
-  if (role === "provider" || role === "property_manager") return "/partners";
+  if (role === "admin" || role === "provider" || role === "property_manager") return "/partners";
   return investorAccess === "active" ? "/dashboard" : "/account";
 }

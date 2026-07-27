@@ -5,7 +5,6 @@ import {
   List,
   MapPin,
   MessageCircle,
-  ShieldCheck,
   User,
   Wrench,
   type LucideIcon,
@@ -45,22 +44,9 @@ const BASE_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/settings", label: "Profile", icon: User },
 ];
 
-// Unlike the rest of this static array, the Admin group only shows for
-// role='admin'. All Conversations / Partner Signup Links live in the
-// Partners portal nav only now, not duplicated here — this investor
-// dashboard just needs Business Partners plus a way back to the other
-// portals, since admin's home base is /dashboard/admin.
-const ADMIN_NAV_ITEM: NavItem = {
-  href: "/dashboard/admin",
-  label: "Admin",
-  icon: ShieldCheck,
-  children: [
-    { label: "Business Partners", href: "/dashboard/admin" },
-    { label: "Tenant Account", href: "/account" },
-    { label: "Partners Portal", href: "/partners" },
-  ],
-};
-
-export function getDashboardNavItems(role: string | null | undefined): NavItem[] {
-  return role === "admin" ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS;
+// Admin's home base is the Partners portal (Business Partners directory,
+// every conversation, partner signup links) — nothing admin-specific belongs
+// in the investor dashboard nav anymore.
+export function getDashboardNavItems(_role: string | null | undefined): NavItem[] {
+  return BASE_NAV_ITEMS;
 }

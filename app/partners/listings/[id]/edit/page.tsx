@@ -22,7 +22,7 @@ export default async function EditListingPage({ params }: { params: { id: string
   // Only override the post-save redirect when admin is editing someone
   // else's listing — a property manager editing their own still lands back
   // on their own "my rooms" list as before.
-  const redirectTo = user?.id !== listing.owner_id ? "/dashboard/admin" : "/partners/listings";
+  const redirectTo = user?.id !== listing.owner_id ? "/partners" : "/partners/listings";
 
   const postcodeMatch = listing.suburb_id.match(/(\d+)$/);
 

@@ -20,15 +20,27 @@ export function getPartnerNavItems(
   role: string | null | undefined,
   category?: string | null
 ): PartnerNavItem[] {
+  // Admin isn't a partner account with its own messages/listings — this
+  // portal is where admin manages every partner brought on, so the nav is
+  // just the tools for that: the Business Partners directory (the portal
+  // home itself), every conversation/enquiry, and the private signup links.
+  if (role === "admin") {
+    return [
+      { href: "/partners", label: "Business Partners", icon: ShieldCheck },
+      { href: "/partners/admin/conversations", label: "All Conversations", icon: ShieldCheck },
+      { href: "/partners/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
+    ];
+  }
+
   const items: PartnerNavItem[] = [];
   const isQuoteBased = !!category && QUOTE_BASED_CATEGORIES.includes(category);
   // A property manager is always in the (inherently quote-based)
   // property_management category — no need to check their actual category
   // value the way a regular provider's is checked.
-  const hasServiceProviderRow = role === "provider" || role === "property_manager" || role === "admin";
+  const hasServiceProviderRow = role === "provider" || role === "property_manager";
 
   if (hasServiceProviderRow) {
-    if (isQuoteBased || role === "property_manager" || role === "admin") {
+    if (isQuoteBased || role === "property_manager") {
       items.push({ href: "/partners/quotes", label: "Quote Requests", icon: MessageCircle });
     }
     // One shared inbox regardless of category — it merges regular marketplace
@@ -38,21 +50,11 @@ export function getPartnerNavItems(
     items.push({ href: "/partners/profile", label: "Business Details", icon: User });
   }
 
-  if (role === "property_manager" || role === "admin") {
+  if (role === "property_manager") {
     items.push({ href: "/partners/listings", label: "Rooms", icon: ListChecks });
     items.push({ href: "/partners/listings/new", label: "Add Room", icon: Plus });
     // Room enquiries live in the unified Messages tab above now, not a
     // separate Enquiries tab.
-  }
-
-  // Admin has no restrictions on any portal — quick links to jump straight
-  // into the other two account experiences and the admin tools from here.
-  if (role === "admin") {
-    items.push({ href: "/dashboard/admin", label: "Business Partners", icon: ShieldCheck });
-    items.push({ href: "/dashboard", label: "Investor Dashboard", icon: ShieldCheck });
-    items.push({ href: "/account", label: "Tenant Account", icon: ShieldCheck });
-    items.push({ href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck });
-    items.push({ href: "/dashboard/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck });
   }
 
   return items;

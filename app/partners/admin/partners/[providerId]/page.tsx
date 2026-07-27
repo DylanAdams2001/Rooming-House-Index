@@ -89,7 +89,7 @@ export default async function AdminPartnerDetailPage({
 
   return (
     <div>
-      <BackLink href="/dashboard/admin" label="Business Partners" />
+      <BackLink href="/partners" label="Business Partners" />
 
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="font-display text-3xl text-ink">{provider.business_name}</h1>
@@ -147,7 +147,7 @@ export default async function AdminPartnerDetailPage({
           {(marketplaceConversations ?? []).map((c) => (
             <Link
               key={`conv-${c.id}`}
-              href={`/dashboard/admin/conversations/conv-${c.id}`}
+              href={`/partners/admin/conversations/conv-${c.id}`}
               className="flex items-center justify-between rounded-btn border border-line p-3 text-sm transition-colors hover:bg-linen"
             >
               <span className="text-ink">
@@ -166,7 +166,7 @@ export default async function AdminPartnerDetailPage({
             return (
               <Link
                 key={`quote-${c.id}`}
-                href={`/dashboard/admin/conversations/quote-${c.id}`}
+                href={`/partners/admin/conversations/quote-${c.id}`}
                 className="flex items-center justify-between rounded-btn border border-line p-3 text-sm transition-colors hover:bg-linen"
               >
                 <span className="text-ink">

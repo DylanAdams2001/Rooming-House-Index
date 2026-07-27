@@ -1,4 +1,4 @@
-import { Bookmark, MessageCircle, FileText, ShieldCheck, User, Search, type LucideIcon } from "lucide-react";
+import { Bookmark, MessageCircle, FileText, User, Search, type LucideIcon } from "lucide-react";
 
 export type AccountNavItem = {
   href: string;
@@ -14,16 +14,8 @@ const BASE_ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
   { href: "/account/settings", label: "Profile", icon: User },
 ];
 
-// Admin has no restrictions on any portal — quick links to jump straight into
-// the other two account experiences and the admin tools from here.
-const ADMIN_ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
-  { href: "/dashboard/admin", label: "Business Partners", icon: ShieldCheck },
-  { href: "/dashboard", label: "Investor Dashboard", icon: ShieldCheck },
-  { href: "/partners", label: "Partners Portal", icon: ShieldCheck },
-  { href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck },
-  { href: "/dashboard/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
-];
-
-export function getAccountNavItems(role: string | null | undefined): AccountNavItem[] {
-  return role === "admin" ? [...BASE_ACCOUNT_NAV_ITEMS, ...ADMIN_ACCOUNT_NAV_ITEMS] : BASE_ACCOUNT_NAV_ITEMS;
+// Admin's home base is the Partners portal — nothing admin-specific belongs
+// in the tenant account nav.
+export function getAccountNavItems(_role: string | null | undefined): AccountNavItem[] {
+  return BASE_ACCOUNT_NAV_ITEMS;
 }

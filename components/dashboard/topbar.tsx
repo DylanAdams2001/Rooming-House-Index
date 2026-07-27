@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AvatarMenu } from "@/components/avatar-menu";
-import { Bookmark, MessageCircle, ShieldCheck, User, Wrench } from "lucide-react";
+import { Bookmark, MessageCircle, User, Wrench } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 
 const MENU_ITEMS = [
@@ -11,14 +11,6 @@ const MENU_ITEMS = [
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/services", label: "Services", icon: Wrench },
   { href: "/dashboard/settings", label: "Profile", icon: User },
-];
-
-// All Conversations / Partner Signup Links live in the Partners portal nav
-// only now, not duplicated here.
-const ADMIN_MENU_ITEMS = [
-  { href: "/dashboard/admin", label: "Business Partners", icon: ShieldCheck },
-  { href: "/account", label: "Tenant Account", icon: ShieldCheck },
-  { href: "/partners", label: "Partners Portal", icon: ShieldCheck },
 ];
 
 export function DashboardTopbar({
@@ -39,12 +31,9 @@ export function DashboardTopbar({
   const router = useRouter();
   const supabase = createClient();
 
-  const menuItems = [
-    ...MENU_ITEMS.map((item) =>
-      item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
-    ),
-    ...(role === "admin" ? ADMIN_MENU_ITEMS : []),
-  ];
+  const menuItems = MENU_ITEMS.map((item) =>
+    item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
+  );
 
   async function handleLogout() {
     await supabase.auth.signOut();
