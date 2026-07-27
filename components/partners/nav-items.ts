@@ -48,6 +48,7 @@ export function getPartnerNavItems(
   // Admin has no restrictions on any portal — quick links to jump straight
   // into the other two account experiences and the admin tools from here.
   if (role === "admin") {
+    items.push({ href: "/dashboard/admin", label: "Business Partners", icon: ShieldCheck });
     items.push({ href: "/dashboard", label: "Investor Dashboard", icon: ShieldCheck });
     items.push({ href: "/account", label: "Tenant Account", icon: ShieldCheck });
     items.push({ href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck });

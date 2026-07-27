@@ -17,6 +17,7 @@ const BASE_ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
 // Admin has no restrictions on any portal — quick links to jump straight into
 // the other two account experiences and the admin tools from here.
 const ADMIN_ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
+  { href: "/dashboard/admin", label: "Business Partners", icon: ShieldCheck },
   { href: "/dashboard", label: "Investor Dashboard", icon: ShieldCheck },
   { href: "/partners", label: "Partners Portal", icon: ShieldCheck },
   { href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck },

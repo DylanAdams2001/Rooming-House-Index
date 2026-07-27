@@ -53,6 +53,7 @@ const ADMIN_NAV_ITEM: NavItem = {
   label: "Admin",
   icon: ShieldCheck,
   children: [
+    { label: "Business Partners", href: "/dashboard/admin" },
     { label: "All Conversations", href: "/dashboard/admin/conversations" },
     { label: "Partner Signup Links", href: "/dashboard/admin/partner-links" },
     // Admin has no restrictions on any portal — quick links to jump straight

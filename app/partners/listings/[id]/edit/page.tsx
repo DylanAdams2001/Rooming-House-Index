@@ -8,16 +8,21 @@ export default async function EditListingPage({ params }: { params: { id: string
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: listing } = await supabase
-    .from("listings")
-    .select("*")
-    .eq("id", params.id)
-    .eq("owner_id", user!.id)
-    .maybeSingle();
+  // No owner_id filter here — RLS already scopes this correctly (an owner can
+  // only ever see their own row; admin can see and edit any listing via the
+  // "Admins can view and manage all listings" policy), so this page works
+  // both for a property manager editing their own room and for admin editing
+  // any property manager's listing from the Business Partners directory.
+  const { data: listing } = await supabase.from("listings").select("*").eq("id", params.id).maybeSingle();
 
   if (!listing) {
     notFound();
   }
+
+  // Only override the post-save redirect when admin is editing someone
+  // else's listing — a property manager editing their own still lands back
+  // on their own "my rooms" list as before.
+  const redirectTo = user?.id !== listing.owner_id ? "/dashboard/admin" : "/partners/listings";
 
   const postcodeMatch = listing.suburb_id.match(/(\d+)$/);
 
@@ -28,6 +33,7 @@ export default async function EditListingPage({ params }: { params: { id: string
 
       <div className="mt-8 max-w-2xl">
         <ListingForm
+          redirectTo={redirectTo}
           initial={{
             id: listing.id,
             address: listing.address,

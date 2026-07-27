@@ -14,6 +14,7 @@ const MENU_ITEMS = [
 ];
 
 const ADMIN_MENU_ITEMS = [
+  { href: "/dashboard/admin", label: "Business Partners", icon: ShieldCheck },
   { href: "/dashboard/admin/conversations", label: "All Conversations", icon: ShieldCheck },
   { href: "/dashboard/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
   { href: "/account", label: "Tenant Account", icon: ShieldCheck },

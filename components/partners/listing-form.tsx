@@ -69,7 +69,16 @@ export type ListingFormInitial = {
   photos: string[];
 };
 
-export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
+export function ListingForm({
+  initial,
+  redirectTo = "/partners/listings",
+}: {
+  initial?: ListingFormInitial;
+  // Defaults to the owner's own "my listings" page — admin editing another
+  // owner's listing from the Business Partners directory overrides this so
+  // saving doesn't land them on their own (unrelated, likely empty) list.
+  redirectTo?: string;
+}) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -173,7 +182,6 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
     );
 
     const payload = {
-      owner_id: user.id,
       suburb_id: `${slugify(suburbName)}-${postcode.trim()}`,
       suburb_name: suburbName.trim(),
       address: address.trim(),
@@ -196,9 +204,11 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
     // Property managers are hand-picked and already vetted before they're ever
     // sent a signup link, so their listings publish immediately rather than
     // sitting in a pending queue (unlike self-serve service provider signups).
+    // owner_id is only ever set on insert — an admin editing another owner's
+    // listing must not silently reassign it to themselves on save.
     const { error: writeError } = initial?.id
       ? await supabase.from("listings").update(payload).eq("id", initial.id)
-      : await supabase.from("listings").insert({ ...payload, status: "approved" });
+      : await supabase.from("listings").insert({ ...payload, owner_id: user.id, status: "approved" });
 
     if (writeError) {
       setStatus("idle");
@@ -207,7 +217,7 @@ export function ListingForm({ initial }: { initial?: ListingFormInitial }) {
     }
 
     setStatus("success");
-    router.push("/partners/listings");
+    router.push(redirectTo);
     router.refresh();
   }
 
