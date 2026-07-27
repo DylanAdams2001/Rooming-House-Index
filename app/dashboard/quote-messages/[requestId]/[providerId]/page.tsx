@@ -9,7 +9,7 @@ export default function DashboardQuoteMessagesConversationPage({
     <QuoteConversationView
       requestId={params.requestId}
       providerId={params.providerId}
-      backHref="/dashboard/quote-messages"
+      backHref="/dashboard/messages"
       perspective="investor"
       section="messages"
     />

@@ -26,7 +26,7 @@ export default async function PartnersQuoteMessagesConversationPage({
     <QuoteConversationView
       requestId={params.requestId}
       providerId={providerRow.id}
-      backHref="/partners/quote-messages"
+      backHref="/partners/messages"
       perspective="provider"
       section="messages"
     />
