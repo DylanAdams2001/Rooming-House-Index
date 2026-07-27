@@ -142,7 +142,7 @@ export async function ListingMessagesInbox({
                     <div className="flex items-center gap-3">
                       {unread && (
                         <span
-                          className="h-2 w-2 shrink-0 rounded-full bg-ink"
+                          className="h-2 w-2 shrink-0 rounded-full bg-red-600"
                           aria-label="Unread"
                         />
                       )}

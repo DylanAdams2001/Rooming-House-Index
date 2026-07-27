@@ -191,7 +191,7 @@ export async function MessagesInbox({
                 <CardContent className="flex items-center justify-between p-5">
                   <div className="flex items-center gap-3">
                     {item.unread && (
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-ink" aria-label="Unread" />
+                      <span className="h-2 w-2 shrink-0 rounded-full bg-red-600" aria-label="Unread" />
                     )}
                     <div>
                       <p className={cn("font-display text-lg text-ink", item.unread && "font-semibold")}>
