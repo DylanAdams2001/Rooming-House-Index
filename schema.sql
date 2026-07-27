@@ -1210,6 +1210,26 @@ create policy "Listing owners can view basic info of enquiring tenants"
   on public.users for select
   using (public.is_tenant_of_owners_listing(users.id, auth.uid()));
 
+-- Admin has never actually had permission to read anyone else's email either
+-- (the admin conversations oversight page's investor/tenant email column was
+-- silently falling back to the raw uuid this whole time) — same self-reference
+-- recursion trap as above, so this needs the same security definer wrapper
+-- rather than an inline `exists (select 1 from public.users where ...)` check.
+create or replace function public.is_admin(viewer_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (select 1 from public.users where id = viewer_id and role = 'admin');
+$$;
+
+drop policy if exists "Admins can view every user profile" on public.users;
+create policy "Admins can view every user profile"
+  on public.users for select
+  using (public.is_admin(auth.uid()));
+
 -- ─────────────────────────────────────────────────────────────
 -- Stamp the SENDER's own last_read_at when they send a message.
 -- Previously only last_message_at was updated on insert, so a sender's own
