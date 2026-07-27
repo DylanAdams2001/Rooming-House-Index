@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Building2 } from "lucide-react";
+import { ArrowLeft, Building2 } from "lucide-react";
 import { getPartnerNavItems, isPartnerNavItemActive } from "./nav-items";
 
 export function PartnersSidebar({
@@ -21,10 +21,17 @@ export function PartnersSidebar({
   return (
     <aside className="hidden w-64 shrink-0 border-r border-line bg-offwhite md:flex md:flex-col">
       <div className="flex h-20 items-center border-b border-line px-6">
-        <Link href="/partners" className="flex items-center gap-2 font-display text-lg text-ink">
-          <Building2 className="h-5 w-5" />
-          Partner Portal
-        </Link>
+        {role === "admin" ? (
+          <Link href="/dashboard" className="flex items-center gap-2 font-display text-lg text-ink">
+            <ArrowLeft className="h-5 w-5" />
+            Partner Portal
+          </Link>
+        ) : (
+          <Link href="/partners" className="flex items-center gap-2 font-display text-lg text-ink">
+            <Building2 className="h-5 w-5" />
+            Partner Portal
+          </Link>
+        )}
       </div>
       <nav className="flex-1 space-y-1 px-3 py-6">
         {items.map((item) => {

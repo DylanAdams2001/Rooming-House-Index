@@ -1,4 +1,4 @@
-import { LineChart, ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
+import { Home, ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
 
 export type PartnerNavItem = {
   href: string;
@@ -22,16 +22,14 @@ export function getPartnerNavItems(
 ): PartnerNavItem[] {
   // Admin isn't a partner account with its own messages/listings — this
   // portal is where admin manages every partner brought on, so the nav is
-  // just the tools for that: the Business Partners directory (the portal
-  // home itself), every conversation/enquiry, and the private signup links.
+  // just the tools for that. Getting back to the investor dashboard is the
+  // logo/back-arrow in the header, not a nav item here.
   if (role === "admin") {
     return [
       { href: "/partners", label: "Business Partners", icon: ShieldCheck },
+      { href: "/partners/admin/listings", label: "All Listings", icon: Home },
       { href: "/partners/admin/conversations", label: "All Conversations", icon: ShieldCheck },
       { href: "/partners/admin/partner-links", label: "Partner Signup Links", icon: ShieldCheck },
-      // Admin is also an investor and wants the suburb/market data view —
-      // unlike the tenant account (removed on request), this one's wanted.
-      { href: "/dashboard", label: "Investor Dashboard", icon: LineChart },
     ];
   }
 

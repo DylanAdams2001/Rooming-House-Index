@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Building2 } from "lucide-react";
+import { ArrowLeft, Menu, X, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPartnerNavItems, isPartnerNavItemActive } from "./nav-items";
 
@@ -41,11 +41,15 @@ export function PartnersMobileNav({
           <div className="relative flex w-72 max-w-[80vw] flex-col bg-offwhite">
             <div className="flex h-20 items-center justify-between border-b border-line px-6">
               <Link
-                href="/partners"
+                href={role === "admin" ? "/dashboard" : "/partners"}
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 font-display text-lg text-ink"
               >
-                <Building2 className="h-5 w-5" />
+                {role === "admin" ? (
+                  <ArrowLeft className="h-5 w-5" />
+                ) : (
+                  <Building2 className="h-5 w-5" />
+                )}
                 Partner Portal
               </Link>
               <button

@@ -36,9 +36,18 @@ export default async function PartnersLayout({ children }: { children: React.Rea
   if (profile.role === "provider" || profile.role === "property_manager") {
     const { data: providerRow } = await supabase
       .from("service_providers")
-      .select("id, category")
+      .select("id, category, status")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    // Admin can suspend a partner (status set away from 'approved') without
+    // deleting their login — this is what actually enforces that: portal
+    // access is revoked the moment it's no longer 'approved', same as how
+    // the public directory already only ever shows approved providers.
+    if (!providerRow || providerRow.status !== "approved") {
+      redirect("/account");
+    }
+
     category = providerRow?.category ?? null;
 
     let listingIds: string[] = [];

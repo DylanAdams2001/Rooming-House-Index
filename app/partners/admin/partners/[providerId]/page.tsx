@@ -5,6 +5,7 @@ import { getServiceCategory, serviceCategories } from "@/lib/service-categories"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
+import { PartnerAccessControls } from "@/components/partners/partner-access-controls";
 import { cn } from "@/lib/utils";
 
 const LISTING_STATUS_STYLES: Record<string, string> = {
@@ -100,6 +101,19 @@ export default async function AdminPartnerDetailPage({
         {provider.contact_email}
         {provider.contact_phone ? ` · ${provider.contact_phone}` : ""}
       </p>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Access</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PartnerAccessControls
+            providerId={provider.id}
+            businessName={provider.business_name}
+            status={provider.status}
+          />
+        </CardContent>
+      </Card>
 
       {isPropertyManager && (
         <Card className="mt-6">

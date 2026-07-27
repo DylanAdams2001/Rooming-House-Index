@@ -1308,3 +1308,20 @@ create policy "Providers can record and view their own request views"
     select 1 from public.service_providers p
     where p.id = quote_request_views.provider_id and p.user_id = auth.uid()
   ));
+
+-- ─────────────────────────────────────────────────────────────
+-- Let admin actually manage business partners, not just view them.
+-- "Admins can view every provider listing" (select-only) already existed;
+-- this adds update/delete so admin can change a partner's status (which
+-- app/partners/layout.tsx now enforces as portal-access suspension) or
+-- delete their business listing outright from the Business Partners
+-- detail page.
+-- ─────────────────────────────────────────────────────────────
+create policy "Admins can manage every provider listing"
+  on public.service_providers for all
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ))
+  with check (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
