@@ -33,7 +33,7 @@ export async function GET(request: Request) {
           providerCategoryValue,
           providerCategoryLabel
         );
-        return NextResponse.redirect(`${origin}/partners`);
+        return NextResponse.redirect(`${origin}/partners/profile`);
       }
 
       if (assignRole) {

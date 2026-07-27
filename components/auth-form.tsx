@@ -69,7 +69,9 @@ export function AuthForm({
         signupProviderCategory.dbValue,
         signupProviderCategory.label
       );
-      router.push("/partners");
+      // Straight to filling in their business details rather than the portal
+      // home, since a brand-new provider listing only has placeholder text.
+      router.push("/partners/profile");
       router.refresh();
       return;
     }

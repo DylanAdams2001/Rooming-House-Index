@@ -31,7 +31,7 @@ export function getPartnerNavItems(
     // conversations with quote-request conversations itself, so quote-based
     // providers don't need a separate "Quote Messages" tab.
     items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });
-    items.push({ href: "/partners/profile", label: "Listing", icon: User });
+    items.push({ href: "/partners/profile", label: "Business Details", icon: User });
   }
 
   if (role === "property_manager" || role === "admin") {
