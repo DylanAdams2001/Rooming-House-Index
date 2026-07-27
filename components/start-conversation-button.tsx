@@ -57,9 +57,17 @@ export function StartConversationButton({
       return;
     }
 
+    // Marked as already-read at creation — an investor starting a brand-new,
+    // still-empty conversation has nothing to catch up on yet. Without this,
+    // it shows as unread the moment it's created (investor_last_read_at is
+    // otherwise null) even though no one has actually sent a message.
     const { data: created, error: insertError } = await supabase
       .from("conversations")
-      .insert({ investor_id: user.id, provider_id: provider.id })
+      .insert({
+        investor_id: user.id,
+        provider_id: provider.id,
+        investor_last_read_at: new Date().toISOString(),
+      })
       .select("id")
       .single();
 
