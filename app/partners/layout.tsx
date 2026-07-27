@@ -43,8 +43,11 @@ export default async function PartnersLayout({ children }: { children: React.Rea
     }
   }
 
+  // Merged into one count since the Messages inbox itself merges regular
+  // marketplace conversations with quote-request conversations into a
+  // single list, rather than splitting them across two tabs.
   let category: string | null = null;
-  let unreadQuoteCount = 0;
+  let unreadMessageCount = 0;
   if (profile.role === "provider") {
     const { data: providerRow } = await supabase
       .from("service_providers")
@@ -54,13 +57,23 @@ export default async function PartnersLayout({ children }: { children: React.Rea
     category = providerRow?.category ?? null;
 
     if (providerRow) {
-      const { data: conversations } = await supabase
-        .from("quote_conversations")
-        .select("last_message_at, provider_last_read_at")
-        .eq("provider_id", providerRow.id);
-      unreadQuoteCount = (conversations ?? []).filter(
-        (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
-      ).length;
+      const [{ data: conversations }, { data: quoteConversations }] = await Promise.all([
+        supabase
+          .from("conversations")
+          .select("last_message_at, provider_last_read_at")
+          .eq("provider_id", providerRow.id),
+        supabase
+          .from("quote_conversations")
+          .select("last_message_at, provider_last_read_at")
+          .eq("provider_id", providerRow.id),
+      ]);
+      unreadMessageCount =
+        (conversations ?? []).filter(
+          (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
+        ).length +
+        (quoteConversations ?? []).filter(
+          (c) => !c.provider_last_read_at || new Date(c.last_message_at) > new Date(c.provider_last_read_at)
+        ).length;
     }
   }
 
@@ -76,7 +89,7 @@ export default async function PartnersLayout({ children }: { children: React.Rea
           role={profile?.role ?? null}
           category={category}
           unreadEnquiryCount={unreadEnquiryCount}
-          unreadQuoteCount={unreadQuoteCount}
+          unreadMessageCount={unreadMessageCount}
         />
         <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
           {children}

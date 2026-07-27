@@ -33,6 +33,17 @@ export async function ConversationView({
         .order("created_at", { ascending: true })
     : { data: [] };
 
+  if (conversation) {
+    // Fire-and-forget: mark this side as having seen the conversation up to
+    // now, so the Messages inbox's unread indicator clears once opened.
+    const readColumn = perspective === "provider" ? "provider_last_read_at" : "investor_last_read_at";
+    supabase
+      .from("conversations")
+      .update({ [readColumn]: new Date().toISOString() })
+      .eq("id", conversation.id)
+      .then(() => {});
+  }
+
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
       <Link

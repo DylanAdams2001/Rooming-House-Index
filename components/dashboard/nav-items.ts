@@ -31,7 +31,6 @@ export const navItems: NavItem[] = [
     external: true,
   },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
-  { href: "/dashboard/quote-messages", label: "Quote Messages", icon: MessageCircle },
   {
     href: "/dashboard/services",
     label: "Services",

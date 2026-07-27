@@ -14,7 +14,7 @@ export function PartnersTopbar({
   role,
   category,
   unreadEnquiryCount = 0,
-  unreadQuoteCount = 0,
+  unreadMessageCount = 0,
 }: {
   userId: string;
   userEmail: string;
@@ -23,14 +23,14 @@ export function PartnersTopbar({
   role: string | null | undefined;
   category?: string | null;
   unreadEnquiryCount?: number;
-  unreadQuoteCount?: number;
+  unreadMessageCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
   const menuItems = getPartnerNavItems(role, category).map((item) => {
     if (item.href === "/partners/enquiries") return { ...item, badgeCount: unreadEnquiryCount };
-    if (item.href === "/partners/quote-messages") return { ...item, badgeCount: unreadQuoteCount };
+    if (item.href === "/partners/messages") return { ...item, badgeCount: unreadMessageCount };
     return item;
   });
 

@@ -8,7 +8,6 @@ import { MobileNav } from "./mobile-nav";
 
 const MENU_ITEMS = [
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
-  { href: "/dashboard/quote-messages", label: "Quote Messages", icon: MessageCircle },
   { href: "/dashboard/saved", label: "Saved Suburbs", icon: Bookmark },
   { href: "/dashboard/services", label: "Services", icon: Wrench },
   { href: "/dashboard/settings", label: "Profile", icon: User },
@@ -19,19 +18,19 @@ export function DashboardTopbar({
   userEmail,
   fullName,
   avatarUrl,
-  unreadQuoteMessageCount = 0,
+  unreadMessageCount = 0,
 }: {
   userId: string;
   userEmail: string;
   fullName?: string | null;
   avatarUrl?: string | null;
-  unreadQuoteMessageCount?: number;
+  unreadMessageCount?: number;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
   const menuItems = MENU_ITEMS.map((item) =>
-    item.href === "/dashboard/quote-messages" ? { ...item, badgeCount: unreadQuoteMessageCount } : item
+    item.href === "/dashboard/messages" ? { ...item, badgeCount: unreadMessageCount } : item
   );
 
   async function handleLogout() {

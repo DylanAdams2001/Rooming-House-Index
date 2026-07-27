@@ -26,11 +26,11 @@ export function getPartnerNavItems(
   if (role === "provider" || role === "admin") {
     if (isQuoteBased || role === "admin") {
       items.push({ href: "/partners/quotes", label: "Quote Requests", icon: MessageCircle });
-      items.push({ href: "/partners/quote-messages", label: "Messages", icon: MessageCircle });
     }
-    if (!isQuoteBased || role === "admin") {
-      items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });
-    }
+    // One shared inbox regardless of category — it merges regular marketplace
+    // conversations with quote-request conversations itself, so quote-based
+    // providers don't need a separate "Quote Messages" tab.
+    items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });
     items.push({ href: "/partners/profile", label: "Listing", icon: User });
   }
 

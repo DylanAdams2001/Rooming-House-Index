@@ -1121,3 +1121,29 @@ $$ language plpgsql security definer;
 create trigger on_quote_submitted
   after insert on public.service_quote_quotes
   for each row execute procedure public.handle_new_quote_submission();
+
+-- ─────────────────────────────────────────────────────────────
+-- conversations: per-side read tracking
+-- Same pattern already added to listing_conversations/quote_conversations —
+-- needed so the unified Messages inbox (marketplace conversations + quote
+-- conversations merged into one list) can show a consistent unread indicator
+-- across both kinds of item instead of only some of them.
+-- ─────────────────────────────────────────────────────────────
+alter table public.conversations add column if not exists investor_last_read_at timestamptz;
+alter table public.conversations add column if not exists provider_last_read_at timestamptz;
+
+create policy "Investors can update read state on their own conversations"
+  on public.conversations for update
+  using (auth.uid() = investor_id)
+  with check (auth.uid() = investor_id);
+
+create policy "Providers can update read state on their own conversations"
+  on public.conversations for update
+  using (exists (
+    select 1 from public.service_providers p
+    where p.id = conversations.provider_id and p.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.service_providers p
+    where p.id = conversations.provider_id and p.user_id = auth.uid()
+  ));
