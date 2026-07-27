@@ -9,6 +9,7 @@ import { ListingCard } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
 import { useSavedListings } from "@/lib/use-saved-listings";
 import { X } from "lucide-react";
+import { Hint } from "@/components/hints/hint";
 
 export default function SavedListingsPage() {
   const supabase = createClient();
@@ -30,6 +31,11 @@ export default function SavedListingsPage() {
 
   return (
     <div>
+      <Hint hintKey="account-saved-listings" title="Saved Listings">
+        <p>Rooms you&apos;ve bookmarked while browsing — tap the heart/save icon on any listing to add one.</p>
+        <p>Come back here any time to compare your shortlist before enquiring.</p>
+      </Hint>
+
       <h1 className="font-display text-3xl text-ink">Saved Listings</h1>
       <p className="mt-2 text-body">Rooms you&apos;re interested in going to inspect or renting.</p>
 

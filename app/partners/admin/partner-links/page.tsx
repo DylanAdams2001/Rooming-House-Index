@@ -3,6 +3,7 @@ import { serviceCategories } from "@/lib/service-categories";
 import { Card, CardContent } from "@/components/ui/card";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { ShieldCheck, Building2 } from "lucide-react";
+import { Hint } from "@/components/hints/hint";
 
 // Admin-only reference page: every private signup link in one place, so
 // Dylan can grab the right one to send after vetting a partner — these are
@@ -33,6 +34,11 @@ export default async function PartnerLinksPage() {
 
   return (
     <div>
+      <Hint hintKey="admin-partner-links" title="Partner Signup Links">
+        <p>These are private — nothing here is public or self-serve.</p>
+        <p>Vet a partner first, then send them the one link matching what they do. It drops them straight into the right side of the Partner Portal.</p>
+      </Hint>
+
       <div className="flex items-center gap-2">
         <ShieldCheck className="h-6 w-6 text-ink" />
         <h1 className="font-display text-3xl text-ink">Partner Sign-Up Links</h1>

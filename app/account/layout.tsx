@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AccountSidebar } from "@/components/account/sidebar";
 import { AccountTopbar } from "@/components/account/topbar";
+import { HintProvider } from "@/components/hints/hint-provider";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
@@ -34,22 +35,26 @@ export default async function AccountLayout({ children }: { children: React.Reac
     (c) => !c.tenant_last_read_at || new Date(c.last_message_at) > new Date(c.tenant_last_read_at)
   ).length;
 
+  const { data: seenHints } = await supabase.from("user_seen_hints").select("hint_key").eq("user_id", user.id);
+
   return (
-    <div className="flex min-h-screen bg-white">
-      <AccountSidebar role={profile?.role ?? null} unreadMessageCount={unreadMessageCount} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AccountTopbar
-          userId={user.id}
-          userEmail={profile?.email ?? user.email ?? ""}
-          fullName={profile?.full_name ?? null}
-          avatarUrl={profile?.avatar_url ?? null}
-          role={profile?.role ?? null}
-          unreadMessageCount={unreadMessageCount}
-        />
-        <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
-          {children}
-        </main>
+    <HintProvider userId={user.id} initialSeenKeys={(seenHints ?? []).map((h) => h.hint_key)}>
+      <div className="flex min-h-screen bg-white">
+        <AccountSidebar role={profile?.role ?? null} unreadMessageCount={unreadMessageCount} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AccountTopbar
+            userId={user.id}
+            userEmail={profile?.email ?? user.email ?? ""}
+            fullName={profile?.full_name ?? null}
+            avatarUrl={profile?.avatar_url ?? null}
+            role={profile?.role ?? null}
+            unreadMessageCount={unreadMessageCount}
+          />
+          <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </HintProvider>
   );
 }

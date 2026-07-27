@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Hint } from "@/components/hints/hint";
 
 const STATUS_STYLES: Record<string, string> = {
   quoted: "border-green-600 bg-green-600 text-white",
@@ -55,6 +56,11 @@ export default async function PartnersQuotesPage() {
 
   return (
     <div>
+      <Hint hintKey="partners-quotes" title="Quote Requests">
+        <p>Every investor in your category who&apos;s requesting quotes shows up here — a red dot means you haven&apos;t opened it yet.</p>
+        <p>Click into one to submit your price and start a conversation about it.</p>
+      </Hint>
+
       <h1 className="font-display text-3xl text-ink">Quote Requests</h1>
       <p className="mt-2 text-body">Requests from investors in your category — reply to introduce your quote.</p>
 

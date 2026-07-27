@@ -7,6 +7,7 @@ import { getListingTitle, type RoomListing } from "@/lib/mock-listings";
 import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarClock, FileText, MessageCircle } from "lucide-react";
+import { Hint } from "@/components/hints/hint";
 
 type EnquiryRow = { id: string; listing_id: string; last_message_at: string };
 
@@ -43,6 +44,11 @@ export default function EnquiriesPage() {
 
   return (
     <div>
+      <Hint hintKey="account-enquiries" title="Enquiries">
+        <p>Every room you&apos;ve enquired on, at a glance — your application is also linked below.</p>
+        <p>To actually chat with a property team, head to Messages instead.</p>
+      </Hint>
+
       <h1 className="font-display text-3xl text-ink">Enquiries</h1>
       <p className="mt-2 text-body">Rooms you&apos;ve enquired on.</p>
 

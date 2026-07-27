@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
+import { HintProvider } from "@/components/hints/hint-provider";
 
 export default async function DashboardLayout({
   children,
@@ -40,22 +41,26 @@ export default async function DashboardLayout({
       (c) => !c.investor_last_read_at || new Date(c.last_message_at) > new Date(c.investor_last_read_at)
     ).length;
 
+  const { data: seenHints } = await supabase.from("user_seen_hints").select("hint_key").eq("user_id", user.id);
+
   return (
-    <div className="flex min-h-screen bg-white">
-      <DashboardSidebar role={profile?.role ?? null} unreadMessageCount={unreadMessageCount} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <DashboardTopbar
-          userId={user.id}
-          userEmail={profile?.email ?? user.email ?? ""}
-          fullName={profile?.full_name ?? null}
-          avatarUrl={profile?.avatar_url ?? null}
-          role={profile?.role ?? null}
-          unreadMessageCount={unreadMessageCount}
-        />
-        <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
-          {children}
-        </main>
+    <HintProvider userId={user.id} initialSeenKeys={(seenHints ?? []).map((h) => h.hint_key)}>
+      <div className="flex min-h-screen bg-white">
+        <DashboardSidebar role={profile?.role ?? null} unreadMessageCount={unreadMessageCount} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <DashboardTopbar
+            userId={user.id}
+            userEmail={profile?.email ?? user.email ?? ""}
+            fullName={profile?.full_name ?? null}
+            avatarUrl={profile?.avatar_url ?? null}
+            role={profile?.role ?? null}
+            unreadMessageCount={unreadMessageCount}
+          />
+          <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </HintProvider>
   );
 }

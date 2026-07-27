@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { Hint } from "@/components/hints/hint";
 
 const demandRank: Record<Suburb["demandLevel"], number> = { Low: 0, Medium: 1, High: 2 };
 
@@ -48,6 +49,11 @@ export default function MarketOverviewPage() {
 
   return (
     <div>
+      <Hint hintKey="dashboard-market" title="Market Overview">
+        <p>Compare every tracked suburb side by side on room rate, demand, and supply.</p>
+        <p>Sort by any column to spot where yields are strongest right now.</p>
+      </Hint>
+
       <h1 className="font-display text-3xl text-ink">Market Overview</h1>
       <p className="mt-2 text-body">
         A snapshot of the Victorian rooming house market across all tracked suburbs.

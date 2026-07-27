@@ -1518,3 +1518,24 @@ create policy "Providers can update their own package documents"
   on storage.objects for update
   to authenticated
   using (bucket_id = 'package-documents' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ─────────────────────────────────────────────────────────────
+-- user_seen_hints
+-- Tracks which one-time "how to use this" popups (and the first-login
+-- welcome message) a user has already dismissed, so they never show twice
+-- for the same account — permanent, not per-browser, so it stays dismissed
+-- across devices.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.user_seen_hints (
+  user_id uuid not null references public.users (id) on delete cascade,
+  hint_key text not null,
+  seen_at timestamptz not null default now(),
+  primary key (user_id, hint_key)
+);
+
+alter table public.user_seen_hints enable row level security;
+
+create policy "Users can view and manage their own seen hints"
+  on public.user_seen_hints for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

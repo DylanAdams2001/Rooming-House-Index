@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PackageList } from "@/components/partners/package-list";
 import { PackageForm } from "@/components/partners/package-form";
+import { Hint } from "@/components/hints/hint";
 
 export default async function PartnersPackagesPage() {
   const supabase = createClient();
@@ -41,6 +42,11 @@ export default async function PartnersPackagesPage() {
 
   return (
     <div>
+      <Hint hintKey="partners-packages" title="Packages">
+        <p>Add a few named, priced packages — they show on your public profile so investors can compare before ever messaging.</p>
+        <p>Attach a PDF brochure to any package if you have one.</p>
+      </Hint>
+
       <h1 className="font-display text-3xl text-ink">Packages</h1>
       <p className="mt-2 text-body">
         Named, priced packages investors see on your public profile — lets them compare before

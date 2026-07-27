@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Hint } from "@/components/hints/hint";
 
 const STATUS_STYLES: Record<string, string> = {
   quoted: "border-green-600 bg-green-600 text-white",
@@ -71,6 +72,11 @@ export default async function AdminQuotesPage() {
 
   return (
     <div>
+      <Hint hintKey="admin-quotes" title="All Quotes">
+        <p>Every quote request across every category, and every quote submitted against it.</p>
+        <p>Click any submitted quote to jump straight into that conversation.</p>
+      </Hint>
+
       <div className="flex items-center gap-2">
         <FileText className="h-6 w-6 text-ink" />
         <h1 className="font-display text-3xl text-ink">All Quotes</h1>
