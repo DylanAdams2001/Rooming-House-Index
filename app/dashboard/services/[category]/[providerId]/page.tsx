@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StartConversationButton } from "@/components/start-conversation-button";
 import { BackLink } from "@/components/back-link";
+import { FileText } from "lucide-react";
 
 function humanizeKey(key: string) {
   return key
@@ -24,7 +25,7 @@ export default async function ProviderProfilePage({
   const { data: provider } = await supabase
     .from("service_providers")
     .select(
-      "slug, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
+      "id, slug, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
     )
     .eq("slug", params.providerId)
     .eq("category", category.dbCategory)
@@ -34,6 +35,15 @@ export default async function ProviderProfilePage({
   if (!provider) notFound();
 
   const credentials = (provider.credentials ?? {}) as Record<string, unknown>;
+
+  const { data: packages } =
+    category.dbCategory === "furnishing"
+      ? await supabase
+          .from("service_provider_packages")
+          .select("id, label, price, description, document_url")
+          .eq("provider_id", provider.id)
+          .order("created_at", { ascending: true })
+      : { data: [] };
 
   return (
     <div>
@@ -86,6 +96,39 @@ export default async function ProviderProfilePage({
           </CardContent>
         </Card>
       </div>
+
+      {packages && packages.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Packages</CardTitle>
+            <p className="text-sm text-muted">
+              Sample package pricing — message {provider.business_name} for a tailored quote.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="rounded-btn border border-line p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-display text-base text-ink">{pkg.label}</p>
+                  <p className="font-display text-lg text-ink">{pkg.price}</p>
+                </div>
+                {pkg.description && <p className="mt-1 text-sm text-body">{pkg.description}</p>}
+                {pkg.document_url && (
+                  <a
+                    href={pkg.document_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm text-ink underline underline-offset-4"
+                  >
+                    <FileText className="h-4 w-4" />
+                    View brochure
+                  </a>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

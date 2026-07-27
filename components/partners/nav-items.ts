@@ -1,4 +1,4 @@
-import { FileText, Home, ListChecks, MessageCircle, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
+import { FileText, Home, ListChecks, MessageCircle, Package, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
 
 export type PartnerNavItem = {
   href: string;
@@ -50,6 +50,13 @@ export function getPartnerNavItems(
     // providers don't need a separate "Quote Messages" tab.
     items.push({ href: "/partners/messages", label: "Messages", icon: MessageCircle });
     items.push({ href: "/partners/profile", label: "Business Details", icon: User });
+
+    // Furnishing is the one category where investors compare priced options
+    // before ever messaging — everyone else is a case-by-case conversation
+    // where a fixed price list wouldn't mean much.
+    if (category === "furnishing") {
+      items.push({ href: "/partners/packages", label: "Packages", icon: Package });
+    }
   }
 
   if (role === "property_manager") {

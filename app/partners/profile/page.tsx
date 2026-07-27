@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { serviceCategories } from "@/lib/service-categories";
 import { ProviderProfileForm } from "@/components/partners/provider-profile-form";
@@ -35,6 +36,15 @@ export default async function PartnersProfilePage() {
   // haven't filled this in yet.
   const isUnfilled = /^New .+ Provider$/.test(provider.business_name);
 
+  let hasPackages = true;
+  if (provider.category === "furnishing") {
+    const { count } = await supabase
+      .from("service_provider_packages")
+      .select("id", { count: "exact", head: true })
+      .eq("provider_id", provider.id);
+    hasPackages = (count ?? 0) > 0;
+  }
+
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">Business Details</h1>
@@ -46,6 +56,17 @@ export default async function PartnersProfilePage() {
         <div className="mt-4 rounded-card border border-line bg-linen p-4 text-sm text-ink">
           Welcome! Fill in your business details below so investors know who they&apos;re
           dealing with.
+        </div>
+      )}
+
+      {!hasPackages && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-line bg-linen p-4 text-sm text-ink">
+          <span>
+            Add your furniture packages so investors can compare pricing before they message you.
+          </span>
+          <Link href="/partners/packages" className="shrink-0 underline underline-offset-4">
+            Add packages
+          </Link>
         </div>
       )}
 

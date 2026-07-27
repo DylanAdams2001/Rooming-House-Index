@@ -1460,3 +1460,61 @@ create policy "Authenticated users can upload their own message attachments"
   on storage.objects for insert
   to authenticated
   with check (bucket_id = 'message-attachments' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ─────────────────────────────────────────────────────────────
+-- service_provider_packages
+-- Named, priced packages a provider shows on their public profile — built
+-- for furnishing (investors compare furniture packages before ever
+-- messaging), but not restricted to that category at the database level in
+-- case another category wants the same thing later.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.service_provider_packages (
+  id uuid primary key default gen_random_uuid(),
+  provider_id uuid not null references public.service_providers (id) on delete cascade,
+  label text not null,
+  price text not null,
+  description text,
+  document_url text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.service_provider_packages enable row level security;
+
+create policy "Anyone can view packages for approved providers"
+  on public.service_provider_packages for select
+  using (exists (
+    select 1 from public.service_providers p
+    where p.id = service_provider_packages.provider_id and p.status = 'approved'
+  ));
+
+create policy "Providers can manage their own packages"
+  on public.service_provider_packages for all
+  using (exists (
+    select 1 from public.service_providers p
+    where p.id = service_provider_packages.provider_id and p.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.service_providers p
+    where p.id = service_provider_packages.provider_id and p.user_id = auth.uid()
+  ));
+
+create index if not exists service_provider_packages_provider_id_idx
+  on public.service_provider_packages (provider_id);
+
+insert into storage.buckets (id, name, public)
+values ('package-documents', 'package-documents', true)
+on conflict (id) do nothing;
+
+create policy "Anyone can view package documents"
+  on storage.objects for select
+  using (bucket_id = 'package-documents');
+
+create policy "Providers can upload their own package documents"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'package-documents' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Providers can update their own package documents"
+  on storage.objects for update
+  to authenticated
+  using (bucket_id = 'package-documents' and (storage.foldername(name))[1] = auth.uid()::text);
