@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, X } from "lucide-react";
+import { Check, FileText, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export type QuoteCardData = {
   id: string;
@@ -12,17 +15,30 @@ export type QuoteCardData = {
   flatFee: string | null;
   notes: string | null;
   documentUrl: string | null;
+  accepted?: boolean;
 };
 
-export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestId?: string }) {
+export function QuoteCard({
+  quote,
+  requestId,
+  // Whether any quote on this request has already been accepted — hides
+  // the Accept button on every other (non-accepted) card once one is
+  // chosen, since only one provider can be accepted per request.
+  anyAccepted = false,
+}: {
+  quote: QuoteCardData;
+  requestId?: string;
+  anyAccepted?: boolean;
+}) {
   const router = useRouter();
+  const supabase = createClient();
   const [open, setOpen] = useState(false);
+  const [accepting, setAccepting] = useState(false);
   const fee = quote.monthlyFeePct ? `${quote.monthlyFeePct}% of rent per year` : quote.flatFee ?? "Quote provided";
 
   function handleOpen() {
     setOpen(true);
     if (requestId) {
-      const supabase = createClient();
       supabase
         .from("service_quote_requests")
         .update({ quotes_viewed_at: new Date().toISOString() })
@@ -36,15 +52,31 @@ export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestI
     }
   }
 
+  async function handleAccept() {
+    if (!confirm(`Accept ${quote.providerName}'s quote? This closes the request to other providers.`)) return;
+    setAccepting(true);
+    const { error } = await supabase.rpc("accept_quote", { p_quote_id: quote.id });
+    setAccepting(false);
+    if (!error) router.refresh();
+  }
+
   return (
     <>
       <button
         type="button"
         onClick={handleOpen}
-        className="flex w-full flex-col gap-1 rounded-btn border border-line p-4 text-left transition-colors hover:border-ink hover:bg-linen sm:flex-row sm:items-center sm:justify-between"
+        className={cn(
+          "flex w-full flex-col gap-1 rounded-btn border p-4 text-left transition-colors hover:border-ink hover:bg-linen sm:flex-row sm:items-center sm:justify-between",
+          quote.accepted ? "border-green-600 bg-green-50" : "border-line"
+        )}
       >
         <div>
-          <p className="font-display text-base text-ink">{quote.providerName}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-display text-base text-ink">{quote.providerName}</p>
+            {quote.accepted && (
+              <Badge className="border-green-600 bg-green-600 text-white">Accepted</Badge>
+            )}
+          </div>
           {quote.notes && <p className="mt-0.5 line-clamp-1 text-sm text-body">{quote.notes}</p>}
         </div>
         <p className="font-display text-lg text-ink">{fee}</p>
@@ -85,6 +117,23 @@ export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestI
                 <FileText className="h-4 w-4" />
                 View quote document
               </a>
+            )}
+
+            {requestId && (
+              <>
+                {quote.accepted ? (
+                  <div className="mt-5 flex items-center gap-2 rounded-btn border border-green-600 bg-green-50 px-4 py-2.5 text-sm text-green-700">
+                    <Check className="h-4 w-4" />
+                    You&apos;ve accepted this quote
+                  </div>
+                ) : (
+                  !anyAccepted && (
+                    <Button className="mt-5 w-full" onClick={handleAccept} disabled={accepting}>
+                      {accepting ? "Accepting…" : "Accept this quote"}
+                    </Button>
+                  )
+                )}
+              </>
             )}
           </div>
         </div>

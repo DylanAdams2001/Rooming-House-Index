@@ -52,7 +52,7 @@ export default async function AdminQuotesPage() {
     requestIds.length > 0
       ? supabase
           .from("service_quote_quotes")
-          .select("id, request_id, provider_id, provider_name, monthly_fee_pct, flat_fee")
+          .select("id, request_id, provider_id, provider_name, monthly_fee_pct, flat_fee, accepted")
           .in("request_id", requestIds)
       : Promise.resolve({ data: [] }),
     requestIds.length > 0
@@ -124,7 +124,12 @@ export default async function AdminQuotesPage() {
                           : quote.flat_fee ?? "Quote provided";
                         const row = (
                           <div className="flex items-center justify-between rounded-btn border border-line p-3 text-sm">
-                            <span className="text-ink">{quote.provider_name}</span>
+                            <span className="flex items-center gap-2 text-ink">
+                              {quote.provider_name}
+                              {quote.accepted && (
+                                <Badge className="border-green-600 bg-green-600 text-white">Accepted</Badge>
+                              )}
+                            </span>
                             <span className="text-muted">{fee}</span>
                           </div>
                         );

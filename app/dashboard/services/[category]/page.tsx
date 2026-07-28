@@ -21,6 +21,7 @@ type Quote = {
   notes: string | null;
   document_url: string | null;
   created_at: string;
+  accepted: boolean;
 };
 
 type Request = {
@@ -134,6 +135,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                             <QuoteCard
                               key={quote.id}
                               requestId={request.id}
+                              anyAccepted={request.service_quote_quotes.some((q) => q.accepted)}
                               quote={{
                                 id: quote.id,
                                 providerName: quote.provider_name,
@@ -141,6 +143,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                                 flatFee: quote.flat_fee,
                                 notes: quote.notes,
                                 documentUrl: quote.document_url,
+                                accepted: quote.accepted,
                               }}
                             />
                           ))}

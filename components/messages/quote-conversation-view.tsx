@@ -86,10 +86,20 @@ export async function QuoteConversationView({
 
   const { data: submittedQuote } = await supabase
     .from("service_quote_quotes")
-    .select("id, monthly_fee_pct, flat_fee, notes, document_url")
+    .select("id, monthly_fee_pct, flat_fee, notes, document_url, accepted")
     .eq("request_id", requestId)
     .eq("provider_id", providerId)
     .maybeSingle();
+
+  let anyAccepted = false;
+  if (perspective === "investor" && section === "quote") {
+    const { count } = await supabase
+      .from("service_quote_quotes")
+      .select("id", { count: "exact", head: true })
+      .eq("request_id", requestId)
+      .eq("accepted", true);
+    anyAccepted = (count ?? 0) > 0;
+  }
 
   const existingQuote: ExistingQuote | null = submittedQuote
     ? {
@@ -134,6 +144,8 @@ export async function QuoteConversationView({
           {perspective === "investor" && submittedQuote && (
             <div className="mb-4">
               <QuoteCard
+                requestId={requestId}
+                anyAccepted={anyAccepted}
                 quote={{
                   id: submittedQuote.id,
                   providerName: provider?.business_name ?? "Provider",
@@ -141,6 +153,7 @@ export async function QuoteConversationView({
                   flatFee: submittedQuote.flat_fee,
                   notes: submittedQuote.notes,
                   documentUrl: submittedQuote.document_url,
+                  accepted: submittedQuote.accepted,
                 }}
               />
             </div>

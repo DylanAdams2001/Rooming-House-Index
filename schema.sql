@@ -1539,3 +1539,41 @@ create policy "Users can view and manage their own seen hints"
   on public.user_seen_hints for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- Let an investor accept one quote per request. No new RLS policy on
+-- service_quote_quotes for this — the security definer function below is
+-- the one and only path that can flip `accepted`, checking ownership via
+-- auth.uid() itself rather than widening direct table access.
+-- ─────────────────────────────────────────────────────────────
+alter table public.service_quote_quotes add column if not exists accepted boolean not null default false;
+
+create or replace function public.accept_quote(p_quote_id uuid)
+returns void
+language plpgsql
+security definer
+as $$
+declare
+  v_request_id uuid;
+begin
+  select q.request_id into v_request_id
+  from public.service_quote_quotes q
+  join public.service_quote_requests r on r.id = q.request_id
+  where q.id = p_quote_id and r.user_id = auth.uid();
+
+  if v_request_id is null then
+    raise exception 'Quote not found or not yours to accept.';
+  end if;
+
+  -- Exclusive per request — accepting one quote un-accepts any other.
+  update public.service_quote_quotes
+  set accepted = (id = p_quote_id)
+  where request_id = v_request_id;
+
+  update public.service_quote_requests
+  set status = 'closed'
+  where id = v_request_id;
+end;
+$$;
+
+grant execute on function public.accept_quote(uuid) to authenticated;
