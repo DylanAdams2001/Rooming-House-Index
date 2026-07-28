@@ -158,11 +158,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                                   )
                                 ) : undefined
                               }
-                              nextStepsMessage={
-                                category.dbCategory === "building"
-                                  ? "The Rooming House Standard team will be in touch shortly to help finalise the details."
-                                  : undefined
-                              }
+                              nextStepsContact={category.dbCategory === "building" ? "the builder" : undefined}
                               quote={{
                                 id: quote.id,
                                 providerName: quote.provider_name,
