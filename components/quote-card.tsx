@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, FileText, X } from "lucide-react";
+import { Check, ChevronRight, FileText, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +84,10 @@ export function QuoteCard({
           </div>
           {quote.notes && <p className="mt-0.5 line-clamp-1 text-sm text-body">{quote.notes}</p>}
         </div>
-        <p className="font-display text-lg text-ink">{fee}</p>
+        <span className="flex items-center gap-1 text-sm font-medium text-ink">
+          View quote
+          <ChevronRight className="h-4 w-4" />
+        </span>
       </button>
 
       {open && (

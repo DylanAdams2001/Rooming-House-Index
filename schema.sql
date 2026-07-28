@@ -1617,6 +1617,10 @@ create table if not exists public.building_price_tiers (
   -- Investor-facing blurb, different per tier so 3 auto-generated quotes
   -- read like distinct submissions rather than 3 bare numbers.
   notes text,
+  -- An actual quote PDF, not just the notes text above — this is what
+  -- shows as "View quote document" on each generated quote, same as a
+  -- regular provider-submitted quote elsewhere.
+  document_url text,
   internal_note text,
   sort_order integer not null default 0,
   -- Per-tier delay before it becomes visible to the investor — 0 for
@@ -1636,9 +1640,9 @@ create policy "Admins can manage building price tiers"
 -- Seed today's 3 prices for the only bedroom count currently priced.
 insert into public.building_price_tiers (bedroom_count, label, price, notes, sort_order)
 values
-  (9, 'Quote 1', 780, 'Straightforward turnkey build with a standard finish package and the fastest available start date.', 0),
-  (9, 'Quote 2', 800, 'Turnkey build with upgraded fixtures throughout and flexible scheduling.', 1),
-  (9, 'Quote 3', 820, 'Turnkey build with premium finishes and priority sequencing to lock in the earliest completion.', 2);
+  (9, 'Quote 1', 780000, 'Straightforward turnkey build with a standard finish package and the fastest available start date.', 0),
+  (9, 'Quote 2', 800000, 'Turnkey build with upgraded fixtures throughout and flexible scheduling.', 1),
+  (9, 'Quote 3', 820000, 'Turnkey build with premium finishes and priority sequencing to lock in the earliest completion.', 2);
 
 -- Auto-populates a new Building request's 3 quotes straight from whatever's
 -- currently configured — this is the entire quote-sourcing mechanism for
@@ -1651,18 +1655,20 @@ security definer
 as $$
 begin
   if new.category = 'building' and new.number_of_rooms is not null then
-    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, notes, internal_note, visible_at)
+    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, notes, document_url, internal_note, visible_at)
     select
       new.id,
       null,
       t.label,
-      -- price::text on a bare numeric like 780 already renders as "780" with
-      -- no decimal point — the previous trim(trailing '.00' from ...) call
-      -- was wrong anyway (trim treats its argument as a set of characters,
-      -- not a literal suffix, so it was stripping trailing '0' digits off
-      -- the actual price: 780 -> "78", 800 -> "8", 820 -> "82").
-      '$' || t.price::text,
+      -- to_char with thousands separators — a plain price::text on a
+      -- 6-figure amount like 780000 would render as "$780000" with no
+      -- comma. (Earlier version of this used trim(trailing '.00' from
+      -- price::text), which was actually a bug: trim's argument is a set
+      -- of characters to strip, not a literal suffix, so it was chewing
+      -- trailing '0' digits off the real price.)
+      '$' || to_char(t.price, 'FM999,999,999'),
       t.notes,
+      t.document_url,
       t.internal_note,
       new.created_at + (t.reveal_delay_minutes || ' minutes')::interval
     from public.building_price_tiers t
@@ -1678,11 +1684,16 @@ create trigger on_building_quote_request_insert
   for each row execute procedure public.auto_populate_building_quotes();
 
 -- Fixes any quotes already created by the buggy version of the trigger
--- above (wrong flat_fee text, missing notes) — matches back to the tier by
--- label + bedroom count rather than assuming specific row ids.
+-- above (wrong flat_fee text, missing notes/document) — matches back to
+-- the tier by label + bedroom count rather than assuming specific row ids.
+-- (The update target's alias can only be referenced in WHERE, not inside a
+-- nested JOIN...ON — hence the comma-join here instead.)
 update public.service_quote_quotes q
-set flat_fee = '$' || t.price::text,
-    notes = coalesce(q.notes, t.notes)
-from public.building_price_tiers t
-join public.service_quote_requests r on r.id = q.request_id
-where r.category = 'building' and q.provider_name = t.label and r.number_of_rooms = t.bedroom_count;
+set flat_fee = '$' || to_char(t.price, 'FM999,999,999'),
+    notes = coalesce(q.notes, t.notes),
+    document_url = coalesce(q.document_url, t.document_url)
+from public.building_price_tiers t, public.service_quote_requests r
+where r.id = q.request_id
+  and r.category = 'building'
+  and q.provider_name = t.label
+  and r.number_of_rooms = t.bedroom_count;
