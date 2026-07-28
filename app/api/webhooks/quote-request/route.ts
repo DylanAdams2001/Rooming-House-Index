@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     type: string;
     record: {
       id: string;
+      user_id: string;
       category: string;
       property_address: string;
       number_of_rooms: number | null;
@@ -42,9 +43,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const { category, property_address, number_of_rooms, notes } = payload.record;
+  const { user_id, category, property_address, number_of_rooms, notes } = payload.record;
   const supabase = createServiceRoleClient();
   const resend = new Resend(apiKey);
+
+  const { data: client } = await supabase
+    .from("users")
+    .select("full_name, email, phone")
+    .eq("id", user_id)
+    .maybeSingle();
 
   // Driven by lib/service-categories.ts's quoteBased flag rather than a
   // hardcoded list — any category flipped to quoteBased (e.g. Building)
@@ -76,6 +83,9 @@ export async function POST(req: Request) {
       items: [
         ...(number_of_rooms ? [`${number_of_rooms} rooms`] : []),
         ...(notes ? [`Notes: ${notes}`] : []),
+        ...(client?.full_name ? [`Client: ${client.full_name}`] : []),
+        ...(client?.email ? [`Email: ${client.email}`] : []),
+        ...(client?.phone ? [`Phone: ${client.phone}`] : []),
       ],
     },
     {
