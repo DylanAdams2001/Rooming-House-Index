@@ -122,9 +122,14 @@ export function QuoteCard({
             {requestId && (
               <>
                 {quote.accepted ? (
-                  <div className="mt-5 flex items-center gap-2 rounded-btn border border-green-600 bg-green-50 px-4 py-2.5 text-sm text-green-700">
-                    <Check className="h-4 w-4" />
-                    You&apos;ve accepted this quote
+                  <div className="mt-5 rounded-btn border border-green-600 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    <p className="flex items-center gap-2 font-medium">
+                      <Check className="h-4 w-4" />
+                      You&apos;ve accepted this quote
+                    </p>
+                    <p className="mt-1 text-green-700/90">
+                      The Rooming House Standard team will be in touch shortly to help finalise the details.
+                    </p>
                   </div>
                 ) : (
                   !anyAccepted && (
