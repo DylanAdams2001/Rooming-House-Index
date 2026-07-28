@@ -32,7 +32,7 @@ const INCLUSION_GROUPS: { heading: string; items: string[] }[] = [
   {
     heading: "Plumbing, hot water & climate",
     items: [
-      "Stormwater/sewer connection, three-phase power",
+      "Stormwater/sewer connection, three-phase power (up to $5,000 allowance)",
       "Heat pump hot water system",
       "Reverse-cycle split system air conditioning to every bedroom and communal area",
     ],
