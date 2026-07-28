@@ -56,7 +56,7 @@ export default async function PartnersQuotesPage() {
 
   return (
     <div>
-      <Hint hintKey="partners-quotes" title="Quote Requests">
+      <Hint hintKey="partners-quotes" title="Quote Requests" image="/hints/partners-quotes.png">
         <p>Every investor in your category who&apos;s requesting quotes shows up here — a red dot means you haven&apos;t opened it yet.</p>
         <p>Click into one to submit your price and start a conversation about it.</p>
       </Hint>

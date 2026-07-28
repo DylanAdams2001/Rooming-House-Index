@@ -20,7 +20,7 @@ export default async function ServicesPage() {
 
   return (
     <div>
-      <Hint hintKey="dashboard-services" title="Services">
+      <Hint hintKey="dashboard-services" title="Services" image="/hints/dashboard-services.jpg">
         <p>
           Vetted insurance, legal, maintenance, and other providers for running a rooming
           house.

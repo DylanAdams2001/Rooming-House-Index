@@ -49,7 +49,7 @@ export default function MarketOverviewPage() {
 
   return (
     <div>
-      <Hint hintKey="dashboard-market" title="Market Overview">
+      <Hint hintKey="dashboard-market" title="Market Overview" image="/hints/dashboard-market.jpg">
         <p>Compare every tracked suburb side by side on room rate, demand, and supply.</p>
         <p>Sort by any column to spot where yields are strongest right now.</p>
       </Hint>
