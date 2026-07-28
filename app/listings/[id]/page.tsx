@@ -7,12 +7,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ListingPhoto } from "@/components/listing-photo";
 import { ListingGallery } from "@/components/listing-gallery";
+import { ListingBackLink } from "@/components/listing-back-link";
 import { ListingMapDynamic as ListingMap } from "@/components/map/listing-map-dynamic";
 import { EnquireButton } from "@/components/enquire-button";
 import { SaveListingButton } from "@/components/save-listing-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CalendarClock } from "lucide-react";
+import { CalendarClock } from "lucide-react";
 
 // A live, admin-moderated table can't be enumerated at build time — dynamic
 // rendering instead of generateStaticParams/ISR keeps a newly-approved
@@ -32,13 +33,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
       <main className="flex-1 bg-offwhite">
         <div className="container-page py-10">
-          <Link
-            href={`/listings?suburb=${listing.suburbId}`}
-            className="mb-6 flex items-center gap-2 text-sm text-body hover:text-ink"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to {listing.suburbName} listings
-          </Link>
+          <ListingBackLink />
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">

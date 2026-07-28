@@ -92,10 +92,21 @@ export function ServiceQuoteRequestForm({
   // would only ever gatekeep genuinely interested investors who are still
   // land-shopping — the land-status field above is the real readiness signal.
   const addressRequired = !isBuilding;
+  // The whole auto-populate-quotes trigger keys off number_of_rooms matching
+  // a configured building_price_tiers row — leaving this unselected silently
+  // submits a request with number_of_rooms=null, which the trigger's "is not
+  // null" check just skips, leaving the request permanently stuck at 0
+  // quotes with no error shown. Must be required, not just encouraged.
+  const bedroomCountRequired = isBuilding;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (lockRef.current || (addressRequired && !propertyAddress.trim())) return;
+    if (
+      lockRef.current ||
+      (addressRequired && !propertyAddress.trim()) ||
+      (bedroomCountRequired && !numberOfRooms)
+    )
+      return;
     lockRef.current = true;
     setError(null);
     setStatus("checking");
@@ -244,7 +255,12 @@ export function ServiceQuoteRequestForm({
           "w-full transition-colors duration-300",
           status === "success" && "bg-green-600 hover:bg-green-600"
         )}
-        disabled={busy || hasPending || (addressRequired && !propertyAddress.trim())}
+        disabled={
+          busy ||
+          hasPending ||
+          (addressRequired && !propertyAddress.trim()) ||
+          (bedroomCountRequired && !numberOfRooms)
+        }
       >
         {status === "checking" && (
           <>
