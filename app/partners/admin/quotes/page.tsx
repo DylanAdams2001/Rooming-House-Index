@@ -78,9 +78,17 @@ export default async function AdminQuotesPage() {
         <p>Click any submitted quote to jump straight into that conversation.</p>
       </Hint>
 
-      <div className="flex items-center gap-2">
-        <FileText className="h-6 w-6 text-ink" />
-        <h1 className="font-display text-3xl text-ink">All Quotes</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <FileText className="h-6 w-6 text-ink" />
+          <h1 className="font-display text-3xl text-ink">All Quotes</h1>
+        </div>
+        <Link
+          href="/partners/admin/building-pricing"
+          className="text-sm text-ink underline underline-offset-4"
+        >
+          Manage Building pricing
+        </Link>
       </div>
       <p className="mt-2 text-body">
         Every quote request across every category, and the quotes submitted against each one.

@@ -21,9 +21,10 @@ const DEFAULT_TIERS: TierState[] = [
 // hour rather than a database dump, per the requested 20/40/60 min spacing.
 const STAGGER_MINUTES = [20, 40, 60];
 
-// Admin-only: batch-enters up to 3 anonymised price options for a Building
-// request in one go. Builders never see the request or submit anything
-// themselves — this is the whole quote-sourcing mechanism for that category.
+// Admin-only manual fallback — normally a new Building request auto-populates
+// its 3 quotes from building_price_tiers (see /partners/admin/building-pricing)
+// the moment it's submitted. This only ever shows when that didn't happen,
+// e.g. a bedroom count with no price tier configured yet.
 export function AdminBuildingQuoteForm({ requestId }: { requestId: string }) {
   const router = useRouter();
   const supabase = createClient();
@@ -66,7 +67,13 @@ export function AdminBuildingQuoteForm({ requestId }: { requestId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-3 space-y-4 rounded-btn border border-line bg-offwhite p-4">
-      <p className="text-sm font-medium text-ink">Add price options (builder identity stays internal-only)</p>
+      <p className="text-sm font-medium text-ink">
+        No pricing configured for this bedroom count yet — add options manually, or set one up in{" "}
+        <a href="/partners/admin/building-pricing" className="underline underline-offset-4">
+          Building Pricing
+        </a>{" "}
+        for it to auto-apply next time.
+      </p>
 
       {tiers.map((tier, i) => (
         <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-3">

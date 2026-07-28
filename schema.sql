@@ -1600,3 +1600,70 @@ alter table public.service_quote_quotes add column if not exists internal_note t
 -- at once — feels like independent quotes coming in over time. Defaults to
 -- "right now" so every existing/instant-submission path is unaffected.
 alter table public.service_quote_quotes add column if not exists visible_at timestamptz not null default now();
+
+-- ─────────────────────────────────────────────────────────────
+-- building_price_tiers
+-- The 3 fixed, anonymised price options for Building, keyed by bedroom
+-- count. These barely change (every ~6 months or so) — every new Building
+-- request auto-populates its 3 quotes from whatever's configured here at
+-- that moment, rather than admin re-entering the same 3 prices by hand
+-- every time. Manage from /partners/admin/building-pricing.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.building_price_tiers (
+  id uuid primary key default gen_random_uuid(),
+  bedroom_count integer not null,
+  label text not null,
+  price numeric not null,
+  internal_note text,
+  sort_order integer not null default 0,
+  -- Per-tier delay before it becomes visible to the investor — 0 for
+  -- immediate (current testing setup); set to 20/40/60 across the 3 tiers
+  -- later to stagger them without any code change.
+  reveal_delay_minutes integer not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.building_price_tiers enable row level security;
+
+create policy "Admins can manage building price tiers"
+  on public.building_price_tiers for all
+  using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
+
+-- Seed today's 3 prices for the only bedroom count currently priced.
+insert into public.building_price_tiers (bedroom_count, label, price, sort_order)
+values
+  (9, 'Option 1', 780, 0),
+  (9, 'Option 2', 800, 1),
+  (9, 'Option 3', 820, 2);
+
+-- Auto-populates a new Building request's 3 quotes straight from whatever's
+-- currently configured — this is the entire quote-sourcing mechanism for
+-- Building now, not the admin-entry form (kept only as a manual fallback
+-- for a bedroom count with no tiers configured yet).
+create or replace function public.auto_populate_building_quotes()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  if new.category = 'building' and new.number_of_rooms is not null then
+    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, internal_note, visible_at)
+    select
+      new.id,
+      null,
+      t.label,
+      '$' || trim(trailing '.00' from t.price::text),
+      t.internal_note,
+      new.created_at + (t.reveal_delay_minutes || ' minutes')::interval
+    from public.building_price_tiers t
+    where t.bedroom_count = new.number_of_rooms
+    order by t.sort_order;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger on_building_quote_request_insert
+  after insert on public.service_quote_requests
+  for each row execute procedure public.auto_populate_building_quotes();
