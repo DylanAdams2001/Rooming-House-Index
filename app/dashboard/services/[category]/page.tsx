@@ -21,6 +21,7 @@ type Quote = {
   flat_fee: string | null;
   notes: string | null;
   document_url: string | null;
+  inclusions_text: string | null;
   created_at: string;
   accepted: boolean;
   visible_at: string;
@@ -149,7 +150,13 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                               requestId={request.id}
                               anyAccepted={request.service_quote_quotes.some((q) => q.accepted)}
                               inclusions={
-                                category.dbCategory === "building" ? <BuildingInclusionsContent /> : undefined
+                                category.dbCategory === "building" ? (
+                                  quote.inclusions_text ? (
+                                    <p className="whitespace-pre-line text-sm text-body">{quote.inclusions_text}</p>
+                                  ) : (
+                                    <BuildingInclusionsContent />
+                                  )
+                                ) : undefined
                               }
                               nextStepsContact={category.dbCategory === "building" ? "the builder" : undefined}
                               quote={{

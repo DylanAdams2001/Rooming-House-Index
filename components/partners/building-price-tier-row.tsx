@@ -15,6 +15,7 @@ export type BuildingPriceTier = {
   price: number;
   notes: string | null;
   documentUrl: string | null;
+  inclusionsText: string | null;
   internalNote: string | null;
   revealDelayMinutes: number;
 };
@@ -26,6 +27,7 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
   const [price, setPrice] = useState(String(tier.price));
   const [notes, setNotes] = useState(tier.notes ?? "");
   const [documentUrl, setDocumentUrl] = useState<string | null>(tier.documentUrl);
+  const [inclusionsText, setInclusionsText] = useState(tier.inclusionsText ?? "");
   const [internalNote, setInternalNote] = useState(tier.internalNote ?? "");
   const [revealDelayMinutes, setRevealDelayMinutes] = useState(String(tier.revealDelayMinutes));
   const [uploading, setUploading] = useState(false);
@@ -71,6 +73,7 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
         price: Number(price),
         notes: notes.trim() || null,
         document_url: documentUrl,
+        inclusions_text: inclusionsText.trim() || null,
         internal_note: internalNote.trim() || null,
         reveal_delay_minutes: Number(revealDelayMinutes) || 0,
         updated_at: new Date().toISOString(),
@@ -123,6 +126,18 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="A short blurb describing this quote — keep each of the 3 different."
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">
+          Inclusions, in this builder&apos;s own words (leave blank to use the generic list)
+        </Label>
+        <Textarea
+          rows={6}
+          value={inclusionsText}
+          onChange={(e) => setInclusionsText(e.target.value)}
+          placeholder="Same underlying scope as the other quotes — just worded the way this builder would describe it."
         />
       </div>
 

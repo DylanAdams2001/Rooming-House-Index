@@ -1621,6 +1621,13 @@ create table if not exists public.building_price_tiers (
   -- shows as "View quote document" on each generated quote, same as a
   -- regular provider-submitted quote elsewhere.
   document_url text,
+  -- Full "what's included" writeup in this builder's own words — same
+  -- underlying scope across all 3 tiers (they're not different quality
+  -- levels, just different builders/prices for the same job), but worded
+  -- differently per tier so it doesn't read as one list copy-pasted three
+  -- times. Falls back to the generic BuildingInclusionsContent component
+  -- if left blank.
+  inclusions_text text,
   internal_note text,
   sort_order integer not null default 0,
   -- Per-tier delay before it becomes visible to the investor — 0 for
@@ -1655,7 +1662,7 @@ security definer
 as $$
 begin
   if new.category = 'building' and new.number_of_rooms is not null then
-    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, notes, document_url, internal_note, visible_at)
+    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, notes, document_url, inclusions_text, internal_note, visible_at)
     select
       new.id,
       null,
@@ -1669,6 +1676,7 @@ begin
       '$' || to_char(t.price, 'FM999,999,999'),
       t.notes,
       t.document_url,
+      t.inclusions_text,
       t.internal_note,
       new.created_at + (t.reveal_delay_minutes || ' minutes')::interval
     from public.building_price_tiers t
@@ -1691,7 +1699,8 @@ create trigger on_building_quote_request_insert
 update public.service_quote_quotes q
 set flat_fee = '$' || to_char(t.price, 'FM999,999,999'),
     notes = coalesce(q.notes, t.notes),
-    document_url = coalesce(q.document_url, t.document_url)
+    document_url = coalesce(q.document_url, t.document_url),
+    inclusions_text = coalesce(q.inclusions_text, t.inclusions_text)
 from public.building_price_tiers t, public.service_quote_requests r
 where r.id = q.request_id
   and r.category = 'building'
