@@ -120,7 +120,7 @@ export default async function AdminQuotesPage() {
                           `${quote.request_id}:${quote.provider_id}`
                         );
                         const fee = quote.monthly_fee_pct
-                          ? `${quote.monthly_fee_pct}% of rent`
+                          ? `${quote.monthly_fee_pct}% of rent per year`
                           : quote.flat_fee ?? "Quote provided";
                         const row = (
                           <div className="flex items-center justify-between rounded-btn border border-line p-3 text-sm">

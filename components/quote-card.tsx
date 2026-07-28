@@ -17,7 +17,7 @@ export type QuoteCardData = {
 export function QuoteCard({ quote, requestId }: { quote: QuoteCardData; requestId?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const fee = quote.monthlyFeePct ? `${quote.monthlyFeePct}% of rent` : quote.flatFee ?? "Quote provided";
+  const fee = quote.monthlyFeePct ? `${quote.monthlyFeePct}% of rent per year` : quote.flatFee ?? "Quote provided";
 
   function handleOpen() {
     setOpen(true);

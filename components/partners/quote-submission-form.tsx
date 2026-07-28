@@ -155,7 +155,7 @@ export function QuoteSubmissionForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="monthly_pct">% of rent (monthly)</SelectItem>
+            <SelectItem value="monthly_pct">% of rent (yearly)</SelectItem>
             <SelectItem value="flat">Flat fee</SelectItem>
           </SelectContent>
         </Select>
@@ -163,7 +163,7 @@ export function QuoteSubmissionForm({
 
       {feeType === "monthly_pct" ? (
         <div className="space-y-2">
-          <Label htmlFor="monthlyFeePct">Monthly fee (%)</Label>
+          <Label htmlFor="monthlyFeePct">Yearly fee (%)</Label>
           <Input
             id="monthlyFeePct"
             type="number"
