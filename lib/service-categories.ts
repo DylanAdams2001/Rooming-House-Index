@@ -86,7 +86,7 @@ export const serviceCategories: ServiceCategory[] = [
     dbCategory: "building",
     label: "Building",
     comingSoon: false,
-    description: "Tell us about your build or renovation and we'll bring back multiple quotes from builders.",
+    description: "Tell us about your build or renovation and we'll bring back multiple quotes direct from builders.",
     quoteBased: true,
     adminManagedQuotes: true,
     credentialFields: [
