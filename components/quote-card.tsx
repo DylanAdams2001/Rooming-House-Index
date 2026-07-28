@@ -146,9 +146,16 @@ export function QuoteCard({
                   </div>
                 ) : (
                   !anyAccepted && (
-                    <Button className="mt-5 w-full" onClick={handleAccept} disabled={accepting}>
-                      {accepting ? "Accepting…" : "Accept this quote"}
-                    </Button>
+                    <div className="mt-5 space-y-2">
+                      <p className="rounded-btn border border-line bg-offwhite p-3 text-xs text-muted">
+                        No commitment yet — accepting just lets our team know this is the one
+                        you&apos;d like to go with, so we can reach out and walk through next
+                        steps together.
+                      </p>
+                      <Button className="w-full" onClick={handleAccept} disabled={accepting}>
+                        {accepting ? "Accepting…" : "Accept this quote"}
+                      </Button>
+                    </div>
                   )
                 )}
               </>
