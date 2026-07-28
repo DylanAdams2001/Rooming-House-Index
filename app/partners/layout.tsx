@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PartnersSidebar } from "@/components/partners/sidebar";
 import { PartnersTopbar } from "@/components/partners/topbar";
 import { HintProvider } from "@/components/hints/hint-provider";
+import { PageTransition } from "@/components/page-transition";
 
 export default async function PartnersLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
@@ -108,7 +109,7 @@ export default async function PartnersLayout({ children }: { children: React.Rea
             unreadMessageCount={unreadMessageCount}
           />
           <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </main>
         </div>
       </div>

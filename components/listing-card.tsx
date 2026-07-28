@@ -9,23 +9,30 @@ import { getListingTitle, type RoomListing } from "@/lib/mock-listings";
 
 export function ListingCard({ listing }: { listing: RoomListing }) {
   return (
-    <Card className="flex flex-col overflow-hidden">
+    <Card className="group flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
       {listing.photos?.[0] ? (
-        <div className="relative h-40 w-full">
+        <div className="relative h-40 w-full overflow-hidden">
           <Image
             src={listing.photos[0]}
             alt={`${listing.roomType} room in ${listing.suburbName}`}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
       ) : (
-        <ListingPhoto seed={listing.id} className="h-40 w-full" />
+        <div className="h-40 w-full overflow-hidden">
+          <ListingPhoto
+            seed={listing.id}
+            className="h-40 w-full transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
       )}
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-display text-xl text-ink">{getListingTitle(listing)}</h3>
+            <h3 className="font-display text-xl text-ink transition-colors group-hover:text-body">
+              {getListingTitle(listing)}
+            </h3>
             <p className="text-sm text-muted">{listing.roomType} room · {listing.suburbName}</p>
           </div>
           <Badge variant="outline">{listing.availableFrom}</Badge>

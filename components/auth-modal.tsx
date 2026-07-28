@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
+import { cn } from "@/lib/utils";
 
 export function AuthModal({
   onClose,
@@ -14,14 +15,30 @@ export function AuthModal({
   initialMode?: "login" | "signup";
 }) {
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
+  const [closing, setClosing] = useState(false);
+
+  function handleClose() {
+    setClosing(true);
+    setTimeout(onClose, 150);
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-ink/40" onClick={onClose} aria-hidden="true" />
-      <div className="relative w-full max-w-sm rounded-card border border-line bg-white p-8">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex items-center justify-center p-4 duration-150",
+        closing ? "animate-out fade-out" : "animate-in fade-in"
+      )}
+    >
+      <div className="fixed inset-0 bg-ink/40" onClick={handleClose} aria-hidden="true" />
+      <div
+        className={cn(
+          "relative w-full max-w-sm rounded-card border border-line bg-white p-8 duration-150",
+          closing ? "animate-out fade-out zoom-out-95" : "animate-in fade-in zoom-in-95"
+        )}
+      >
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Close"
           className="absolute right-4 top-4 text-muted transition-colors hover:text-ink"
         >

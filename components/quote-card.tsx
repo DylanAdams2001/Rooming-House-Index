@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronRight, FileText, X } from "lucide-react";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +49,7 @@ export function QuoteCard({
   const router = useRouter();
   const supabase = createClient();
   const [open, setOpen] = useState(false);
+  const [closingModal, setClosingModal] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const fee = quote.monthlyFeePct ? `${quote.monthlyFeePct}% of rent per year` : quote.flatFee ?? "Quote provided";
 
@@ -67,12 +69,25 @@ export function QuoteCard({
     }
   }
 
+  function closeModal() {
+    setClosingModal(true);
+    setTimeout(() => {
+      setOpen(false);
+      setClosingModal(false);
+    }, 150);
+  }
+
   async function handleAccept() {
     if (!confirm(`Accept ${quote.providerName}'s quote? This closes the request to other providers.`)) return;
     setAccepting(true);
     const { error } = await supabase.rpc("accept_quote", { p_quote_id: quote.id });
     setAccepting(false);
-    if (!error) router.refresh();
+    if (error) {
+      toast.error("Couldn't accept this quote", { description: error.message });
+      return;
+    }
+    toast.success(`Accepted ${quote.providerName}'s quote`);
+    router.refresh();
   }
 
   return (
@@ -100,14 +115,18 @@ export function QuoteCard({
         </span>
       </button>
 
-      {open && (
+      {(open || closingModal) && (
         <div
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-ink/40 p-4"
-          onClick={() => setOpen(false)}
+          className={cn(
+            "fixed inset-0 z-[2000] flex items-center justify-center bg-ink/40 p-4 duration-150",
+            closingModal ? "animate-out fade-out" : "animate-in fade-in"
+          )}
+          onClick={closeModal}
         >
           <div
             className={cn(
-              "w-full max-h-[85vh] overflow-y-auto rounded-card border border-line bg-white p-6",
+              "w-full max-h-[85vh] overflow-y-auto rounded-card border border-line bg-white p-6 duration-150",
+              closingModal ? "animate-out fade-out zoom-out-95" : "animate-in fade-in zoom-in-95",
               inclusions ? "max-w-lg" : "max-w-md"
             )}
             onClick={(e) => e.stopPropagation()}
@@ -116,7 +135,7 @@ export function QuoteCard({
               <p className="font-display text-xl text-ink">{quote.providerName}</p>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeModal}
                 aria-label="Close"
                 className="text-muted hover:text-ink"
               >

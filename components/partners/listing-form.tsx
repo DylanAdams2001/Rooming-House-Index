@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Check, Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const ROOM_TYPES = ["Single", "Shared"] as const;
@@ -128,6 +129,7 @@ export function ListingForm({
 
       if (uploadError) {
         setError("Couldn't upload one or more photos — please try again.");
+        toast.error("Couldn't upload one or more photos");
         continue;
       }
 
@@ -213,10 +215,12 @@ export function ListingForm({
     if (writeError) {
       setStatus("idle");
       setError("Couldn't save this listing — please try again.");
+      toast.error("Couldn't save this listing");
       return;
     }
 
     setStatus("success");
+    toast.success(initial?.id ? "Listing updated" : "Listing created");
     router.push(redirectTo);
     router.refresh();
   }

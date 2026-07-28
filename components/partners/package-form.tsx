@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Check, FileText, Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 
 export type ExistingPackage = {
   id: string;
@@ -93,10 +94,12 @@ export function PackageForm({
     if (writeError) {
       setStatus("idle");
       setError("Couldn't save this package — please try again.");
+      toast.error("Couldn't save this package");
       return;
     }
 
     setStatus("success");
+    toast.success(existing ? "Package updated" : "Package added");
     router.refresh();
     onDone?.();
   }

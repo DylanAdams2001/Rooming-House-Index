@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Check, FileText, Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 
 export type BuildingPriceTier = {
   id: string;
@@ -54,6 +55,7 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
 
     if (uploadError) {
       setUploading(false);
+      toast.error("Couldn't upload the document", { description: uploadError.message });
       return;
     }
 
@@ -82,9 +84,11 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
 
     if (error) {
       setStatus("idle");
+      toast.error("Couldn't save this price tier", { description: error.message });
       return;
     }
     setStatus("saved");
+    toast.success(`${label.trim()} saved`);
     router.refresh();
     setTimeout(() => setStatus("idle"), 1500);
   }

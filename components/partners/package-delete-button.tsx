@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function PackageDeleteButton({ packageId }: { packageId: string }) {
   const router = useRouter();
@@ -14,7 +15,13 @@ export function PackageDeleteButton({ packageId }: { packageId: string }) {
   async function handleDelete() {
     if (!confirm("Delete this package? This can't be undone.")) return;
     setDeleting(true);
-    await supabase.from("service_provider_packages").delete().eq("id", packageId);
+    const { error } = await supabase.from("service_provider_packages").delete().eq("id", packageId);
+    setDeleting(false);
+    if (error) {
+      toast.error("Couldn't delete this package", { description: error.message });
+      return;
+    }
+    toast.success("Package deleted");
     router.refresh();
   }
 

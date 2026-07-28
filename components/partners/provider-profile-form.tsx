@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export function ProviderProfileForm({
@@ -76,10 +77,12 @@ export function ProviderProfileForm({
     if (updateError) {
       setStatus("idle");
       setError("Couldn't save your changes — please try again.");
+      toast.error("Couldn't save your changes");
       return;
     }
 
     setStatus("saved");
+    toast.success("Profile updated");
     router.refresh();
   }
 

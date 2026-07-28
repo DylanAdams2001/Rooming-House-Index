@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function ListingDeleteButton({ listingId }: { listingId: string }) {
   const router = useRouter();
@@ -14,7 +15,13 @@ export function ListingDeleteButton({ listingId }: { listingId: string }) {
   async function handleDelete() {
     if (!confirm("Delete this listing? This can't be undone.")) return;
     setDeleting(true);
-    await supabase.from("listings").delete().eq("id", listingId);
+    const { error } = await supabase.from("listings").delete().eq("id", listingId);
+    setDeleting(false);
+    if (error) {
+      toast.error("Couldn't delete this listing", { description: error.message });
+      return;
+    }
+    toast.success("Listing deleted");
     router.refresh();
   }
 

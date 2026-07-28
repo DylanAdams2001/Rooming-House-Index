@@ -17,8 +17,17 @@ export function PartnersMobileNav({
   unreadMessageCount?: number;
 }) {
   const [open, setOpen] = useState(false);
+  const [closingNav, setClosingNav] = useState(false);
   const pathname = usePathname();
   const items = getPartnerNavItems(role, category);
+
+  function closeNav() {
+    setClosingNav(true);
+    setTimeout(() => {
+      setOpen(false);
+      setClosingNav(false);
+    }, 200);
+  }
 
   return (
     <div className="md:hidden">
@@ -31,18 +40,26 @@ export function PartnersMobileNav({
         <Menu className="h-5 w-5" />
       </button>
 
-      {open && (
+      {(open || closingNav) && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-ink/40"
-            onClick={() => setOpen(false)}
+            className={cn(
+              "fixed inset-0 bg-ink/40 duration-200",
+              closingNav ? "animate-out fade-out" : "animate-in fade-in"
+            )}
+            onClick={closeNav}
             aria-hidden="true"
           />
-          <div className="relative flex w-72 max-w-[80vw] flex-col bg-offwhite">
+          <div
+            className={cn(
+              "relative flex w-72 max-w-[80vw] flex-col bg-offwhite duration-200",
+              closingNav ? "animate-out slide-out-to-left" : "animate-in slide-in-from-left"
+            )}
+          >
             <div className="flex h-20 items-center justify-between border-b border-line px-6">
               <Link
                 href={role === "admin" ? "/dashboard" : "/partners"}
-                onClick={() => setOpen(false)}
+                onClick={closeNav}
                 className="flex items-center gap-2 font-display text-lg text-ink"
               >
                 {role === "admin" ? (
@@ -54,7 +71,7 @@ export function PartnersMobileNav({
               </Link>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeNav}
                 aria-label="Close navigation menu"
                 className="flex h-9 w-9 items-center justify-center text-ink"
               >
@@ -70,7 +87,7 @@ export function PartnersMobileNav({
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={closeNav}
                     className={cn(
                       "flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm transition-colors",
                       active ? "bg-ink text-white" : "text-body hover:bg-linen hover:text-ink"

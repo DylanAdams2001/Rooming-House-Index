@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useHints } from "./hint-provider";
 
 // Drop one of these at the top of any page — shows a centered, dismissible
@@ -19,21 +20,31 @@ export function Hint({
 }) {
   const { hasSeen, markSeen } = useHints();
   const [dismissed, setDismissed] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   if (hasSeen(hintKey) || dismissed) return null;
 
   function handleDismiss() {
-    setDismissed(true);
-    markSeen(hintKey);
+    setClosing(true);
+    setTimeout(() => {
+      setDismissed(true);
+      markSeen(hintKey);
+    }, 150);
   }
 
   return (
     <div
-      className="fixed inset-0 z-[3000] flex items-center justify-center bg-ink/40 p-4"
+      className={cn(
+        "fixed inset-0 z-[3000] flex items-center justify-center bg-ink/40 p-4 duration-150",
+        closing ? "animate-out fade-out" : "animate-in fade-in"
+      )}
       onClick={handleDismiss}
     >
       <div
-        className="w-full max-w-md rounded-card border border-line bg-white p-6"
+        className={cn(
+          "w-full max-w-md rounded-card border border-line bg-white p-6 duration-150",
+          closing ? "animate-out fade-out zoom-out-95" : "animate-in fade-in zoom-in-95"
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">

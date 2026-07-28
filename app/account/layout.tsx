@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AccountSidebar } from "@/components/account/sidebar";
 import { AccountTopbar } from "@/components/account/topbar";
 import { HintProvider } from "@/components/hints/hint-provider";
+import { PageTransition } from "@/components/page-transition";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
@@ -51,7 +52,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
             unreadMessageCount={unreadMessageCount}
           />
           <main className="min-w-0 flex-1 overflow-x-hidden bg-offwhite/40 p-6 md:p-10">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </main>
         </div>
       </div>

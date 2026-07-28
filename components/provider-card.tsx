@@ -23,7 +23,7 @@ export function ProviderCard({
   categorySlug: string;
 }) {
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
       <CardHeader className="pb-4">
         <h3 className="font-display text-xl text-ink">{provider.business_name}</h3>
         <p className="text-sm text-muted">{provider.coverage_areas.join(", ")}</p>

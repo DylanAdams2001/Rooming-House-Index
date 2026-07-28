@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const LABELS = ["", "Shared kitchen"];
 
@@ -14,17 +15,27 @@ export function ListingGallery({
   altBase: string;
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [closingGallery, setClosingGallery] = useState(false);
+
+  function closeGallery() {
+    setClosingGallery(true);
+    setTimeout(() => {
+      setOpenIndex(null);
+      setClosingGallery(false);
+    }, 150);
+  }
 
   useEffect(() => {
     if (openIndex === null) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpenIndex(null);
+      if (e.key === "Escape") closeGallery();
       if (e.key === "ArrowRight") setOpenIndex((i) => (i === null ? i : (i + 1) % photos.length));
       if (e.key === "ArrowLeft")
         setOpenIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length));
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openIndex, photos.length]);
 
   return (
