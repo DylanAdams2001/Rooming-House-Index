@@ -76,7 +76,7 @@ export function Hint({
               src={image}
               alt={title}
               fill
-              className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              className="object-contain transition-transform duration-500 group-hover:scale-105"
               unoptimized
             />
             <span className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition-all duration-200 group-hover:bg-ink/20 group-hover:opacity-100">
