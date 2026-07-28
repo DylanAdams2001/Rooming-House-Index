@@ -11,9 +11,9 @@ import { Loader2 } from "lucide-react";
 type TierState = { label: string; price: string; internalNote: string };
 
 const DEFAULT_TIERS: TierState[] = [
-  { label: "Option 1", price: "", internalNote: "" },
-  { label: "Option 2", price: "", internalNote: "" },
-  { label: "Option 3", price: "", internalNote: "" },
+  { label: "Quote 1", price: "", internalNote: "" },
+  { label: "Quote 2", price: "", internalNote: "" },
+  { label: "Quote 3", price: "", internalNote: "" },
 ];
 
 // Reveal offsets from submission time when NOT sending immediately — makes

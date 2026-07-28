@@ -1633,9 +1633,9 @@ create policy "Admins can manage building price tiers"
 -- Seed today's 3 prices for the only bedroom count currently priced.
 insert into public.building_price_tiers (bedroom_count, label, price, sort_order)
 values
-  (9, 'Option 1', 780, 0),
-  (9, 'Option 2', 800, 1),
-  (9, 'Option 3', 820, 2);
+  (9, 'Quote 1', 780, 0),
+  (9, 'Quote 2', 800, 1),
+  (9, 'Quote 3', 820, 2);
 
 -- Auto-populates a new Building request's 3 quotes straight from whatever's
 -- currently configured — this is the entire quote-sourcing mechanism for
