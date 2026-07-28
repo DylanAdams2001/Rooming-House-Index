@@ -3,7 +3,7 @@ import { getServiceCategory } from "@/lib/service-categories";
 import { ProviderCard, type RealProvider } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
 import { QuoteCard } from "@/components/quote-card";
-import { BuildingInclusionsContent } from "@/components/partners/building-inclusions-list";
+import { BuildingInclusionsContent, InclusionsTextList } from "@/components/partners/building-inclusions-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
@@ -152,7 +152,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                               inclusions={
                                 category.dbCategory === "building" ? (
                                   quote.inclusions_text ? (
-                                    <p className="whitespace-pre-line text-sm text-body">{quote.inclusions_text}</p>
+                                    <InclusionsTextList text={quote.inclusions_text} />
                                   ) : (
                                     <BuildingInclusionsContent />
                                   )

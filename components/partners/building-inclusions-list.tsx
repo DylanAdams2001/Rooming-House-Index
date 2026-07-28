@@ -93,6 +93,27 @@ export function BuildingInclusionsContent() {
   );
 }
 
+// Renders a per-tier inclusions_text value (one item per line) as a proper
+// bulleted list instead of a single dense paragraph — used whenever a
+// builder's own wording is set, in place of the generic BuildingInclusionsContent.
+export function InclusionsTextList({ text }: { text: string }) {
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return (
+    <ul className="space-y-1.5">
+      {lines.map((line, i) => (
+        <li key={i} className="flex items-start gap-2 text-sm text-body">
+          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink" />
+          {line}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // Standalone, Card-wrapped version for a full page context.
 export function BuildingInclusionsList() {
   return (
