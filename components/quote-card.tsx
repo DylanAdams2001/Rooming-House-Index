@@ -29,11 +29,16 @@ export function QuoteCard({
   // — e.g. the Building inclusions list, attached per-quote rather than
   // sitting separately on the page.
   inclusions,
+  // Who the reassurance note says will follow up — "the builder" for
+  // Building, "our team" (the default) everywhere else, since there's no
+  // single named party to point to for insurance/property management.
+  nextStepsContact = "our team",
 }: {
   quote: QuoteCardData;
   requestId?: string;
   anyAccepted?: boolean;
   inclusions?: React.ReactNode;
+  nextStepsContact?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -148,9 +153,9 @@ export function QuoteCard({
                   !anyAccepted && (
                     <div className="mt-5 space-y-2">
                       <p className="rounded-btn border border-line bg-offwhite p-3 text-xs text-muted">
-                        No commitment yet — accepting just lets our team know this is the one
-                        you&apos;d like to go with, so we can reach out and walk through next
-                        steps together.
+                        No commitment yet — accepting just lets us know this is the one
+                        you&apos;d like to go with, so {nextStepsContact} can reach out and walk
+                        through next steps together.
                       </p>
                       <Button className="w-full" onClick={handleAccept} disabled={accepting}>
                         {accepting ? "Accepting…" : "Accept this quote"}

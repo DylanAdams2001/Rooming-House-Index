@@ -151,6 +151,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                               inclusions={
                                 category.dbCategory === "building" ? <BuildingInclusionsContent /> : undefined
                               }
+                              nextStepsContact={category.dbCategory === "building" ? "the builder" : undefined}
                               quote={{
                                 id: quote.id,
                                 providerName: quote.provider_name,
