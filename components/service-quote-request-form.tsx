@@ -24,6 +24,15 @@ const ARRANGEMENT_OPTIONS = [
   { value: "not_yet_operating", label: "Not operating as a rooming house yet" },
 ];
 
+// Building-specific stand-in for "Current arrangement" (which only makes
+// sense for an existing rooming house) — this is the actual readiness
+// signal for a build: address isn't required to price it, this is.
+const LAND_STATUS_OPTIONS = [
+  { value: "own_land", label: "I own the land" },
+  { value: "land_under_offer", label: "Land under offer" },
+  { value: "looking_for_land", label: "Still looking for land" },
+];
+
 // Only pricing for a 9-bedroom build exists right now — 6/7/8 stay visible
 // but disabled until those prices are sourced, rather than disappearing
 // from the option list entirely.
@@ -78,9 +87,15 @@ export function ServiceQuoteRequestForm({
     checkPending();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const isBuilding = category === "building";
+  // Pricing here is fixed by bedroom count, not site-specific, so an address
+  // would only ever gatekeep genuinely interested investors who are still
+  // land-shopping — the land-status field above is the real readiness signal.
+  const addressRequired = !isBuilding;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (lockRef.current || !propertyAddress.trim()) return;
+    if (lockRef.current || (addressRequired && !propertyAddress.trim())) return;
     lockRef.current = true;
     setError(null);
     setStatus("checking");
@@ -107,7 +122,7 @@ export function ServiceQuoteRequestForm({
     const { error: insertError } = await supabase.from("service_quote_requests").insert({
       user_id: userId,
       category,
-      property_address: propertyAddress.trim(),
+      property_address: propertyAddress.trim() || "No address yet",
       number_of_rooms: numberOfRooms ? Number(numberOfRooms) : null,
       current_arrangement: currentArrangement || null,
       notes: notes.trim() || null,
@@ -143,14 +158,18 @@ export function ServiceQuoteRequestForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="propertyAddress">Property address</Label>
+        <Label htmlFor="propertyAddress">
+          {isBuilding ? "Site address (if you have one)" : "Property address"}
+        </Label>
         <AddressAutocompleteInput
           key={addressFieldKey}
           id="propertyAddress"
-          required
+          required={addressRequired}
           value={propertyAddress}
           onChange={setPropertyAddress}
-          placeholder="15 Grace Street, St Albans VIC 3021"
+          placeholder={
+            isBuilding ? "Leave blank if you haven't secured land yet" : "15 Grace Street, St Albans VIC 3021"
+          }
         />
       </div>
 
@@ -185,13 +204,13 @@ export function ServiceQuoteRequestForm({
       )}
 
       <div className="space-y-2">
-        <Label>Current arrangement</Label>
+        <Label>{isBuilding ? "Where are you at?" : "Current arrangement"}</Label>
         <Select value={currentArrangement} onValueChange={setCurrentArrangement}>
           <SelectTrigger>
             <SelectValue placeholder="Select one" />
           </SelectTrigger>
           <SelectContent>
-            {ARRANGEMENT_OPTIONS.map((o) => (
+            {(isBuilding ? LAND_STATUS_OPTIONS : ARRANGEMENT_OPTIONS).map((o) => (
               <SelectItem key={o.value} value={o.value}>
                 {o.label}
               </SelectItem>
@@ -225,7 +244,7 @@ export function ServiceQuoteRequestForm({
           "w-full transition-colors duration-300",
           status === "success" && "bg-green-600 hover:bg-green-600"
         )}
-        disabled={busy || hasPending || !propertyAddress.trim()}
+        disabled={busy || hasPending || (addressRequired && !propertyAddress.trim())}
       >
         {status === "checking" && (
           <>
