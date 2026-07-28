@@ -29,16 +29,21 @@ export function QuoteCard({
   // — e.g. the Building inclusions list, attached per-quote rather than
   // sitting separately on the page.
   inclusions,
-  // Who the reassurance note says will follow up — "the builder" for
-  // Building, "our team" (the default) everywhere else, since there's no
-  // single named party to point to for insurance/property management.
+  // Who the reassurance note says will follow up — "our team" (the
+  // default) everywhere except where nextStepsMessage below overrides the
+  // whole sentence instead.
   nextStepsContact = "our team",
+  // Full override for the pre-accept reassurance text, for categories
+  // (e.g. Building) where the templated "so {nextStepsContact} can reach
+  // out..." sentence doesn't fit and a fixed sentence reads better.
+  nextStepsMessage,
 }: {
   quote: QuoteCardData;
   requestId?: string;
   anyAccepted?: boolean;
   inclusions?: React.ReactNode;
   nextStepsContact?: string;
+  nextStepsMessage?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -153,9 +158,13 @@ export function QuoteCard({
                   !anyAccepted && (
                     <div className="mt-5 space-y-2">
                       <p className="rounded-btn border border-line bg-offwhite p-3 text-xs text-muted">
-                        No commitment yet — accepting just lets us know this is the one
-                        you&apos;d like to go with, so {nextStepsContact} can reach out and walk
-                        through next steps together.
+                        {nextStepsMessage ?? (
+                          <>
+                            No commitment yet — accepting just lets us know this is the one
+                            you&apos;d like to go with, so {nextStepsContact} can reach out and walk
+                            through next steps together.
+                          </>
+                        )}
                       </p>
                       <Button className="w-full" onClick={handleAccept} disabled={accepting}>
                         {accepting ? "Accepting…" : "Accept this quote"}
