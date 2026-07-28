@@ -24,6 +24,16 @@ const ARRANGEMENT_OPTIONS = [
   { value: "not_yet_operating", label: "Not operating as a rooming house yet" },
 ];
 
+// Only pricing for a 9-bedroom build exists right now — 6/7/8 stay visible
+// but disabled until those prices are sourced, rather than disappearing
+// from the option list entirely.
+const BUILDING_BEDROOM_OPTIONS = [
+  { value: "6", available: false },
+  { value: "7", available: false },
+  { value: "8", available: false },
+  { value: "9", available: true },
+];
+
 export function ServiceQuoteRequestForm({
   userId,
   category,
@@ -144,17 +154,35 @@ export function ServiceQuoteRequestForm({
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="numberOfRooms">Number of rooms</Label>
-        <Input
-          id="numberOfRooms"
-          type="number"
-          min={1}
-          value={numberOfRooms}
-          onChange={(e) => setNumberOfRooms(e.target.value)}
-          placeholder="e.g. 6"
-        />
-      </div>
+      {category === "building" ? (
+        <div className="space-y-2">
+          <Label>Number of bedrooms</Label>
+          <Select value={numberOfRooms} onValueChange={setNumberOfRooms}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select one" />
+            </SelectTrigger>
+            <SelectContent>
+              {BUILDING_BEDROOM_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value} disabled={!o.available}>
+                  {o.value} bedrooms{!o.available ? " (coming soon)" : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="numberOfRooms">Number of rooms</Label>
+          <Input
+            id="numberOfRooms"
+            type="number"
+            min={1}
+            value={numberOfRooms}
+            onChange={(e) => setNumberOfRooms(e.target.value)}
+            placeholder="e.g. 6"
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label>Current arrangement</Label>

@@ -1577,3 +1577,26 @@ end;
 $$;
 
 grant execute on function public.accept_quote(uuid) to authenticated;
+
+-- ─────────────────────────────────────────────────────────────
+-- Building moves in-house as a quote-based category too, but run
+-- differently from insurance/property management: the 3 real builders
+-- never see client requests or reply themselves — admin enters up to 3
+-- blind, anonymised price options per request (no builder name shown to
+-- the investor), and only once the investor accepts one does admin step in
+-- to vet them and make the introduction. quote-request notifications for
+-- this category go to admin, not to category providers.
+-- ─────────────────────────────────────────────────────────────
+alter table public.service_quote_requests drop constraint if exists service_quote_requests_category_check;
+alter table public.service_quote_requests add constraint service_quote_requests_category_check
+  check (category in ('property_management', 'insurance', 'building'));
+
+-- Admin-only reference to which real builder a given anonymised option
+-- actually is — never selected in any investor-facing query.
+alter table public.service_quote_quotes add column if not exists internal_note text;
+
+-- Lets admin batch-enter all 3 options at once but have them appear to the
+-- investor on a staggered schedule (20/40/60 minutes later) rather than all
+-- at once — feels like independent quotes coming in over time. Defaults to
+-- "right now" so every existing/instant-submission path is unaffected.
+alter table public.service_quote_quotes add column if not exists visible_at timestamptz not null default now();

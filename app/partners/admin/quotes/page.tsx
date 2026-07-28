@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Hint } from "@/components/hints/hint";
+import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
 
 const STATUS_STYLES: Record<string, string> = {
   quoted: "border-green-600 bg-green-600 text-white",
@@ -52,7 +53,7 @@ export default async function AdminQuotesPage() {
     requestIds.length > 0
       ? supabase
           .from("service_quote_quotes")
-          .select("id, request_id, provider_id, provider_name, monthly_fee_pct, flat_fee, accepted")
+          .select("id, request_id, provider_id, provider_name, monthly_fee_pct, flat_fee, accepted, internal_note, visible_at")
           .in("request_id", requestIds)
       : Promise.resolve({ data: [] }),
     requestIds.length > 0
@@ -122,12 +123,21 @@ export default async function AdminQuotesPage() {
                         const fee = quote.monthly_fee_pct
                           ? `${quote.monthly_fee_pct}% of rent per year`
                           : quote.flat_fee ?? "Quote provided";
+                        const notYetVisible = new Date(quote.visible_at) > new Date();
                         const row = (
                           <div className="flex items-center justify-between rounded-btn border border-line p-3 text-sm">
                             <span className="flex items-center gap-2 text-ink">
                               {quote.provider_name}
                               {quote.accepted && (
                                 <Badge className="border-green-600 bg-green-600 text-white">Accepted</Badge>
+                              )}
+                              {notYetVisible && (
+                                <Badge variant="outline">
+                                  Scheduled {new Date(quote.visible_at).toLocaleTimeString("en-AU")}
+                                </Badge>
+                              )}
+                              {quote.internal_note && (
+                                <span className="text-xs text-muted">({quote.internal_note})</span>
                               )}
                             </span>
                             <span className="text-muted">{fee}</span>
@@ -146,6 +156,10 @@ export default async function AdminQuotesPage() {
                         );
                       })}
                     </div>
+                  )}
+
+                  {request.category === "building" && requestQuotes.length === 0 && (
+                    <AdminBuildingQuoteForm requestId={request.id} />
                   )}
                 </CardContent>
               </Card>

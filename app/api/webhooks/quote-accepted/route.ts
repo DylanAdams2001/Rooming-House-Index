@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   const { data: quote } = await supabase
     .from("service_quote_quotes")
-    .select("monthly_fee_pct, flat_fee, service_quote_requests(property_address, category, user_id)")
+    .select("monthly_fee_pct, flat_fee, internal_note, service_quote_requests(property_address, category, user_id)")
     .eq("id", record.id)
     .maybeSingle();
 
@@ -73,6 +73,9 @@ export async function POST(req: Request) {
         type: "paragraph",
         text: `${investorName} has accepted ${record.provider_name}'s ${categoryLabel ?? ""} quote (${fee}) for ${propertyAddress}.`,
       },
+      ...(quote?.internal_note
+        ? ([{ type: "paragraph", text: `Internal note: ${quote.internal_note}` }] as EmailBlock[])
+        : []),
     ];
 
     await resend.emails.send({

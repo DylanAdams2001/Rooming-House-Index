@@ -19,6 +19,11 @@ export type ServiceCategory = {
   // Run in-house as a "submit once, we bring back multiple quotes" flow instead
   // of a self-serve provider directory — see app/dashboard/services/[category]/page.tsx.
   quoteBased?: boolean;
+  // Building only, for now: real providers never see requests or reply
+  // themselves — admin enters blind, anonymised price options by hand and
+  // vets the investor before ever introducing the actual builder. New
+  // request notifications go to admin instead of category providers.
+  adminManagedQuotes?: boolean;
 };
 
 export const serviceCategories: ServiceCategory[] = [
@@ -81,7 +86,9 @@ export const serviceCategories: ServiceCategory[] = [
     dbCategory: "building",
     label: "Building",
     comingSoon: false,
-    description: "Builders and renovators for rooming house conversions.",
+    description: "Tell us about your build or renovation and we'll bring back multiple quotes from builders.",
+    quoteBased: true,
+    adminManagedQuotes: true,
     credentialFields: [
       { key: "buildingPractitionerNumber", label: "Building Practitioner Number", placeholder: "BP-U 12345" },
     ],

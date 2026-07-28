@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidWebhookRequest } from "@/lib/webhook-auth";
 import { renderEmailHtml, renderEmailText, type EmailBlock } from "@/lib/email-template";
+import { serviceCategories } from "@/lib/service-categories";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -45,22 +46,28 @@ export async function POST(req: Request) {
   const supabase = createServiceRoleClient();
   const resend = new Resend(apiKey);
 
-  if (category !== "property_management" && category !== "insurance") {
+  // Driven by lib/service-categories.ts's quoteBased flag rather than a
+  // hardcoded list — any category flipped to quoteBased (e.g. Building)
+  // starts broadcasting requests without needing a change here.
+  const categoryConfig = serviceCategories.find((c) => c.dbCategory === category);
+  if (!categoryConfig?.quoteBased) {
     return NextResponse.json({ ok: true });
   }
 
-  const { data } = await supabase
-    .from("service_providers")
-    .select("contact_email")
-    .eq("category", category)
-    .eq("status", "approved");
-  const recipients = (data ?? []).map((r) => r.contact_email).filter(Boolean);
+  const categoryLabel = categoryConfig.label.toLowerCase();
 
-  if (recipients.length === 0) {
+  // Admin-managed categories (Building, for now) never broadcast to real
+  // providers — admin enters the price options by hand, so admin is who
+  // needs to know a request came in, not the category's service_providers.
+  const recipients = categoryConfig.adminManagedQuotes
+    ? (await supabase.from("users").select("email").eq("role", "admin")).data?.map((a) => a.email) ?? []
+    : (await supabase.from("service_providers").select("contact_email").eq("category", category).eq("status", "approved"))
+        .data?.map((r) => r.contact_email) ?? [];
+
+  const validRecipients = recipients.filter(Boolean);
+  if (validRecipients.length === 0) {
     return NextResponse.json({ ok: true });
   }
-
-  const categoryLabel = category === "property_management" ? "property management" : "insurance";
 
   const blocks: EmailBlock[] = [
     { type: "paragraph", text: `A new ${categoryLabel} quote request just came in for ${property_address}.` },
@@ -71,19 +78,29 @@ export async function POST(req: Request) {
         ...(notes ? [`Notes: ${notes}`] : []),
       ],
     },
-    { type: "paragraph", text: "Head over to Quote Requests to reply with your quote." },
+    {
+      type: "paragraph",
+      text: categoryConfig.adminManagedQuotes
+        ? "Head over to All Quotes to add the price options for this request."
+        : "Head over to Quote Requests to reply with your quote.",
+    },
   ];
+
+  const ctaUrl = categoryConfig.adminManagedQuotes
+    ? `${SITE_URL}/partners/admin/quotes`
+    : `${SITE_URL}/partners/quotes`;
+  const ctaLabel = categoryConfig.adminManagedQuotes ? "View in All Quotes" : "View quote requests";
 
   await resend.emails.send({
     from: `Rooming House Standard <${fromAddress}>`,
-    to: recipients,
+    to: validRecipients,
     subject: `NEW QUOTE REQUEST - ${property_address}`,
     html: renderEmailHtml({
       heading: "A new quote request just came in",
       blocks,
-      cta: { label: "View quote requests", url: `${SITE_URL}/partners/quotes` },
+      cta: { label: ctaLabel, url: ctaUrl },
     }),
-    text: renderEmailText(blocks, { label: "View quote requests", url: `${SITE_URL}/partners/quotes` }),
+    text: renderEmailText(blocks, { label: ctaLabel, url: ctaUrl }),
   });
 
   return NextResponse.json({ ok: true });

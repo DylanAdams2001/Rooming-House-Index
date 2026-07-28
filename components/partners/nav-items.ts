@@ -10,7 +10,7 @@ export type PartnerNavItem = {
 // lib/service-categories.ts quoteBased) never have a self-serve directory a
 // member messages directly — they only ever get quote requests, so those
 // providers see "Quote Requests" instead of "Messages".
-const QUOTE_BASED_CATEGORIES = ["insurance", "property_management"];
+const QUOTE_BASED_CATEGORIES = ["insurance", "property_management", "building"];
 
 // Unlike every other nav-items.ts in this codebase (static arrays), this one is a
 // function of role — /partners is a single shared portal whose sections show or

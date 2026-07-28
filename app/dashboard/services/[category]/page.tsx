@@ -3,6 +3,7 @@ import { getServiceCategory } from "@/lib/service-categories";
 import { ProviderCard, type RealProvider } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
 import { QuoteCard } from "@/components/quote-card";
+import { BuildingInclusionsList } from "@/components/partners/building-inclusions-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
@@ -22,6 +23,7 @@ type Quote = {
   document_url: string | null;
   created_at: string;
   accepted: boolean;
+  visible_at: string;
 };
 
 type Request = {
@@ -64,6 +66,16 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
         .eq("category", category.dbCategory)
         .order("created_at", { ascending: false });
       requests = (data ?? []) as unknown as Request[];
+
+      // Admin-managed categories (Building) can batch-enter all 3 price
+      // options at once but have them appear staggered — filter out
+      // anything not due to be visible yet rather than dumping them all in
+      // at once.
+      const now = Date.now();
+      requests = requests.map((r) => ({
+        ...r,
+        service_quote_quotes: r.service_quote_quotes.filter((q) => new Date(q.visible_at).getTime() <= now),
+      }));
     }
 
     return (
@@ -156,6 +168,8 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
             )}
           </div>
         </div>
+
+        {category.dbCategory === "building" && <BuildingInclusionsList />}
       </div>
     );
   }
