@@ -38,6 +38,12 @@ export function QuoteCard({
   // (e.g. Building) where the templated "so {nextStepsContact} can reach
   // out..." sentence doesn't fit and a fixed sentence reads better.
   nextStepsMessage,
+  // Override for the line shown below the price in the popup — for
+  // Building, every tier should read identically ("this builder's price for
+  // your project") rather than each tier's own distinct blurb, which read
+  // like 3 different product tiers rather than 3 prices for the same job.
+  // Falls back to quote.notes everywhere else.
+  priceCaption,
 }: {
   quote: QuoteCardData;
   requestId?: string;
@@ -45,6 +51,7 @@ export function QuoteCard({
   inclusions?: React.ReactNode;
   nextStepsContact?: string;
   nextStepsMessage?: string;
+  priceCaption?: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -145,7 +152,9 @@ export function QuoteCard({
 
             <p className="mt-2 font-display text-2xl text-ink">{fee}</p>
 
-            {quote.notes && <p className="mt-4 text-sm text-body">{quote.notes}</p>}
+            {(priceCaption ?? quote.notes) && (
+              <p className="mt-4 text-sm text-body">{priceCaption ?? quote.notes}</p>
+            )}
 
             {quote.documentUrl && (
               <a
