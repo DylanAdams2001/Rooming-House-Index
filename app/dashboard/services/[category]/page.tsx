@@ -3,7 +3,7 @@ import { getServiceCategory } from "@/lib/service-categories";
 import { ProviderCard, type RealProvider } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
 import { QuoteCard } from "@/components/quote-card";
-import { BuildingInclusionsList } from "@/components/partners/building-inclusions-list";
+import { BuildingInclusionsContent } from "@/components/partners/building-inclusions-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
@@ -148,6 +148,9 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                               key={quote.id}
                               requestId={request.id}
                               anyAccepted={request.service_quote_quotes.some((q) => q.accepted)}
+                              inclusions={
+                                category.dbCategory === "building" ? <BuildingInclusionsContent /> : undefined
+                              }
                               quote={{
                                 id: quote.id,
                                 providerName: quote.provider_name,
@@ -168,8 +171,6 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
             )}
           </div>
         </div>
-
-        {category.dbCategory === "building" && <BuildingInclusionsList />}
       </div>
     );
   }

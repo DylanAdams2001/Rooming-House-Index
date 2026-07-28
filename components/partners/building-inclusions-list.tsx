@@ -62,35 +62,46 @@ const INCLUSION_GROUPS: { heading: string; items: string[] }[] = [
   },
 ];
 
+// Bare content, no Card wrapper — for embedding inside something else that
+// already provides its own container (e.g. a QuoteCard's popup).
+export function BuildingInclusionsContent() {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted">
+        Fully turnkey — site works, the full build, and landscaping are all included in this
+        price.
+      </p>
+      {INCLUSION_GROUPS.map((group) => (
+        <div key={group.heading}>
+          <p className="text-sm font-medium text-ink">{group.heading}</p>
+          <ul className="mt-1 space-y-1">
+            {group.items.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm text-body">
+                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <p className="rounded-btn border border-line bg-offwhite p-3 text-sm text-muted">
+        Not included: loose furniture — that&apos;s supplied separately through our furnishing
+        providers once your build is complete.
+      </p>
+    </div>
+  );
+}
+
+// Standalone, Card-wrapped version for a full page context.
 export function BuildingInclusionsList() {
   return (
     <Card className="mt-6">
       <CardHeader>
         <CardTitle>What&apos;s included</CardTitle>
-        <p className="text-sm text-muted">
-          Fully turnkey — site works, the full build, and landscaping are all included in every
-          price above.
-        </p>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {INCLUSION_GROUPS.map((group) => (
-          <div key={group.heading}>
-            <p className="text-sm font-medium text-ink">{group.heading}</p>
-            <ul className="mt-1 space-y-1">
-              {group.items.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-body">
-                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        <p className="rounded-btn border border-line bg-offwhite p-3 text-sm text-muted">
-          Not included: loose furniture — that&apos;s supplied separately through our furnishing
-          providers once your build is complete.
-        </p>
+      <CardContent>
+        <BuildingInclusionsContent />
       </CardContent>
     </Card>
   );

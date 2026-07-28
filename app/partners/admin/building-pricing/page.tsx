@@ -29,7 +29,7 @@ export default async function BuildingPricingPage() {
 
   const { data: tiers } = await supabase
     .from("building_price_tiers")
-    .select("id, bedroom_count, label, price, internal_note, reveal_delay_minutes")
+    .select("id, bedroom_count, label, price, notes, internal_note, reveal_delay_minutes")
     .order("bedroom_count", { ascending: true })
     .order("sort_order", { ascending: true });
 
@@ -76,6 +76,7 @@ export default async function BuildingPricingPage() {
                   id: t.id,
                   label: t.label,
                   price: t.price,
+                  notes: t.notes,
                   internalNote: t.internal_note,
                   revealDelayMinutes: t.reveal_delay_minutes,
                 }}

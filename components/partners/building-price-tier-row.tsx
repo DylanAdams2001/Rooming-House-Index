@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Check, Loader2 } from "lucide-react";
 
@@ -12,6 +13,7 @@ export type BuildingPriceTier = {
   id: string;
   label: string;
   price: number;
+  notes: string | null;
   internalNote: string | null;
   revealDelayMinutes: number;
 };
@@ -21,6 +23,7 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
   const supabase = createClient();
   const [label, setLabel] = useState(tier.label);
   const [price, setPrice] = useState(String(tier.price));
+  const [notes, setNotes] = useState(tier.notes ?? "");
   const [internalNote, setInternalNote] = useState(tier.internalNote ?? "");
   const [revealDelayMinutes, setRevealDelayMinutes] = useState(String(tier.revealDelayMinutes));
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -32,6 +35,7 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
       .update({
         label: label.trim(),
         price: Number(price),
+        notes: notes.trim() || null,
         internal_note: internalNote.trim() || null,
         reveal_delay_minutes: Number(revealDelayMinutes) || 0,
         updated_at: new Date().toISOString(),
@@ -48,32 +52,45 @@ export function BuildingPriceTierRow({ tier }: { tier: BuildingPriceTier }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 rounded-btn border border-line bg-white p-4 sm:grid-cols-5 sm:items-end">
-      <div className="space-y-1">
-        <Label className="text-xs">Label shown to investor</Label>
-        <Input value={label} onChange={(e) => setLabel(e.target.value)} />
+    <div className="space-y-3 rounded-btn border border-line bg-white p-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+        <div className="space-y-1">
+          <Label className="text-xs">Label shown to investor</Label>
+          <Input value={label} onChange={(e) => setLabel(e.target.value)} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Price ($)</Label>
+          <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Internal note (admin-only)</Label>
+          <Input
+            value={internalNote}
+            onChange={(e) => setInternalNote(e.target.value)}
+            placeholder="Which builder"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Reveal delay (min)</Label>
+          <Input
+            type="number"
+            min={0}
+            value={revealDelayMinutes}
+            onChange={(e) => setRevealDelayMinutes(e.target.value)}
+          />
+        </div>
       </div>
+
       <div className="space-y-1">
-        <Label className="text-xs">Price ($)</Label>
-        <Input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} />
-      </div>
-      <div className="space-y-1">
-        <Label className="text-xs">Internal note (admin-only)</Label>
-        <Input
-          value={internalNote}
-          onChange={(e) => setInternalNote(e.target.value)}
-          placeholder="Which builder"
+        <Label className="text-xs">Description shown to investor</Label>
+        <Textarea
+          rows={2}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="A short blurb describing this quote — keep each of the 3 different."
         />
       </div>
-      <div className="space-y-1">
-        <Label className="text-xs">Reveal delay (min)</Label>
-        <Input
-          type="number"
-          min={0}
-          value={revealDelayMinutes}
-          onChange={(e) => setRevealDelayMinutes(e.target.value)}
-        />
-      </div>
+
       <Button onClick={handleSave} disabled={status === "saving"}>
         {status === "saving" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {status === "saved" && <Check className="mr-2 h-4 w-4" />}

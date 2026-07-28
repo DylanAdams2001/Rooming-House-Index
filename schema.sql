@@ -1614,6 +1614,9 @@ create table if not exists public.building_price_tiers (
   bedroom_count integer not null,
   label text not null,
   price numeric not null,
+  -- Investor-facing blurb, different per tier so 3 auto-generated quotes
+  -- read like distinct submissions rather than 3 bare numbers.
+  notes text,
   internal_note text,
   sort_order integer not null default 0,
   -- Per-tier delay before it becomes visible to the investor — 0 for
@@ -1631,11 +1634,11 @@ create policy "Admins can manage building price tiers"
   with check (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
 
 -- Seed today's 3 prices for the only bedroom count currently priced.
-insert into public.building_price_tiers (bedroom_count, label, price, sort_order)
+insert into public.building_price_tiers (bedroom_count, label, price, notes, sort_order)
 values
-  (9, 'Quote 1', 780, 0),
-  (9, 'Quote 2', 800, 1),
-  (9, 'Quote 3', 820, 2);
+  (9, 'Quote 1', 780, 'Straightforward turnkey build with a standard finish package and the fastest available start date.', 0),
+  (9, 'Quote 2', 800, 'Turnkey build with upgraded fixtures throughout and flexible scheduling.', 1),
+  (9, 'Quote 3', 820, 'Turnkey build with premium finishes and priority sequencing to lock in the earliest completion.', 2);
 
 -- Auto-populates a new Building request's 3 quotes straight from whatever's
 -- currently configured — this is the entire quote-sourcing mechanism for
@@ -1648,12 +1651,18 @@ security definer
 as $$
 begin
   if new.category = 'building' and new.number_of_rooms is not null then
-    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, internal_note, visible_at)
+    insert into public.service_quote_quotes (request_id, provider_id, provider_name, flat_fee, notes, internal_note, visible_at)
     select
       new.id,
       null,
       t.label,
-      '$' || trim(trailing '.00' from t.price::text),
+      -- price::text on a bare numeric like 780 already renders as "780" with
+      -- no decimal point — the previous trim(trailing '.00' from ...) call
+      -- was wrong anyway (trim treats its argument as a set of characters,
+      -- not a literal suffix, so it was stripping trailing '0' digits off
+      -- the actual price: 780 -> "78", 800 -> "8", 820 -> "82").
+      '$' || t.price::text,
+      t.notes,
       t.internal_note,
       new.created_at + (t.reveal_delay_minutes || ' minutes')::interval
     from public.building_price_tiers t
@@ -1667,3 +1676,13 @@ $$;
 create trigger on_building_quote_request_insert
   after insert on public.service_quote_requests
   for each row execute procedure public.auto_populate_building_quotes();
+
+-- Fixes any quotes already created by the buggy version of the trigger
+-- above (wrong flat_fee text, missing notes) — matches back to the tier by
+-- label + bedroom count rather than assuming specific row ids.
+update public.service_quote_quotes q
+set flat_fee = '$' || t.price::text,
+    notes = coalesce(q.notes, t.notes)
+from public.building_price_tiers t
+join public.service_quote_requests r on r.id = q.request_id
+where r.category = 'building' and q.provider_name = t.label and r.number_of_rooms = t.bedroom_count;

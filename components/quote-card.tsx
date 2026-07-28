@@ -25,10 +25,15 @@ export function QuoteCard({
   // the Accept button on every other (non-accepted) card once one is
   // chosen, since only one provider can be accepted per request.
   anyAccepted = false,
+  // Optional extra content shown inside the popup, below the quote details
+  // — e.g. the Building inclusions list, attached per-quote rather than
+  // sitting separately on the page.
+  inclusions,
 }: {
   quote: QuoteCardData;
   requestId?: string;
   anyAccepted?: boolean;
+  inclusions?: React.ReactNode;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -88,7 +93,10 @@ export function QuoteCard({
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-card border border-line bg-white p-6"
+            className={cn(
+              "w-full max-h-[85vh] overflow-y-auto rounded-card border border-line bg-white p-6",
+              inclusions ? "max-w-lg" : "max-w-md"
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -118,6 +126,8 @@ export function QuoteCard({
                 View quote document
               </a>
             )}
+
+            {inclusions && <div className="mt-5 border-t border-line pt-5">{inclusions}</div>}
 
             {requestId && (
               <>
