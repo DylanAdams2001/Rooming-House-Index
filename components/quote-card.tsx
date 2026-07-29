@@ -113,6 +113,12 @@ export function QuoteCard({
             {quote.accepted && (
               <Badge className="border-green-600 bg-green-600 text-white">Accepted</Badge>
             )}
+            {quote.documentUrl && (
+              <span className="flex items-center gap-1 rounded-full bg-linen px-2 py-0.5 text-[11px] font-medium text-ink">
+                <FileText className="h-3 w-3" />
+                PDF attached
+              </span>
+            )}
           </div>
           {quote.notes && <p className="mt-0.5 line-clamp-1 text-sm text-body">{quote.notes}</p>}
         </div>
@@ -161,10 +167,10 @@ export function QuoteCard({
                 href={quote.documentUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-5 flex items-center gap-2 rounded-btn border border-line px-4 py-2.5 text-sm text-ink transition-colors hover:bg-linen"
+                className="mt-5 flex items-center gap-3 rounded-btn border-2 border-ink bg-linen px-4 py-3 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-white"
               >
-                <FileText className="h-4 w-4" />
-                View quote document
+                <FileText className="h-5 w-5 shrink-0" />
+                Download the full quote (PDF)
               </a>
             )}
 
