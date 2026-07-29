@@ -5,6 +5,7 @@ import { SuburbCard } from "@/components/suburb-card";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useSavedSuburbs } from "@/lib/use-saved-suburbs";
+import { ProductTour } from "@/components/tour/product-tour";
 import Link from "next/link";
 
 export function SavedSuburbs() {
@@ -13,6 +14,15 @@ export function SavedSuburbs() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="dashboard-saved-page"
+        intro={{
+          title: "Saved Suburbs",
+          description:
+            "Suburbs you've bookmarked while exploring — click the save icon on any suburb card (in Suburb Explorer or here) to add or remove one. Handy for comparing a shortlist without re-searching every time.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">Saved Suburbs</h1>
       <p className="mt-2 text-body">Suburbs you&apos;ve bookmarked for further review.</p>
 

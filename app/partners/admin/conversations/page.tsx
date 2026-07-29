@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 
 type Row = {
   id: string;
@@ -111,6 +112,15 @@ export default async function AdminConversationsPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="admin-conversations-page"
+        intro={{
+          title: "All Conversations",
+          description:
+            "Every conversation on the platform — marketplace messages, quote requests, and room enquiries — merged into one list. Use this for payment verification and compliance oversight.",
+        }}
+      />
+
       <div className="flex items-center gap-2">
         <ShieldCheck className="h-6 w-6 text-ink" />
         <h1 className="font-display text-3xl text-ink">All Conversations</h1>

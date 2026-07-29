@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -54,6 +55,15 @@ export default async function AdminListingsPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="admin-listings-page"
+        intro={{
+          title: "All Listings",
+          description:
+            "Every room listed across every property manager, in one place. Edit any listing directly — pricing, availability, anything — no need to go through the owner.",
+        }}
+      />
+
       <div className="flex items-center gap-2">
         <Home className="h-6 w-6 text-ink" />
         <h1 className="font-display text-3xl text-ink">All Listings</h1>

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 
 export default async function ServicesPage() {
   const supabase = createClient();
@@ -19,6 +20,15 @@ export default async function ServicesPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="dashboard-services-page"
+        intro={{
+          title: "Services",
+          description:
+            "Vetted insurance, legal, maintenance, and other providers for running a rooming house. Most categories let you message a provider directly. Insurance, Property Management, and Building work differently — submit your details once and we bring back multiple quotes.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">Services</h1>
       <p className="mt-2 text-body">
         Vetted providers for every stage of running a rooming house — connect and message

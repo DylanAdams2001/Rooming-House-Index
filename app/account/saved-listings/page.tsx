@@ -9,6 +9,7 @@ import { ListingCard } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
 import { useSavedListings } from "@/lib/use-saved-listings";
 import { X } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 
 export default function SavedListingsPage() {
   const supabase = createClient();
@@ -30,6 +31,15 @@ export default function SavedListingsPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="account-saved-listings-page"
+        intro={{
+          title: "Saved Listings",
+          description:
+            "Rooms you've bookmarked while browsing — tap the heart/save icon on any listing to add one. Come back here any time to compare your shortlist before enquiring.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">Saved Listings</h1>
       <p className="mt-2 text-body">Rooms you&apos;re interested in going to inspect or renting.</p>
 

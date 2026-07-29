@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { ProductTour } from "@/components/tour/product-tour";
 
 const demandRank: Record<Suburb["demandLevel"], number> = { Low: 0, Medium: 1, High: 2 };
 
@@ -48,6 +49,31 @@ export default function MarketOverviewPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="dashboard-market-page"
+        intro={{
+          title: "Market Overview",
+          description: "Every tracked suburb, side by side — here's how to slice it.",
+        }}
+        steps={[
+          {
+            selector: '[data-tour="market-sort"]',
+            title: "Sort by",
+            description: "Switch what the table ranks suburbs on — rate, rooming houses, name, or demand.",
+          },
+          {
+            selector: '[data-tour="market-direction"]',
+            title: "Ascending / descending",
+            description: "Flip the sort direction — e.g. lowest rate first instead of highest.",
+          },
+          {
+            selector: '[data-tour="market-explore"]',
+            title: "Explore listings",
+            description: "Jump straight to that suburb's live room listings in a new tab.",
+          },
+        ]}
+      />
+
       <h1 className="font-display text-3xl text-ink">Market Overview</h1>
       <p className="mt-2 text-body">
         A snapshot of the Victorian rooming house market across all tracked suburbs.
@@ -86,21 +112,24 @@ export default function MarketOverviewPage() {
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Suburbs by {SORT_OPTIONS[sortKey].label}</CardTitle>
           <div className="flex items-center gap-2">
-            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(SORT_OPTIONS).map(([key, opt]) => (
-                  <SelectItem key={key} value={key}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div data-tour="market-sort">
+              <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(SORT_OPTIONS).map(([key, opt]) => (
+                    <SelectItem key={key} value={key}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button
               variant="outline"
               size="icon"
+              data-tour="market-direction"
               aria-label={direction === "asc" ? "Sort ascending" : "Sort descending"}
               onClick={() => setDirection((d) => (d === "asc" ? "desc" : "asc"))}
             >
@@ -126,7 +155,7 @@ export default function MarketOverviewPage() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((s) => (
+                {sorted.map((s, i) => (
                   <tr key={s.id} className="border-b border-line last:border-0">
                     <td className="px-6 py-4 font-display text-base text-ink">
                       {s.name} <span className="text-muted">{s.postcode}</span>
@@ -143,6 +172,7 @@ export default function MarketOverviewPage() {
                       <Link
                         href={`/listings?suburb=${s.id}`}
                         target="_blank"
+                        data-tour={i === 0 ? "market-explore" : undefined}
                         className="inline-flex items-center gap-1 text-sm text-ink underline underline-offset-4 hover:text-body"
                       >
                         Explore listings

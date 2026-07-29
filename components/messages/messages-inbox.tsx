@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/avatar";
 import { MessageCircle } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 type InboxItem = {
@@ -231,6 +232,17 @@ export async function MessagesInbox({
 
   return (
     <div>
+      <ProductTour
+        tourKey={`messages-page-${perspective}`}
+        intro={{
+          title: "Messages",
+          description:
+            perspective === "provider"
+              ? "Every conversation with a member lives here — direct messages, quote requests, and (for property managers) tenant room enquiries, all merged into one inbox. A red dot means you haven't opened it yet."
+              : "Every conversation with a service provider lives here, including quote requests. Start a new one from any provider's profile in Services. A red dot means you haven't opened it yet.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">Messages</h1>
       <p className="mt-2 text-body">
         {perspective === "provider"

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
+import { ProductTour } from "@/components/tour/product-tour";
 
 const STATUS_STYLES: Record<string, string> = {
   quoted: "border-green-600 bg-green-600 text-white",
@@ -72,6 +73,23 @@ export default async function AdminQuotesPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="admin-quotes-page"
+        intro={{
+          title: "All Quotes",
+          description:
+            "Every quote request across every category, and every quote submitted against it. Click any submitted quote to jump straight into that conversation.",
+        }}
+        steps={[
+          {
+            selector: '[data-tour="admin-building-pricing-link"]',
+            title: "Manage Building pricing",
+            description:
+              "The 3 fixed Building price tiers auto-populate on every new request — update them here whenever prices actually change, rather than re-entering them per request.",
+          },
+        ]}
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <FileText className="h-6 w-6 text-ink" />
@@ -79,6 +97,7 @@ export default async function AdminQuotesPage() {
         </div>
         <Link
           href="/partners/admin/building-pricing"
+          data-tour="admin-building-pricing-link"
           className="text-sm text-ink underline underline-offset-4"
         >
           Manage Building pricing

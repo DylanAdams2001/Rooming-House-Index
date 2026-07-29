@@ -7,6 +7,7 @@ import { getListingTitle, type RoomListing } from "@/lib/mock-listings";
 import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarClock, FileText, MessageCircle } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 
 type EnquiryRow = { id: string; listing_id: string; last_message_at: string };
 
@@ -43,10 +44,26 @@ export default function EnquiriesPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="account-enquiries-page"
+        intro={{
+          title: "Enquiries",
+          description: "Every room you've enquired on, at a glance — your application is also linked below.",
+        }}
+        steps={[
+          {
+            selector: '[data-tour="enquiries-application"]',
+            title: "Your Application",
+            description:
+              "The details a landlord sees when you enquire — keep it up to date so you're ready to send an enquiry the moment you find a room.",
+          },
+        ]}
+      />
+
       <h1 className="font-display text-3xl text-ink">Enquiries</h1>
       <p className="mt-2 text-body">Rooms you&apos;ve enquired on.</p>
 
-      <Link href="/account/application">
+      <Link href="/account/application" data-tour="enquiries-application">
         <Card className="mt-6 transition-colors hover:bg-linen">
           <CardContent className="flex items-center justify-between gap-4 p-5">
             <div className="flex items-center gap-3">

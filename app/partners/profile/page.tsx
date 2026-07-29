@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { serviceCategories } from "@/lib/service-categories";
 import { ProviderProfileForm } from "@/components/partners/provider-profile-form";
+import { ProductTour } from "@/components/tour/product-tour";
 
 export default async function PartnersProfilePage() {
   const supabase = createClient();
@@ -47,6 +48,15 @@ export default async function PartnersProfilePage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="partners-profile-page"
+        intro={{
+          title: "Business Details",
+          description:
+            "This is your public profile — investors see exactly what you fill in here before they message you. Keep your description, coverage areas, and credentials current.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">Business Details</h1>
       <p className="mt-2 text-body">
         Update the details members see for your {category?.label.toLowerCase() ?? "service"} listing.

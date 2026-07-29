@@ -238,7 +238,7 @@ export function ListingForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 rounded-card border border-line bg-white p-6">
-      <div className="space-y-2">
+      <div className="space-y-2" data-tour="listing-address">
         <Label htmlFor="address">Address</Label>
         <AddressAutocompleteInput
           id="address"
@@ -261,7 +261,7 @@ export function ListingForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" data-tour="listing-room-type">
         <div className="space-y-2">
           <Label>Room type</Label>
           <Select value={roomType} onValueChange={setRoomType}>
@@ -339,7 +339,7 @@ export function ListingForm({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2" data-tour="listing-photos">
         <Label>Photos</Label>
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">

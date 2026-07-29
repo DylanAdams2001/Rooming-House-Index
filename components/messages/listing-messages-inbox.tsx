@@ -5,6 +5,7 @@ import { getApprovedListingById } from "@/lib/listings";
 import { LISTING_COLUMNS, mapListingRow } from "@/lib/listings-shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 // Shared between /account/messages (perspective="tenant", the default — one
@@ -91,6 +92,17 @@ export async function ListingMessagesInbox({
 
   return (
     <div>
+      <ProductTour
+        tourKey={`listing-messages-page-${perspective}`}
+        intro={{
+          title: perspective === "manager" ? "Room Enquiries" : "Messages",
+          description:
+            perspective === "manager"
+              ? "Every tenant enquiry about a room you own lands here — reply to ask questions, confirm an inspection, or reschedule."
+              : "Every conversation with a property team lives here, once you've enquired on a room. Reply here to ask questions, confirm an inspection, or reschedule.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">
         {perspective === "manager" ? "Room Enquiries" : "Messages"}
       </h1>

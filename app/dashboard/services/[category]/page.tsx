@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/back-link";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 // Both branches below now render real, per-request Supabase data (quote
@@ -82,6 +83,14 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
     return (
       <div>
         <BackLink href="/dashboard/services" label="Services" />
+
+        <ProductTour
+          tourKey={`dashboard-services-${category.dbCategory}`}
+          intro={{
+            title: category.label,
+            description: `${category.description} Submit your details once and we'll bring back quotes here — no need to shop around yourself.`,
+          }}
+        />
 
         <h1 className="font-display text-3xl text-ink">{category.label}</h1>
         <p className="mt-2 max-w-2xl text-body">{category.description}</p>
@@ -203,6 +212,14 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
   return (
     <div>
       <BackLink href="/dashboard/services" label="Services" />
+
+      <ProductTour
+        tourKey={`dashboard-services-${category.dbCategory}`}
+        intro={{
+          title: category.label,
+          description: `${category.description} Message a provider directly from their profile to get started.`,
+        }}
+      />
 
       <div>
         <h1 className="font-display text-3xl text-ink">{category.label}</h1>

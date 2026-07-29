@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ListingDeleteButton } from "@/components/partners/listing-delete-button";
 import { Home, Plus } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -27,6 +28,15 @@ export default async function PartnersListingsPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="partners-listings-page"
+        intro={{
+          title: "Rooms",
+          description:
+            "Every room you've listed, with its status — pending, approved, or rejected. Listings publish immediately once saved. Edit pricing or details any time.",
+        }}
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl text-ink">Rooms</h1>

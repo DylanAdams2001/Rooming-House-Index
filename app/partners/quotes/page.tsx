@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -55,6 +56,15 @@ export default async function PartnersQuotesPage() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="partners-quotes-page"
+        intro={{
+          title: "Quote Requests",
+          description:
+            "Every investor in your category who's requesting quotes shows up here — a red dot means you haven't opened it yet. Click into one to submit your price and start a conversation about it.",
+        }}
+      />
+
       <h1 className="font-display text-3xl text-ink">Quote Requests</h1>
       <p className="mt-2 text-body">Requests from investors in your category — reply to introduce your quote.</p>
 

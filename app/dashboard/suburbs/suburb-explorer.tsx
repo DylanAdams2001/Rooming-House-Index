@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck, LayoutGrid, MapIcon } from "lucide-react";
 import { useSavedSuburbs } from "@/lib/use-saved-suburbs";
+import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 const SuburbMap = dynamic(
@@ -64,6 +65,36 @@ export function SuburbExplorer() {
 
   return (
     <div>
+      <ProductTour
+        tourKey="dashboard-suburbs-page"
+        intro={{
+          title: "Suburb Explorer",
+          description: "Here's how to narrow down 211 suburbs to the ones actually worth a closer look.",
+        }}
+        steps={[
+          {
+            selector: '[data-tour="suburbs-search"]',
+            title: "Search",
+            description: "Jump straight to a suburb by name or postcode.",
+          },
+          {
+            selector: '[data-tour="suburbs-demand"]',
+            title: "Demand Level",
+            description: "Filter to only High-demand suburbs to see where competition for rooms is strongest.",
+          },
+          {
+            selector: '[data-tour="suburbs-rate"]',
+            title: "Average Room Rate",
+            description: "Drag either end to narrow results to your target weekly rate.",
+          },
+          {
+            selector: '[data-tour="suburbs-view-toggle"]',
+            title: "Grid or Map",
+            description: "Switch between a card grid and an interactive map of every matching suburb.",
+          },
+        ]}
+      />
+
       <h1 className="font-display text-3xl text-ink">Suburb Explorer</h1>
       <p className="mt-2 text-body">
         Search and filter suburbs by demand, rate, and location.
@@ -71,7 +102,7 @@ export function SuburbExplorer() {
 
       <div className="mt-8 rounded-card border border-line bg-white p-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="relative md:col-span-2">
+          <div className="relative md:col-span-2" data-tour="suburbs-search">
             <Label htmlFor="search" className="mb-2 block text-xs uppercase tracking-wide text-muted">
               Search
             </Label>
@@ -115,7 +146,7 @@ export function SuburbExplorer() {
             </Select>
           </div>
 
-          <div>
+          <div data-tour="suburbs-demand">
             <Label className="mb-2 block text-xs uppercase tracking-wide text-muted">
               Demand Level
             </Label>
@@ -134,7 +165,7 @@ export function SuburbExplorer() {
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6" data-tour="suburbs-rate">
           <Label className="mb-3 block text-xs uppercase tracking-wide text-muted">
             Average Room Rate: ${rateRange[0]} – ${rateRange[1]} / week
           </Label>
@@ -154,7 +185,7 @@ export function SuburbExplorer() {
           {results.length} suburb{results.length === 1 ? "" : "s"} found
         </p>
 
-        <div className="flex items-center rounded-btn border border-line bg-white p-1">
+        <div className="flex items-center rounded-btn border border-line bg-white p-1" data-tour="suburbs-view-toggle">
           <button
             type="button"
             onClick={() => setView("grid")}
