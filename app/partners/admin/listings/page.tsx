@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home } from "lucide-react";
 import { ProductTour } from "@/components/tour/product-tour";
+import { ListingDeleteButton } from "@/components/partners/listing-delete-button";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -97,12 +98,15 @@ export default async function AdminListingsPage() {
                       : "No owner (seeded listing)"}
                   </p>
                 </div>
-                <Link
-                  href={`/partners/listings/${listing.id}/edit`}
-                  className="text-sm text-ink underline underline-offset-4"
-                >
-                  Edit
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/partners/listings/${listing.id}/edit`}
+                    className="text-sm text-ink underline underline-offset-4"
+                  >
+                    Edit
+                  </Link>
+                  <ListingDeleteButton listingId={listing.id} />
+                </div>
               </CardContent>
             </Card>
           ))}
