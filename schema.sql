@@ -1369,6 +1369,10 @@ $$;
 
 grant execute on function public.resolve_referrer_id(text) to authenticated;
 
+-- No paid subscription any more (the platform is free) — a referral counts
+-- as soon as the referred person signs up via the link, not once they were
+-- gated behind investor_access='active' (that gate no longer means anything
+-- worth waiting for).
 create or replace function public.count_successful_referrals(p_user_id uuid)
 returns integer
 language sql
@@ -1378,7 +1382,7 @@ set search_path = public
 as $$
   select count(*)::int
   from public.users
-  where referred_by = p_user_id and investor_access = 'active';
+  where referred_by = p_user_id;
 $$;
 
 grant execute on function public.count_successful_referrals(uuid) to authenticated;

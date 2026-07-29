@@ -11,9 +11,11 @@ const REFERRAL_GOAL = 3;
 
 // Configured as a Supabase Database Webhook on public.users UPDATE. Fires on
 // every user row update (no column-level filter needed) — the checks below
-// bail out fast for the vast majority of updates that aren't a referred
-// user's investor_access flipping to 'active' for the first time. Only that
-// moment counts as a "successful" referral, not signup itself.
+// bail out fast for the vast majority of updates that aren't a brand-new
+// signup's referred_by column being stamped for the first time (see
+// auth-form.tsx / auth/callback/route.ts). No paid subscription any more —
+// a referral counts the moment someone signs up via the link, not once they
+// clear a payment gate that no longer exists.
 // Uses its own secret (REFERRAL_WEBHOOK_SECRET) rather than the shared
 // SUPABASE_WEBHOOK_SECRET every other webhook route uses — that one got set
 // as a Vercel "Sensitive" env var at some point, which is write-only and can
@@ -26,15 +28,15 @@ export async function POST(req: Request) {
 
   const payload = (await req.json()) as {
     type: string;
-    record: { id: string; investor_access: string; referred_by: string | null };
-    old_record?: { investor_access: string } | null;
+    record: { id: string; referred_by: string | null };
+    old_record?: { referred_by: string | null } | null;
   };
 
   if (payload.type !== "UPDATE") return NextResponse.json({ ok: true });
 
   const { record, old_record } = payload;
-  const justActivated = record.investor_access === "active" && old_record?.investor_access !== "active";
-  if (!justActivated || !record.referred_by) return NextResponse.json({ ok: true });
+  const justReferred = !!record.referred_by && !old_record?.referred_by;
+  if (!justReferred) return NextResponse.json({ ok: true });
 
   const apiKey = process.env.RESEND_API_KEY;
   const fromAddress = process.env.SUPPORT_EMAIL_FROM;
@@ -61,27 +63,50 @@ export async function POST(req: Request) {
   const resend = new Resend(apiKey);
   const referrerName = referrer.full_name ?? referrer.email;
 
-  const blocks: EmailBlock[] = [
+  const adminBlocks: EmailBlock[] = [
     {
       type: "paragraph",
-      text: `${referrerName} (${referrer.email}) has now referred ${count} friends who became active investors — they've hit the 3-referral goal for the $10k builder credit.`,
+      text: `${referrerName} (${referrer.email}) has now referred ${count} friends who signed up — they've hit the 3-referral goal for the $10k builder credit.`,
     },
     { type: "paragraph", text: "Reach out to arrange the credit." },
   ];
 
-  const { error: sendError } = await resend.emails.send({
+  const { error: adminSendError } = await resend.emails.send({
     from: `Rooming House Standard <${fromAddress}>`,
     to: ["dylan@keyspaceproperty.com.au", "aaron@keyspaceproperty.com.au"],
     subject: `Referral reward earned — ${referrerName}`,
     html: renderEmailHtml({
       heading: "Referral reward earned",
-      blocks,
+      blocks: adminBlocks,
       cta: { label: "View in Supabase", url: `${SITE_URL}/dashboard` },
     }),
-    text: `Referral reward earned\n\n${renderEmailText(blocks)}`,
+    text: `Referral reward earned\n\n${renderEmailText(adminBlocks)}`,
   });
 
-  if (sendError) return NextResponse.json({ ok: false, reason: sendError.message }, { status: 502 });
+  if (adminSendError) return NextResponse.json({ ok: false, reason: adminSendError.message }, { status: 502 });
+
+  if (referrer.email) {
+    const referrerFirstName = referrer.full_name?.split(" ")[0] ?? "there";
+    const referrerBlocks: EmailBlock[] = [
+      {
+        type: "paragraph",
+        text: "You've referred 3 friends to Rooming House Standard — that's the goal for your $10k builder credit!",
+      },
+      { type: "paragraph", text: "Our team will be in touch shortly to arrange the details." },
+    ];
+
+    await resend.emails.send({
+      from: `Rooming House Standard <${fromAddress}>`,
+      to: referrer.email,
+      subject: "You've earned your $10k builder credit!",
+      html: renderEmailHtml({
+        heading: `Nice work, ${referrerFirstName}!`,
+        blocks: referrerBlocks,
+        cta: { label: "View your dashboard", url: `${SITE_URL}/dashboard` },
+      }),
+      text: `Nice work, ${referrerFirstName}!\n\n${renderEmailText(referrerBlocks)}`,
+    });
+  }
 
   await supabase
     .from("users")
