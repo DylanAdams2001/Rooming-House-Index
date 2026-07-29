@@ -47,7 +47,10 @@ function ListingsContent({ listings }: { listings: RoomListing[] }) {
             <h1 className="font-display text-4xl text-ink md:text-5xl">Find Your Next Room</h1>
             <p className="mx-auto mt-4 max-w-xl text-body">
               Browse self-contained studios and rooms in registered rooming houses across
-              Victoria — no account needed.
+              Victoria.
+            </p>
+            <p className="mt-3 text-sm font-medium text-ink">
+              Every room is fully furnished, with bills included.
             </p>
           </div>
         </section>
