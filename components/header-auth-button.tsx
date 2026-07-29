@@ -55,20 +55,41 @@ export function HeaderAuthButton() {
         .maybeSingle();
       setAvatarUrl(profile?.avatar_url ?? null);
       setFullName(profile?.full_name ?? null);
-      setIsInvestor(profile?.investor_access === "active");
+      const investorAccess = profile?.investor_access === "active";
+      setIsInvestor(investorAccess);
 
-      // Same unread comparison as the account layout's badge — pulled and
+      // Same unread comparison the dashboard/account layouts use — pulled and
       // compared in JS since it's two columns on the same row, not something
-      // a Supabase filter can express directly.
-      const { data: conversations } = await supabase
-        .from("listing_conversations")
-        .select("last_message_at, tenant_last_read_at")
-        .eq("tenant_id", user.id);
-      setUnreadCount(
-        (conversations ?? []).filter(
-          (c) => !c.tenant_last_read_at || new Date(c.last_message_at) > new Date(c.tenant_last_read_at)
-        ).length
-      );
+      // a Supabase filter can express directly. Which table(s) depends on
+      // which Messages tab this account actually has: an investor's real
+      // inbox is conversations/quote_conversations (dashboard/messages), not
+      // listing_conversations (the tenant room-enquiry inbox) — querying the
+      // wrong one meant an investor could see a red dot here that never
+      // matched what they'd find in their actual Messages tab.
+      if (investorAccess) {
+        const [{ data: conversations }, { data: quoteConversations }] = await Promise.all([
+          supabase.from("conversations").select("last_message_at, investor_last_read_at").eq("investor_id", user.id),
+          supabase.from("quote_conversations").select("last_message_at, investor_last_read_at"),
+        ]);
+        setUnreadCount(
+          (conversations ?? []).filter(
+            (c) => !c.investor_last_read_at || new Date(c.last_message_at) > new Date(c.investor_last_read_at)
+          ).length +
+            (quoteConversations ?? []).filter(
+              (c) => !c.investor_last_read_at || new Date(c.last_message_at) > new Date(c.investor_last_read_at)
+            ).length
+        );
+      } else {
+        const { data: conversations } = await supabase
+          .from("listing_conversations")
+          .select("last_message_at, tenant_last_read_at")
+          .eq("tenant_id", user.id);
+        setUnreadCount(
+          (conversations ?? []).filter(
+            (c) => !c.tenant_last_read_at || new Date(c.last_message_at) > new Date(c.tenant_last_read_at)
+          ).length
+        );
+      }
     }
 
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -187,7 +208,7 @@ export function HeaderAuthButton() {
             >
               <Icon className="h-4 w-4" />
               {label}
-              {href === "/account/messages" && unreadCount > 0 && (
+              {(href === "/account/messages" || href === "/dashboard/messages") && unreadCount > 0 && (
                 <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-medium text-white">
                   {unreadCount}
                 </span>
