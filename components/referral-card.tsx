@@ -36,7 +36,7 @@ export function ReferralCard({ referralCode, referralCount }: { referralCode: st
         <p className="text-sm text-body">
           {earned
             ? "You've referred 3 friends who became investors — we'll be in touch to arrange your $10k builder credit."
-            : `Invite 3 friends to sign up and become active investors, and earn a $10k builder credit. You're at ${referralCount} of ${REFERRAL_GOAL}.`}
+            : `Invite 3 friends to sign up and earn a $10k builder credit. You're at ${referralCount} of ${REFERRAL_GOAL}.`}
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Input readOnly value={link} className="flex-1" onFocus={(e) => e.target.select()} />
