@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LABELS = ["", "Shared kitchen"];
+// Minimum horizontal drag distance (px) before a touch gesture counts as a
+// swipe rather than an incidental tap/scroll wobble.
+const SWIPE_THRESHOLD = 50;
 
 export function ListingGallery({
   photos,
@@ -16,6 +19,7 @@ export function ListingGallery({
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [closingGallery, setClosingGallery] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   function closeGallery() {
     setClosingGallery(true);
@@ -25,13 +29,33 @@ export function ListingGallery({
     }, 150);
   }
 
+  function showNext() {
+    setOpenIndex((i) => (i === null ? i : (i + 1) % photos.length));
+  }
+
+  function showPrev() {
+    setOpenIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length));
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < SWIPE_THRESHOLD) return;
+    if (delta < 0) showNext();
+    else showPrev();
+  }
+
   useEffect(() => {
     if (openIndex === null) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") closeGallery();
-      if (e.key === "ArrowRight") setOpenIndex((i) => (i === null ? i : (i + 1) % photos.length));
-      if (e.key === "ArrowLeft")
-        setOpenIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length));
+      if (e.key === "ArrowRight") showNext();
+      if (e.key === "ArrowLeft") showPrev();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -73,14 +97,19 @@ export function ListingGallery({
         )}
       </div>
 
-      {openIndex !== null && (
+      {(openIndex !== null || closingGallery) && (
         <div
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-ink/90 p-4"
-          onClick={() => setOpenIndex(null)}
+          className={cn(
+            "fixed inset-0 z-[2000] flex items-center justify-center bg-ink/90 p-4 duration-150",
+            closingGallery ? "animate-out fade-out" : "animate-in fade-in"
+          )}
+          onClick={closeGallery}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           <button
             type="button"
-            onClick={() => setOpenIndex(null)}
+            onClick={closeGallery}
             aria-label="Close"
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
           >
@@ -93,10 +122,10 @@ export function ListingGallery({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpenIndex((i) => (i === null ? i : (i - 1 + photos.length) % photos.length));
+                  showPrev();
                 }}
                 aria-label="Previous photo"
-                className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="absolute left-4 hidden h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:flex"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -104,10 +133,10 @@ export function ListingGallery({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpenIndex((i) => (i === null ? i : (i + 1) % photos.length));
+                  showNext();
                 }}
                 aria-label="Next photo"
-                className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="absolute right-4 hidden h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:flex"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -118,16 +147,29 @@ export function ListingGallery({
             className="relative h-[80vh] w-full max-w-4xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={photos[openIndex]}
-              alt={`${altBase} — enlarged photo ${openIndex + 1}`}
-              fill
-              className="object-contain"
-            />
+            {openIndex !== null && (
+              <Image
+                src={photos[openIndex]}
+                alt={`${altBase} — enlarged photo ${openIndex + 1}`}
+                fill
+                className="object-contain"
+              />
+            )}
           </div>
 
-          {LABELS[openIndex] && (
-            <span className="absolute bottom-6 rounded-full bg-white/90 px-3 py-1 text-sm text-ink">
+          {photos.length > 1 && (
+            <div className="absolute bottom-6 flex gap-1.5 sm:hidden">
+              {photos.map((_, i) => (
+                <span
+                  key={i}
+                  className={cn("h-1.5 w-1.5 rounded-full", i === openIndex ? "bg-white" : "bg-white/40")}
+                />
+              ))}
+            </div>
+          )}
+
+          {openIndex !== null && LABELS[openIndex] && (
+            <span className="absolute bottom-6 hidden rounded-full bg-white/90 px-3 py-1 text-sm text-ink sm:block">
               {LABELS[openIndex]}
             </span>
           )}

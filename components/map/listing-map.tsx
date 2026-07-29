@@ -35,6 +35,12 @@ export function ListingMap({
           streetViewControl: !approximate,
           mapTypeControl: false,
           fullscreenControl: false,
+          // Without this, a one-finger swipe starting on the map pans the
+          // map instead of scrolling the page on mobile — "cooperative"
+          // requires two fingers to pan/zoom on touch devices (showing a
+          // brief "use two fingers" hint), while a normal scroll still
+          // passes straight through.
+          gestureHandling: "cooperative",
           // AdvancedMarkerElement (below) refuses to render without a Map ID —
           // omitting it here just means the classic Marker fallback is used.
           ...(mapId ? { mapId } : {}),

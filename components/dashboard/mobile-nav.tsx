@@ -85,7 +85,7 @@ export function MobileNav({
                       <button
                         type="button"
                         onClick={() => setOpenGroup(isOpen ? null : item.label)}
-                        className="flex w-full items-center gap-3 rounded-btn px-3 py-2.5 text-sm text-body transition-colors hover:bg-linen hover:text-ink"
+                        className="flex w-full items-center gap-3 rounded-btn px-3 py-3 text-sm text-body transition-colors hover:bg-linen hover:text-ink"
                       >
                         <Icon className="h-4 w-4" />
                         <span className="flex-1 text-left">{item.label}</span>
@@ -102,7 +102,7 @@ export function MobileNav({
                                 href={child.href}
                                 onClick={closeNav}
                                 className={cn(
-                                  "flex items-center justify-between gap-2 rounded-btn px-3 py-2 text-sm transition-colors",
+                                  "flex items-center justify-between gap-2 rounded-btn px-3 py-3 text-sm transition-colors",
                                   pathname.startsWith(child.href)
                                     ? "bg-ink text-white"
                                     : "text-body hover:bg-linen hover:text-ink"
@@ -113,7 +113,7 @@ export function MobileNav({
                             ) : (
                               <div
                                 key={child.label}
-                                className="flex items-center justify-between gap-2 rounded-btn px-3 py-2 text-sm text-muted"
+                                className="flex items-center justify-between gap-2 rounded-btn px-3 py-3 text-sm text-muted"
                               >
                                 <span>{child.label}</span>
                                 {child.comingSoon && (
@@ -140,7 +140,7 @@ export function MobileNav({
                     rel={item.external ? "noopener noreferrer" : undefined}
                     onClick={closeNav}
                     className={cn(
-                      "flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm transition-colors",
+                      "flex items-center gap-3 rounded-btn px-3 py-3 text-sm transition-colors",
                       active ? "bg-ink text-white" : "text-body hover:bg-linen hover:text-ink"
                     )}
                   >

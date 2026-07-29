@@ -89,7 +89,7 @@ export function PartnersMobileNav({
                     href={item.href}
                     onClick={closeNav}
                     className={cn(
-                      "flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm transition-colors",
+                      "flex items-center gap-3 rounded-btn px-3 py-3 text-sm transition-colors",
                       active ? "bg-ink text-white" : "text-body hover:bg-linen hover:text-ink"
                     )}
                   >
