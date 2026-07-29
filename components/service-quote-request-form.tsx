@@ -66,25 +66,28 @@ export function ServiceQuoteRequestForm({
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<"idle" | "checking" | "submitting" | "success">("idle");
   const [error, setError] = useState<string | null>(null);
-  // A pending request already exists in this category — blocks a duplicate
-  // (double-click, mis-click, or spam) until quotes actually come back,
-  // rather than making them wait out an arbitrary timer.
-  const [hasPending, setHasPending] = useState(false);
+  // Set once a request exists in this category from within the last 14
+  // days — blocks a new submission until that cooldown passes, regardless
+  // of whether the earlier request is still pending or already quoted.
+  const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
 
-  async function checkPending() {
+  async function fetchLockedUntil(): Promise<Date | null> {
     const { data } = await supabase
       .from("service_quote_requests")
-      .select("id")
+      .select("created_at")
       .eq("user_id", userId)
       .eq("category", category)
-      .eq("status", "pending")
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    setHasPending(!!data);
+
+    if (!data) return null;
+    const unlockAt = new Date(new Date(data.created_at).getTime() + 14 * 24 * 60 * 60 * 1000);
+    return unlockAt > new Date() ? unlockAt : null;
   }
 
   useEffect(() => {
-    checkPending();
+    fetchLockedUntil().then(setLockedUntil);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isBuilding = category === "building";
@@ -111,19 +114,17 @@ export function ServiceQuoteRequestForm({
     setError(null);
     setStatus("checking");
 
-    const { data: pending } = await supabase
-      .from("service_quote_requests")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("category", category)
-      .eq("status", "pending")
-      .limit(1)
-      .maybeSingle();
-
-    if (pending) {
-      setHasPending(true);
+    const unlockAt = await fetchLockedUntil();
+    if (unlockAt) {
+      setLockedUntil(unlockAt);
       setStatus("idle");
-      setError("You already have a quote request in progress for this category.");
+      setError(
+        `You can request another quote in this category from ${unlockAt.toLocaleDateString("en-AU", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })}.`
+      );
       lockRef.current = false;
       return;
     }
@@ -141,18 +142,19 @@ export function ServiceQuoteRequestForm({
 
     if (insertError) {
       setStatus("idle");
-      setError(
-        insertError.message.includes("already have a quote request")
-          ? "You already have a quote request in progress for this category."
-          : "Couldn't submit your request — please try again."
-      );
-      if (insertError.message.includes("already have a quote request")) setHasPending(true);
+      if (insertError.message.includes("request another quote")) {
+        const raceUnlockAt = await fetchLockedUntil();
+        setLockedUntil(raceUnlockAt);
+        setError(insertError.message);
+      } else {
+        setError("Couldn't submit your request — please try again.");
+      }
       lockRef.current = false;
       return;
     }
 
     setStatus("success");
-    setHasPending(true);
+    setLockedUntil(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000));
     await new Promise((resolve) => setTimeout(resolve, 1100));
     router.refresh();
     setPropertyAddress("");
@@ -242,10 +244,11 @@ export function ServiceQuoteRequestForm({
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {!error && hasPending && status === "idle" && (
+      {!error && lockedUntil && status === "idle" && (
         <p className="text-sm text-muted">
-          You already have a quote request in progress for this category — we&apos;ll be in
-          touch soon. You can request again once it&apos;s quoted.
+          You already have a quote request in this category — we&apos;ll be in touch soon. You
+          can request another one from{" "}
+          {lockedUntil.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}.
         </p>
       )}
 
@@ -257,7 +260,7 @@ export function ServiceQuoteRequestForm({
         )}
         disabled={
           busy ||
-          hasPending ||
+          !!lockedUntil ||
           (addressRequired && !propertyAddress.trim()) ||
           (bedroomCountRequired && !numberOfRooms)
         }

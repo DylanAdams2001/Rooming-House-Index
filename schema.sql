@@ -613,10 +613,11 @@ create index if not exists service_quote_quotes_request_id_idx
   on public.service_quote_quotes (request_id);
 
 -- Hard floor on quote requests, independent of any client-side check: blocks
--- a new request in a category while one is still pending there — guards
--- against double-click duplicates and spamming providers, while letting an
--- account request again as soon as quotes actually come back (no arbitrary
--- timer to wait out).
+-- a new request in a category for 14 days after the last one was submitted
+-- there, regardless of its status (pending, quoted, or closed) — guards
+-- against double-click duplicates and spamming providers, and gives
+-- investors a predictable cooldown instead of being able to immediately
+-- resubmit the moment a request gets quoted.
 create or replace function public.enforce_quote_request_rate_limit()
 returns trigger
 language plpgsql
@@ -627,9 +628,9 @@ begin
     select 1 from public.service_quote_requests
     where user_id = new.user_id
       and category = new.category
-      and status = 'pending'
+      and created_at > now() - interval '14 days'
   ) then
-    raise exception 'You already have a quote request in progress for this category.' using errcode = 'P0001';
+    raise exception 'You can request another quote in this category 14 days after your last request.' using errcode = 'P0001';
   end if;
   return new;
 end;
