@@ -84,7 +84,7 @@ export const serviceCategories: ServiceCategory[] = [
   {
     slug: "building",
     dbCategory: "building",
-    label: "Building",
+    label: "Accredited Builders",
     comingSoon: false,
     description: "Tell us about your build or renovation and we'll bring back multiple quotes direct from builders.",
     quoteBased: true,
