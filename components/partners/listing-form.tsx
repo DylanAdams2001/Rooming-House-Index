@@ -165,6 +165,15 @@ export function ListingForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // AddressAutocompleteInput wraps a <gmp-place-autocomplete> web component,
+    // not a real <input> — the "required" prop passed to it does nothing
+    // (custom elements don't participate in native constraint validation), so
+    // this was the only thing actually stopping a blank address from being
+    // submitted as a live listing.
+    if (!address.trim()) {
+      setError("Please enter an address.");
+      return;
+    }
     setStatus("submitting");
     setError(null);
 
@@ -371,7 +380,7 @@ export function ListingForm({
           "w-full transition-colors duration-300",
           status === "success" && "bg-green-600 hover:bg-green-600"
         )}
-        disabled={busy}
+        disabled={busy || !address.trim()}
       >
         {status === "submitting" && (
           <>
