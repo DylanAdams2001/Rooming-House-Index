@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Building2, ChevronDown } from "lucide-react";
 import { getDashboardNavItems } from "./nav-items";
+import { ProductTour } from "@/components/tour/product-tour";
 
 export function DashboardSidebar({
   role,
@@ -37,6 +38,7 @@ export function DashboardSidebar({
               <div key={item.label}>
                 <button
                   type="button"
+                  data-tour={item.href}
                   onClick={() => setOpenGroup(isOpen ? null : item.label)}
                   className="flex w-full items-center gap-3 rounded-btn px-3 py-2.5 text-sm text-body transition-colors hover:bg-linen hover:text-ink"
                 >
@@ -88,6 +90,7 @@ export function DashboardSidebar({
             <Link
               key={item.href}
               href={item.href}
+              data-tour={item.href}
               target={item.external ? "_blank" : undefined}
               rel={item.external ? "noopener noreferrer" : undefined}
               className={cn(
@@ -109,6 +112,19 @@ export function DashboardSidebar({
           );
         })}
       </nav>
+
+      <ProductTour
+        tourKey="dashboard-tour"
+        intro={{
+          title: "Welcome to Rooming House Standard!",
+          description: "Here's a quick look at what's available in your investor dashboard.",
+        }}
+        steps={navItems.map((item) => ({
+          selector: `[data-tour="${item.href}"]`,
+          title: item.label,
+          description: item.tourDescription,
+        }))}
+      />
     </aside>
   );
 }

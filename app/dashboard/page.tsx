@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SuburbCard } from "@/components/suburb-card";
 import { ReferralCard } from "@/components/referral-card";
-import { Hint } from "@/components/hints/hint";
 import { dashboardStats, suburbs } from "@/lib/mock-data";
 import {
   Building2,
@@ -98,14 +97,6 @@ export default async function DashboardHomePage() {
 
   return (
     <div>
-      <Hint hintKey="welcome" title="Welcome to Rooming House Standard!">
-        <p>
-          This is your investor dashboard — suburb-level data, saved suburbs, a market
-          comparison tool, and a vetted provider marketplace, all in one place.
-        </p>
-        <p>The first time you open a new tab, look out for a quick tip like this one.</p>
-      </Hint>
-
       <h1 className="font-display text-3xl text-ink">
         Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}
       </h1>

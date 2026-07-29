@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, ListChecks, Clock, CheckCircle2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Hint } from "@/components/hints/hint";
 
 const STATUS_STYLES: Record<string, string> = {
   approved: "border-green-600 bg-green-600 text-white",
@@ -42,14 +41,6 @@ export default async function PartnersHomePage() {
 
     return (
       <div>
-        <Hint hintKey="welcome" title="Welcome to Rooming House Standard!">
-          <p>
-            This is your Partner Portal — every business partner across every category lives
-            here. Click into one to see their listings and who&apos;s enquired with them.
-          </p>
-          <p>The first time you open a new tab, look out for a quick tip like this one.</p>
-        </Hint>
-
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-ink" />
           <h1 className="font-display text-3xl text-ink">Business Partners</h1>
@@ -141,14 +132,6 @@ export default async function PartnersHomePage() {
 
   return (
     <div>
-      <Hint hintKey="welcome" title="Welcome to Rooming House Standard!">
-        <p>
-          This is your Partner Portal — reply to messages, manage your listings or quote
-          requests, and keep your business details current, all from one place.
-        </p>
-        <p>The first time you open a new tab, look out for a quick tip like this one.</p>
-      </Hint>
-
       <h1 className="font-display text-3xl text-ink">Partner Portal</h1>
       <p className="mt-2 text-body">Reply to messages and manage your listings from one place.</p>
 

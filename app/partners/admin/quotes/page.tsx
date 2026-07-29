@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Hint } from "@/components/hints/hint";
 import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -73,11 +72,6 @@ export default async function AdminQuotesPage() {
 
   return (
     <div>
-      <Hint hintKey="admin-quotes" title="All Quotes">
-        <p>Every quote request across every category, and every quote submitted against it.</p>
-        <p>Click any submitted quote to jump straight into that conversation.</p>
-      </Hint>
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <FileText className="h-6 w-6 text-ink" />

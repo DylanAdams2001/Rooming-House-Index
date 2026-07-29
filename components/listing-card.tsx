@@ -2,11 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import { ListingPhoto } from "@/components/listing-photo";
 import { CalendarClock } from "lucide-react";
 import { getListingTitle, type RoomListing } from "@/lib/mock-listings";
-import { cn } from "@/lib/utils";
 
 export function ListingCard({ listing }: { listing: RoomListing }) {
   return (
@@ -55,7 +53,9 @@ export function ListingCard({ listing }: { listing: RoomListing }) {
               </p>
             )}
           </div>
-          <span className={cn(buttonVariants(), "w-full")}>See Listing</span>
+          <span className="inline-flex h-11 w-full items-center justify-center whitespace-nowrap rounded-btn bg-ink px-6 py-2 text-sm font-medium tracking-wide text-white transition-colors group-hover:bg-ink/90">
+            See Listing
+          </span>
         </CardContent>
       </Card>
     </Link>

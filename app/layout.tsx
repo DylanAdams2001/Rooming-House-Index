@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "driver.js/dist/driver.css";
 import "./globals.css";
 import { SupportChatWidget } from "@/components/support-chat-widget";
 import { TopProgressBar } from "@/components/top-progress-bar";

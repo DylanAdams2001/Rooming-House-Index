@@ -66,3 +66,70 @@
   outline: 1px solid #1a1a1a;
   outline-offset: -1px;
 }
+
+/* driver.js (product tour) theme — restyled to match this app's tokens
+   instead of the library's default rounded/purple look. Class names come
+   from driver.js's own stylesheet (imported in app/layout.tsx); this block
+   just overrides colors/shapes, not layout. */
+.rhi-tour-popover.driver-popover {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(26, 26, 26, 0.18);
+  padding: 20px;
+  max-width: 320px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+.rhi-tour-popover .driver-popover-title {
+  font-family: Georgia, Cambria, "Times New Roman", serif;
+  font-size: 18px;
+  color: #1a1a1a;
+}
+.rhi-tour-popover .driver-popover-description {
+  color: #555555;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.rhi-tour-popover .driver-popover-progress-text {
+  color: #999999;
+  font-size: 12px;
+}
+.rhi-tour-popover .driver-popover-close-btn {
+  color: #999999;
+}
+.rhi-tour-popover .driver-popover-close-btn:hover {
+  color: #1a1a1a;
+}
+.rhi-tour-popover .driver-popover-footer-btn {
+  border-radius: 0px;
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.rhi-tour-popover .driver-popover-footer-btn:hover {
+  background: #f0ede9;
+}
+.rhi-tour-popover .driver-popover-next-btn,
+.rhi-tour-popover .driver-popover-done-btn {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+.rhi-tour-popover .driver-popover-next-btn:hover,
+.rhi-tour-popover .driver-popover-done-btn:hover {
+  background: rgba(26, 26, 26, 0.9);
+}
+.rhi-tour-popover .driver-popover-arrow-side-left {
+  border-right-color: #ffffff;
+}
+.rhi-tour-popover .driver-popover-arrow-side-right {
+  border-left-color: #ffffff;
+}
+.rhi-tour-popover .driver-popover-arrow-side-top {
+  border-bottom-color: #ffffff;
+}
+.rhi-tour-popover .driver-popover-arrow-side-bottom {
+  border-top-color: #ffffff;
+}

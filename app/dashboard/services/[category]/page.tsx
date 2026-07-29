@@ -8,16 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/back-link";
-import { Hint } from "@/components/hints/hint";
 import { cn } from "@/lib/utils";
-
-// Only the categories we have an actual screenshot for — every other
-// quoteBased category still gets the hint, just text-only.
-const SERVICE_HINT_IMAGES: Record<string, string> = {
-  insurance: "/hints/services-insurance.jpg",
-  property_management: "/hints/services-property-management.jpg",
-  building: "/hints/services-building.jpg",
-};
 
 // Both branches below now render real, per-request Supabase data (quote
 // requests for the quoteBased categories, live approved providers for
@@ -91,15 +82,6 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
     return (
       <div>
         <BackLink href="/dashboard/services" label="Services" />
-
-        <Hint
-          hintKey={`dashboard-services-${category.dbCategory}`}
-          title={category.label}
-          image={SERVICE_HINT_IMAGES[category.dbCategory]}
-        >
-          <p>{category.description}</p>
-          <p>Submit your details once and we&apos;ll bring back quotes here — no need to shop around yourself.</p>
-        </Hint>
 
         <h1 className="font-display text-3xl text-ink">{category.label}</h1>
         <p className="mt-2 max-w-2xl text-body">{category.description}</p>

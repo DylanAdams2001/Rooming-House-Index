@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Building2 } from "lucide-react";
 import { getAccountNavItems } from "./nav-items";
+import { ProductTour } from "@/components/tour/product-tour";
 
 export function AccountSidebar({
   role,
@@ -33,6 +34,7 @@ export function AccountSidebar({
             <Link
               key={item.href}
               href={item.href}
+              data-tour={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm transition-colors",
                 active ? "bg-ink text-white" : "text-body hover:bg-linen hover:text-ink"
@@ -50,6 +52,19 @@ export function AccountSidebar({
           );
         })}
       </nav>
+
+      <ProductTour
+        tourKey="account-tour"
+        intro={{
+          title: "Welcome to Rooming House Standard!",
+          description: "Here's a quick look around your account.",
+        }}
+        steps={accountNavItems.map((item) => ({
+          selector: `[data-tour="${item.href}"]`,
+          title: item.label,
+          description: item.tourDescription,
+        }))}
+      />
     </aside>
   );
 }

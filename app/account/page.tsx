@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, FileText, Search, TrendingUp } from "lucide-react";
-import { Hint } from "@/components/hints/hint";
 
 export default async function AccountHomePage() {
   const supabase = createClient();
@@ -39,14 +38,6 @@ export default async function AccountHomePage() {
 
   return (
     <div>
-      <Hint hintKey="welcome" title="Welcome to Rooming House Standard!">
-        <p>
-          This is your account home — browse rooms, message property teams once you enquire, and
-          keep your rental application up to date so landlords can review it instantly.
-        </p>
-        <p>The first time you open a new tab, look out for a quick tip like this one.</p>
-      </Hint>
-
       <h1 className="font-display text-3xl text-ink">Welcome back</h1>
       <p className="mt-2 text-body">Find a room, message the property team, and manage your application.</p>
 

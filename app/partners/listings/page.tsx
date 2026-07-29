@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { ListingDeleteButton } from "@/components/partners/listing-delete-button";
 import { Home, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Hint } from "@/components/hints/hint";
 
 const STATUS_STYLES: Record<string, string> = {
   approved: "border-green-600 bg-green-600 text-white",
@@ -28,11 +27,6 @@ export default async function PartnersListingsPage() {
 
   return (
     <div>
-      <Hint hintKey="partners-listings" title="Rooms">
-        <p>Every room you&apos;ve listed, with its status — pending, approved, or rejected.</p>
-        <p>Listings publish immediately once saved. Edit pricing or details any time.</p>
-      </Hint>
-
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl text-ink">Rooms</h1>

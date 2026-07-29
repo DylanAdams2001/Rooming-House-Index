@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
-import { Hint } from "@/components/hints/hint";
 
 export default async function ServicesPage() {
   const supabase = createClient();
@@ -20,18 +19,6 @@ export default async function ServicesPage() {
 
   return (
     <div>
-      <Hint hintKey="dashboard-services" title="Services" image="/hints/dashboard-services.jpg">
-        <p>
-          Vetted insurance, legal, maintenance, and other providers for running a rooming
-          house.
-        </p>
-        <p>
-          Most categories let you message a provider directly. Insurance and property
-          management work differently — submit your details once and we bring back multiple
-          quotes.
-        </p>
-      </Hint>
-
       <h1 className="font-display text-3xl text-ink">Services</h1>
       <p className="mt-2 text-body">
         Vetted providers for every stage of running a rooming house — connect and message
