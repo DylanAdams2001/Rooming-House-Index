@@ -100,7 +100,10 @@ export async function POST(req: Request) {
       },
       {
         type: "paragraph",
-        text: "The Rooming House Standard team will be in touch shortly to help finalise the details.",
+        text:
+          request?.category === "building"
+            ? "The builder will be in touch shortly to help finalise the details."
+            : "The Rooming House Standard team will be in touch shortly to help finalise the details.",
       },
     ];
 
