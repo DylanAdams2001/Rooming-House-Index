@@ -259,6 +259,24 @@ const curatedSuburbs: Suburb[] = [
     rentalTrend: rentalTrend(390),
     supplyGrowth: supplyGrowth(6),
   },
+  {
+    id: "shepparton-3630",
+    name: "Shepparton",
+    postcode: "3630",
+    state: "VIC",
+    council: "Greater Shepparton City Council",
+    demandLevel: "High",
+    demandVerified: true,
+    avgRoomRate: 345,
+    avgRoomRateVerified: true,
+    numRoomingHouses: 22,
+    lat: -36.380853,
+    lng: 145.403176,
+    commentary:
+      "Regional Victoria's tightest rental market right now — vacancy sits at just 1.0% against a healthy benchmark of 3.0%, and median rent has grown 12.7% over the past year (PRD Shepparton Market Update H1 2025; InvestorKit Shepparton Property Market 2026). Population is forecast to grow from 68,409 (2021) to 81,905 by 2036, and capital-to-region relocations into the area rose 229% year-on-year (2025 Regional Movers Index). Shepparton is home to Goulburn Valley Health, GOTAFE and a La Trobe University campus, giving rooming houses a steady tenant base of healthcare, TAFE and university staff. A recently built rooming house near the hospital precinct is achieving around $345/wk per room, with rents that haven't risen since opening — a sign there's room to move given how far demand is outstripping supply.",
+    rentalTrend: rentalTrend(330),
+    supplyGrowth: supplyGrowth(18),
+  },
 ];
 
 // The remaining ~200 Victorian suburbs from the CAV register, covering every postcode
@@ -293,9 +311,14 @@ const VERIFIED_RATES: Record<string, number> = {
   "norlane-3214": 330,
   "ballarat-east-3350": 360,
   "melton-south-3338": 320,
+  "wyndham-vale-3024": 315,
 };
 
-const generatedSuburbs: Suburb[] = vicSuburbsExtra.map((s) => {
+// Shepparton is promoted into curatedSuburbs above (real regional market data
+// available, not just a rate) — excluded here so it isn't listed twice.
+const generatedSuburbs: Suburb[] = vicSuburbsExtra
+  .filter((s) => s.id !== "shepparton-3630")
+  .map((s) => {
   const verifiedRate = VERIFIED_RATES[s.id];
   const avgRoomRate = verifiedRate ?? Math.round(seededValue(s.id, 175, 260) / 5) * 5;
   const avgRoomRateVerified = verifiedRate !== undefined;
