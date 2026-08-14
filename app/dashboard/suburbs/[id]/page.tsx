@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSuburbById, suburbs, formatAvgRoomRate } from "@/lib/mock-data";
+import { getPropertyRentalsForSuburb } from "@/lib/property-rentals";
+import { loadSuburbAddresses } from "@/lib/load-suburb-addresses";
 import { DemandBadge } from "@/components/demand-badge";
 import { SaveSuburbButton } from "@/components/save-suburb-button";
 import { RentalTrendChart } from "@/components/charts/rental-trend-chart";
@@ -8,18 +10,29 @@ import { SupplyGrowthChart } from "@/components/charts/supply-growth-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BackLink } from "@/components/back-link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ChevronRight } from "lucide-react";
 
 export function generateStaticParams() {
   return suburbs.map((s) => ({ id: s.id }));
 }
 
-export default function SuburbDetailPage({ params }: { params: { id: string } }) {
+export default async function SuburbDetailPage({ params }: { params: { id: string } }) {
   const suburb = getSuburbById(params.id);
 
   if (!suburb) {
     notFound();
   }
+
+  const addresses = await loadSuburbAddresses(suburb.postcode);
+  const properties = getPropertyRentalsForSuburb(suburb.id);
+  // Verified properties are often also in the plain CAV address list (same address) —
+  // skip them there so each address only appears once, in its more useful form.
+  const propertyCoordKeys = new Set(
+    properties.map((p) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`)
+  );
+  const plainAddresses = addresses.filter(
+    (a) => !propertyCoordKeys.has(`${a.lat.toFixed(5)},${a.lng.toFixed(5)}`)
+  );
 
   return (
     <div>
@@ -131,6 +144,50 @@ export default function SuburbDetailPage({ params }: { params: { id: string } })
         <CardContent>
           <p className="text-body">{suburb.commentary}</p>
         </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Registered Addresses</CardTitle>
+          <p className="text-sm text-muted">
+            {addresses.length > 0
+              ? `${addresses.length} registered rooming house${
+                  addresses.length === 1 ? "" : "s"
+                } on the Consumer Affairs Victoria register.`
+              : "Address-level data isn't available for this suburb yet."}
+          </p>
+        </CardHeader>
+        {addresses.length > 0 && (
+          <CardContent>
+            {properties.length > 0 && (
+              <div className="mb-5 space-y-2">
+                {properties.map((property) => (
+                  <Link
+                    key={property.id}
+                    href={`/dashboard/suburbs/${suburb.id}/property/${property.id}`}
+                    className="flex items-center justify-between gap-3 rounded-btn border-2 border-amber-600 bg-amber-50 px-4 py-3 text-sm transition-colors hover:bg-amber-100"
+                  >
+                    <div>
+                      <p className="font-medium text-ink">{property.address}</p>
+                      <p className="text-xs text-muted">
+                        {property.rooms.length} rooms &middot; avg ${property.avgWeeklyRate}/wk
+                        &middot; real room-by-room rent data
+                      </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-ink" />
+                  </Link>
+                ))}
+              </div>
+            )}
+            {plainAddresses.length > 0 && (
+              <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 text-sm text-body sm:grid-cols-2 lg:grid-cols-3">
+                {plainAddresses.map((a, i) => (
+                  <p key={i}>{a.street}</p>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
     </div>
   );
