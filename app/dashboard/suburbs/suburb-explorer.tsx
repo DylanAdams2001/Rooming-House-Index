@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { suburbs, type DemandLevel } from "@/lib/mock-data";
+import type { FocusSuburbTrigger } from "@/components/map/suburb-map";
 import { SuburbCard } from "@/components/suburb-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ export function SuburbExplorer() {
   const [demand, setDemand] = useState<DemandLevel | "All">("All");
   const [rateRange, setRateRange] = useState<[number, number]>([150, 450]);
   const [view, setView] = useState<"grid" | "map">("map");
+  const [focusSuburb, setFocusSuburb] = useState<FocusSuburbTrigger | null>(null);
   const { isSaved, toggleSaved, loaded } = useSavedSuburbs();
 
   const results = useMemo(() => {
@@ -121,7 +123,14 @@ export function SuburbExplorer() {
                   <button
                     key={s.id}
                     type="button"
-                    onMouseDown={() => router.push(`/dashboard/suburbs/${s.id}`)}
+                    onMouseDown={() => {
+                      if (view === "map") {
+                        setFocusSuburb({ id: s.id, nonce: Date.now() });
+                        setShowSuggestions(false);
+                      } else {
+                        router.push(`/dashboard/suburbs/${s.id}`);
+                      }
+                    }}
                     className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-sm text-body hover:bg-linen hover:text-ink"
                   >
                     <span>{s.name}</span>
@@ -238,7 +247,7 @@ export function SuburbExplorer() {
         </div>
       ) : (
         <div className="mt-4">
-          <SuburbMap suburbs={results} />
+          <SuburbMap suburbs={results} focusSuburb={focusSuburb} />
         </div>
       )}
     </div>

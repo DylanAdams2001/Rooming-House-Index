@@ -52,7 +52,15 @@ function FlyTo({
   return null;
 }
 
-export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
+export type FocusSuburbTrigger = { id: string; nonce: number };
+
+export function SuburbMap({
+  suburbs,
+  focusSuburb,
+}: {
+  suburbs: Suburb[];
+  focusSuburb?: FocusSuburbTrigger | null;
+}) {
   const router = useRouter();
   const [expanded, setExpanded] = useState<Suburb | null>(null);
   const [addresses, setAddresses] = useState<AddressPoint[]>([]);
@@ -71,6 +79,16 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
     setExpanded(null);
     setAddresses([]);
   }
+
+  // Selecting a suburb from the search box (while already on the map view) should
+  // pan/zoom to it on the map instead of navigating away to its detail page. The nonce
+  // (not just the id) is the dep so re-selecting the same suburb twice still re-fires.
+  useEffect(() => {
+    if (!focusSuburb) return;
+    const match = suburbs.find((s) => s.id === focusSuburb.id);
+    if (match) expandSuburb(match);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusSuburb]);
 
   const streetCounts = expanded ? groupByStreet(addresses) : [];
   const propertiesForExpanded = expanded ? getPropertyRentalsForSuburb(expanded.id) : [];
