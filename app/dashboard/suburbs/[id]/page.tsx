@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSuburbById, suburbs, formatAvgRoomRate } from "@/lib/mock-data";
-import { getPropertyRentalsForSuburb } from "@/lib/property-rentals";
+import { getPropertyRentalsForSuburb, getPropertyRateSummary } from "@/lib/property-rentals";
 import { loadSuburbAddresses } from "@/lib/load-suburb-addresses";
 import { DemandBadge } from "@/components/demand-badge";
 import { SaveSuburbButton } from "@/components/save-suburb-button";
@@ -165,12 +165,12 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
                   <Link
                     key={property.id}
                     href={`/dashboard/suburbs/${suburb.id}/property/${property.id}`}
-                    className="flex items-center justify-between gap-3 rounded-btn border-2 border-amber-600 bg-amber-50 px-4 py-3 text-sm transition-colors hover:bg-amber-100"
+                    className="flex items-center justify-between gap-3 rounded-btn border-2 border-green-600 bg-green-50 px-4 py-3 text-sm transition-colors hover:bg-green-100"
                   >
                     <div>
                       <p className="font-medium text-ink">{property.address}</p>
                       <p className="text-xs text-muted">
-                        {property.rooms.length} rooms &middot; avg ${property.avgWeeklyRate}/wk
+                        {property.rooms.length} rooms &middot; {getPropertyRateSummary(property)}{" "}
                         &middot; real room-by-room rent data
                       </p>
                     </div>

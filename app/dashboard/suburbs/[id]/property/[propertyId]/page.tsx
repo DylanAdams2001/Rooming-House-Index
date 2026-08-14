@@ -14,12 +14,14 @@ const statusStyles: Record<PropertyRoomRental["status"], string> = {
   tenanted: "border-line bg-white text-body",
   vacant: "border-green-600 bg-green-50 text-green-700",
   "under-application": "border-line bg-linen text-ink",
+  unknown: "border-line bg-offwhite text-muted",
 };
 
 const statusLabels: Record<PropertyRoomRental["status"], string> = {
   tenanted: "Tenanted",
   vacant: "Vacant",
   "under-application": "Under application",
+  unknown: "No data",
 };
 
 export default function PropertyRentalPage({
@@ -34,6 +36,19 @@ export default function PropertyRentalPage({
     notFound();
   }
 
+  const knownRooms = property.rooms.filter(
+    (r) => r.status !== "unknown" && r.weeklyRate > 0
+  );
+  const rateLabel =
+    property.avgWeeklyRate !== undefined
+      ? "Avg. room rate"
+      : `Known rate (${knownRooms.length} of ${property.rooms.length})`;
+  const rateValue =
+    property.avgWeeklyRate ??
+    (knownRooms.length > 0
+      ? Math.round(knownRooms.reduce((sum, r) => sum + r.weeklyRate, 0) / knownRooms.length)
+      : null);
+
   return (
     <div>
       <BackLink href={`/dashboard/suburbs/${suburb.id}`} label={suburb.name} />
@@ -41,10 +56,22 @@ export default function PropertyRentalPage({
       <div>
         <p className="text-sm text-muted">{suburb.name} rooming house</p>
         <h1 className="mt-1 font-display text-4xl text-ink">{property.address}</h1>
+        <p className="mt-1 text-xs text-muted">
+          Added{" "}
+          {new Date(property.dateAdded).toLocaleDateString("en-AU", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            timeZone: "UTC",
+          })}
+        </p>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatTile label="Avg. room rate" value={`$${property.avgWeeklyRate}/wk`} />
+        <StatTile
+          label={rateLabel}
+          value={rateValue !== null ? `$${rateValue}/wk` : "No data"}
+        />
         <StatTile label="Total rooms" value={String(property.rooms.length)} />
         <StatTile
           label="Vacant now"

@@ -22,7 +22,7 @@ const markerColor: Record<DemandLevel, string> = {
   Low: "#c9c9c9",
 };
 
-const VERIFIED_RENT_COLOR = "#d97706";
+const VERIFIED_RENT_COLOR = "#16a34a";
 
 const VIC_CENTER: [number, number] = [-37.95, 144.95];
 const VIC_ZOOM = 9;
@@ -253,7 +253,7 @@ export function SuburbMap({
                 className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
                 style={{ backgroundColor: VERIFIED_RENT_COLOR }}
               />
-              Amber marker — real room-by-room rent data available. Click it on the map to view.
+              Green marker — real room-by-room rent data available. Click it on the map to view.
             </p>
           )}
         </div>

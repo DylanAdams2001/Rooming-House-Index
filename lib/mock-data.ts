@@ -91,7 +91,8 @@ const curatedSuburbs: Suburb[] = [
     state: "VIC",
     council: "Greater Dandenong City Council",
     demandLevel: "High",
-    avgRoomRate: 210,
+    avgRoomRate: 380,
+    avgRoomRateVerified: true,
     numRoomingHouses: 89,
     lat: -37.9877,
     lng: 145.2148,
@@ -204,7 +205,7 @@ const curatedSuburbs: Suburb[] = [
     state: "VIC",
     council: "Frankston City Council",
     demandLevel: "Low",
-    avgRoomRate: 370,
+    avgRoomRate: 400,
     avgRoomRateVerified: true,
     numRoomingHouses: 107,
     lat: -38.1418,
@@ -222,9 +223,8 @@ const curatedSuburbs: Suburb[] = [
     council: "Wyndham City Council",
     demandLevel: "High",
     demandVerified: true,
-    avgRoomRate: 340,
+    avgRoomRate: 370,
     avgRoomRateVerified: true,
-    avgRoomRateDisplay: "$330-350/wk",
     numRoomingHouses: 32,
     lat: -37.9004,
     lng: 144.662,
@@ -307,11 +307,12 @@ function seededValue(seed: string, min: number, max: number) {
 // Real room rates supplied directly, for suburbs that only exist in the generated
 // (non-curated) list. Overrides the seeded placeholder rate for these ids only.
 const VERIFIED_RATES: Record<string, number> = {
-  "laverton-3028": 370,
+  "laverton-3028": 360,
   "norlane-3214": 330,
   "ballarat-east-3350": 360,
   "melton-south-3338": 320,
-  "wyndham-vale-3024": 315,
+  "wyndham-vale-3024": 308,
+  "hoppers-crossing-3029": 380,
 };
 
 // Shepparton is promoted into curatedSuburbs above (real regional market data
