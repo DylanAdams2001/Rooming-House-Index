@@ -2,9 +2,11 @@
 
 import "leaflet/dist/leaflet.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
 import { formatAvgRoomRate, type Suburb, type DemandLevel } from "@/lib/mock-data";
+import { getPropertyRentalsForSuburb } from "@/lib/property-rentals";
 import { DemandBadge } from "@/components/demand-badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -20,19 +22,38 @@ const markerColor: Record<DemandLevel, string> = {
   Low: "#c9c9c9",
 };
 
+const VERIFIED_RENT_COLOR = "#d97706";
+
 const VIC_CENTER: [number, number] = [-37.95, 144.95];
 const VIC_ZOOM = 9;
 const SUBURB_ZOOM = 15;
 
-function FlyTo({ center, zoom }: { center: [number, number]; zoom: number }) {
+function FlyTo({
+  center,
+  zoom,
+  bounds,
+}: {
+  center: [number, number];
+  zoom: number;
+  bounds?: [number, number][];
+}) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo(center, zoom, { duration: 0.8 });
-  }, [center, zoom, map]);
+    // When the expanded suburb has verified property markers, fit the view to include
+    // them too — they can sit a few km from the suburb's own stored lat/lng, and a fixed
+    // zoom centered only on the suburb would leave them off-screen.
+    if (bounds && bounds.length > 1) {
+      map.flyToBounds(bounds, { padding: [60, 60], maxZoom: zoom, duration: 0.8 });
+    } else {
+      map.flyTo(center, zoom, { duration: 0.8 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center, zoom, bounds, map]);
   return null;
 }
 
 export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState<Suburb | null>(null);
   const [addresses, setAddresses] = useState<AddressPoint[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
@@ -52,6 +73,16 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
   }
 
   const streetCounts = expanded ? groupByStreet(addresses) : [];
+  const propertiesForExpanded = expanded ? getPropertyRentalsForSuburb(expanded.id) : [];
+  // A verified property is often also one of the plain CAV-register addresses (same
+  // coordinates) — skip the generic dot for those so it doesn't sit underneath, and
+  // block, the amber marker.
+  const propertyCoordKeys = new Set(
+    propertiesForExpanded.map((p) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`)
+  );
+  const plainAddresses = addresses.filter(
+    (a) => !propertyCoordKeys.has(`${a.lat.toFixed(5)},${a.lng.toFixed(5)}`)
+  );
 
   return (
     <div className="overflow-hidden rounded-card border border-line">
@@ -65,6 +96,14 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
           <FlyTo
             center={expanded ? [expanded.lat, expanded.lng] : VIC_CENTER}
             zoom={expanded ? SUBURB_ZOOM : VIC_ZOOM}
+            bounds={
+              expanded && propertiesForExpanded.length > 0
+                ? [
+                    [expanded.lat, expanded.lng],
+                    ...propertiesForExpanded.map((p): [number, number] => [p.lat, p.lng]),
+                  ]
+                : undefined
+            }
           />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -98,7 +137,7 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
             ))}
 
           {expanded &&
-            addresses.map((a, i) => (
+            plainAddresses.map((a, i) => (
               <CircleMarker
                 key={i}
                 center={[a.lat, a.lng]}
@@ -114,6 +153,37 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
                   <p className="text-sm text-ink">{a.street}</p>
                   <p className="text-xs text-muted">{expanded.name}</p>
                 </Popup>
+              </CircleMarker>
+            ))}
+
+          {expanded &&
+            propertiesForExpanded.map((property) => (
+              <CircleMarker
+                key={property.id}
+                center={[property.lat, property.lng]}
+                radius={9}
+                pathOptions={{
+                  color: "#ffffff",
+                  weight: 2,
+                  fillColor: VERIFIED_RENT_COLOR,
+                  fillOpacity: 1,
+                }}
+                eventHandlers={{
+                  click: () =>
+                    router.push(`/dashboard/suburbs/${expanded.id}/property/${property.id}`),
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -6]}>
+                  <div className="text-xs">
+                    <p className="font-display text-sm text-ink">{property.address}</p>
+                    <p className="text-muted">
+                      {property.rooms.length} rooms &middot; from ${Math.min(
+                        ...property.rooms.filter((r) => r.weeklyRate > 0).map((r) => r.weeklyRate)
+                      )}/wk
+                    </p>
+                    <p className="mt-0.5 text-muted">Click to view room-by-room rents</p>
+                  </div>
+                </Tooltip>
               </CircleMarker>
             ))}
         </MapContainer>
@@ -157,6 +227,15 @@ export function SuburbMap({ suburbs }: { suburbs: Suburb[] }) {
           {!loadingAddresses && addresses.length === 0 && (
             <p className="mt-2 text-sm text-muted">
               Address-level data isn&apos;t available for this suburb yet.
+            </p>
+          )}
+          {propertiesForExpanded.length > 0 && (
+            <p className="mt-3 flex items-center gap-2 text-sm text-body">
+              <span
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: VERIFIED_RENT_COLOR }}
+              />
+              Amber marker — real room-by-room rent data available. Click it on the map to view.
             </p>
           )}
         </div>
