@@ -308,7 +308,7 @@ function seededValue(seed: string, min: number, max: number) {
 // (non-curated) list. Overrides the seeded placeholder rate for these ids only.
 const VERIFIED_RATES: Record<string, number> = {
   "laverton-3028": 360,
-  "norlane-3214": 330,
+  "norlane-3214": 293,
   "ballarat-east-3350": 360,
   "melton-south-3338": 320,
   "wyndham-vale-3024": 308,

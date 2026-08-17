@@ -322,6 +322,44 @@ export const propertyRentals: PropertyRental[] = [
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-14",
   },
+  {
+    id: "25-pettitt-cres-norlane-3214",
+    address: "25 Pettitt Cres, Norlane VIC 3214",
+    suburbId: "norlane-3214",
+    lat: -38.0972926,
+    lng: 144.3596245,
+    rooms: [
+      {
+        label: "Room 1",
+        weeklyRate: 285,
+        status: "vacant",
+        note: "Unfurnished, bills included · advertised, not yet tenanted",
+      },
+    ],
+    avgWeeklyRate: 285,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-14",
+  },
+  {
+    id: "82-rose-ave-norlane-3214",
+    address: "82 Rose Ave, Norlane VIC 3214",
+    suburbId: "norlane-3214",
+    lat: -38.0884526,
+    lng: 144.3652362,
+    rooms: [
+      {
+        label: "Room 1",
+        weeklyRate: 300,
+        status: "vacant",
+        note: "Bills and furniture included · advertised, not yet tenanted",
+      },
+    ],
+    avgWeeklyRate: 300,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-14",
+  },
 ];
 
 export function getPropertyRentalsForSuburb(suburbId: string) {
