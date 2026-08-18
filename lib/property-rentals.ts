@@ -360,6 +360,39 @@ export const propertyRentals: PropertyRental[] = [
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-14",
   },
+  {
+    id: "6-kalver-st-corio-3214",
+    address: "6 Kalver St, Corio VIC 3214",
+    suburbId: "norlane-3214",
+    lat: -38.0701575,
+    lng: 144.3626149,
+    rooms: [
+      {
+        label: "Room 1",
+        weeklyRate: 280,
+        status: "vacant",
+        note: "Bills and furniture included · advertised, not yet tenanted",
+      },
+    ],
+    avgWeeklyRate: 280,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-14",
+  },
+  {
+    id: "17-woodland-dr-albanvale-3021",
+    address: "17 Woodland Dr, Albanvale VIC 3021",
+    suburbId: "st-albans-3021",
+    lat: -37.7457286,
+    lng: 144.7657578,
+    rooms: [
+      { label: "Room 1", weeklyRate: 320, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 320,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-14",
+  },
 ];
 
 export function getPropertyRentalsForSuburb(suburbId: string) {
