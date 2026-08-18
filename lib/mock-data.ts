@@ -110,7 +110,7 @@ const curatedSuburbs: Suburb[] = [
     demandLevel: "Medium",
     avgRoomRate: 380,
     avgRoomRateVerified: true,
-    numRoomingHouses: 30,
+    numRoomingHouses: 31,
     lat: -37.7448,
     lng: 144.7955,
     commentary:
