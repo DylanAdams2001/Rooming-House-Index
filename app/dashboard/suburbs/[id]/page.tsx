@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSuburbById, suburbs, formatAvgRoomRate } from "@/lib/mock-data";
-import { getPropertyRentalsForSuburb, getPropertyRateSummary } from "@/lib/property-rentals";
+import {
+  getPropertyRentalsForSuburb,
+  getPropertyRateSummary,
+  getPropertyConfirmationStatus,
+} from "@/lib/property-rentals";
 import { loadSuburbAddresses } from "@/lib/load-suburb-addresses";
 import { DemandBadge } from "@/components/demand-badge";
 import { SaveSuburbButton } from "@/components/save-suburb-button";
@@ -10,6 +14,7 @@ import { SupplyGrowthChart } from "@/components/charts/supply-growth-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BackLink } from "@/components/back-link";
+import { cn } from "@/lib/utils";
 import { ExternalLink, ChevronRight } from "lucide-react";
 
 export function generateStaticParams() {
@@ -161,22 +166,40 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
           <CardContent>
             {properties.length > 0 && (
               <div className="mb-5 space-y-2">
-                {properties.map((property) => (
-                  <Link
-                    key={property.id}
-                    href={`/dashboard/suburbs/${suburb.id}/property/${property.id}`}
-                    className="flex items-center justify-between gap-3 rounded-btn border-2 border-green-600 bg-green-50 px-4 py-3 text-sm transition-colors hover:bg-green-100"
-                  >
-                    <div>
-                      <p className="font-medium text-ink">{property.address}</p>
-                      <p className="text-xs text-muted">
-                        {property.rooms.length} rooms &middot; {getPropertyRateSummary(property)}{" "}
-                        &middot; real room-by-room rent data
-                      </p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-ink" />
-                  </Link>
-                ))}
+                {properties.map((property) => {
+                  const status = getPropertyConfirmationStatus(property);
+                  return (
+                    <Link
+                      key={property.id}
+                      href={`/dashboard/suburbs/${suburb.id}/property/${property.id}`}
+                      className={cn(
+                        "flex items-center justify-between gap-3 rounded-btn border-2 px-4 py-3 text-sm transition-colors",
+                        status === "tenanted"
+                          ? "border-green-600 bg-green-50 hover:bg-green-100"
+                          : "border-blue-600 bg-blue-50 hover:bg-blue-100"
+                      )}
+                    >
+                      <div>
+                        <p className="font-medium text-ink">{property.address}</p>
+                        <p className="text-xs text-muted">
+                          {property.rooms.length} rooms &middot; {getPropertyRateSummary(property)}{" "}
+                          &middot; {status === "tenanted" ? "confirmed tenanted rate" : "advertised, not yet tenanted"}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-ink" />
+                    </Link>
+                  );
+                })}
+                <p className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-xs text-muted">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-green-600" />
+                    Confirmed tenanted
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+                    Advertised only
+                  </span>
+                </p>
               </div>
             )}
             {plainAddresses.length > 0 && (

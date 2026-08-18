@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
 import { formatAvgRoomRate, type Suburb, type DemandLevel } from "@/lib/mock-data";
-import { getPropertyRentalsForSuburb } from "@/lib/property-rentals";
+import { getPropertyRentalsForSuburb, getPropertyConfirmationStatus } from "@/lib/property-rentals";
 import { DemandBadge } from "@/components/demand-badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -22,7 +22,10 @@ const markerColor: Record<DemandLevel, string> = {
   Low: "#c9c9c9",
 };
 
-const VERIFIED_RENT_COLOR = "#16a34a";
+const PROPERTY_STATUS_COLOR: Record<"tenanted" | "advertised", string> = {
+  tenanted: "#16a34a",
+  advertised: "#2563eb",
+};
 
 const VIC_CENTER: [number, number] = [-37.95, 144.95];
 const VIC_ZOOM = 9;
@@ -175,35 +178,38 @@ export function SuburbMap({
             ))}
 
           {expanded &&
-            propertiesForExpanded.map((property) => (
-              <CircleMarker
-                key={property.id}
-                center={[property.lat, property.lng]}
-                radius={9}
-                pathOptions={{
-                  color: "#ffffff",
-                  weight: 2,
-                  fillColor: VERIFIED_RENT_COLOR,
-                  fillOpacity: 1,
-                }}
-                eventHandlers={{
-                  click: () =>
-                    router.push(`/dashboard/suburbs/${expanded.id}/property/${property.id}`),
-                }}
-              >
-                <Tooltip direction="top" offset={[0, -6]}>
-                  <div className="text-xs">
-                    <p className="font-display text-sm text-ink">{property.address}</p>
-                    <p className="text-muted">
-                      {property.rooms.length} rooms &middot; from ${Math.min(
-                        ...property.rooms.filter((r) => r.weeklyRate > 0).map((r) => r.weeklyRate)
-                      )}/wk
-                    </p>
-                    <p className="mt-0.5 text-muted">Click to view room-by-room rents</p>
-                  </div>
-                </Tooltip>
-              </CircleMarker>
-            ))}
+            propertiesForExpanded.map((property) => {
+              const status = getPropertyConfirmationStatus(property);
+              return (
+                <CircleMarker
+                  key={property.id}
+                  center={[property.lat, property.lng]}
+                  radius={9}
+                  pathOptions={{
+                    color: "#ffffff",
+                    weight: 2,
+                    fillColor: PROPERTY_STATUS_COLOR[status],
+                    fillOpacity: 1,
+                  }}
+                  eventHandlers={{
+                    click: () =>
+                      router.push(`/dashboard/suburbs/${expanded.id}/property/${property.id}`),
+                  }}
+                >
+                  <Tooltip direction="top" offset={[0, -6]}>
+                    <div className="text-xs">
+                      <p className="font-display text-sm text-ink">{property.address}</p>
+                      <p className="text-muted">
+                        {property.rooms.length} rooms &middot; from ${Math.min(
+                          ...property.rooms.filter((r) => r.weeklyRate > 0).map((r) => r.weeklyRate)
+                        )}/wk &middot; {status === "tenanted" ? "confirmed tenanted rate" : "advertised, not yet rented"}
+                      </p>
+                      <p className="mt-0.5 text-muted">Click to view room-by-room rents</p>
+                    </div>
+                  </Tooltip>
+                </CircleMarker>
+              );
+            })}
         </MapContainer>
 
         {expanded && (
@@ -248,13 +254,23 @@ export function SuburbMap({
             </p>
           )}
           {propertiesForExpanded.length > 0 && (
-            <p className="mt-3 flex items-center gap-2 text-sm text-body">
-              <span
-                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: VERIFIED_RENT_COLOR }}
-              />
-              Green marker — real room-by-room rent data available. Click it on the map to view.
-            </p>
+            <div className="mt-3 space-y-1.5 text-sm text-body">
+              <p className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
+                />
+                Green — confirmed tenanted rate (real rent being paid)
+              </p>
+              <p className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
+                />
+                Blue — advertised asking price, not yet tenanted
+              </p>
+              <p className="text-xs text-muted">Click a marker on the map to view its room-by-room rents.</p>
+            </div>
           )}
         </div>
       ) : (

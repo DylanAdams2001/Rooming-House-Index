@@ -416,3 +416,12 @@ export function getPropertyRateSummary(property: PropertyRental): string {
   );
   return `$${avg}/wk (${knownRooms.length} of ${property.rooms.length} rooms)`;
 }
+
+// A property counts as "tenanted" (confirmed real rent) if any room is actually
+// tenanted, even if others are vacant/advertised — one proven rate outweighs an
+// unconfirmed asking price. Otherwise it's "advertised" (asking price, not yet rented).
+export function getPropertyConfirmationStatus(
+  property: PropertyRental
+): "tenanted" | "advertised" {
+  return property.rooms.some((r) => r.status === "tenanted") ? "tenanted" : "advertised";
+}
