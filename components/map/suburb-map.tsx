@@ -274,18 +274,38 @@ export function SuburbMap({
           )}
         </div>
       ) : (
-        <div className="flex items-center gap-6 border-t border-line bg-white px-6 py-3 text-xs text-body">
-          <span className="font-medium text-muted">Demand</span>
-          {(["High", "Medium", "Low"] as DemandLevel[]).map((level) => (
-            <span key={level} className="flex items-center gap-2">
+        <div className="space-y-2 border-t border-line bg-white px-6 py-3 text-xs text-body">
+          <div className="flex flex-wrap items-center gap-6">
+            <span className="font-medium text-muted">Demand</span>
+            {(["High", "Medium", "Low"] as DemandLevel[]).map((level) => (
+              <span key={level} className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: markerColor[level] }}
+                />
+                {level}
+              </span>
+            ))}
+            <span className="ml-auto text-muted">Click a suburb to see individual addresses</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 border-t border-line pt-2">
+            <span className="font-medium text-muted">Real rent data</span>
+            <span className="flex items-center gap-2">
               <span
                 className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: markerColor[level] }}
+                style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
               />
-              {level}
+              Green — confirmed tenanted
             </span>
-          ))}
-          <span className="ml-auto text-muted">Click a suburb to see individual addresses</span>
+            <span className="flex items-center gap-2">
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
+              />
+              Blue — advertised only
+            </span>
+            <span className="text-muted">Shown when you click into a suburb that has them</span>
+          </div>
         </div>
       )}
     </div>
