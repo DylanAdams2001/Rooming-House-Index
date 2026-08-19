@@ -5,6 +5,7 @@ import {
   getPropertyRentalsForSuburb,
   getPropertyRateSummary,
   getPropertyConfirmationStatus,
+  type PropertyRental,
 } from "@/lib/property-rentals";
 import { listingsToPropertyRentals } from "@/lib/listing-property-adapter";
 import { loadSuburbAddresses } from "@/lib/load-suburb-addresses";
@@ -50,6 +51,21 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
   const plainAddresses = addresses.filter(
     (a) => !propertyCoordKeys.has(`${a.lat.toFixed(5)},${a.lng.toFixed(5)}`)
   );
+
+  // Highest to lowest within each group — known rooms only, since averaging in
+  // unpriced ("unknown") rooms would understate a property's real rate.
+  function sortRate(property: PropertyRental) {
+    if (property.avgWeeklyRate !== undefined) return property.avgWeeklyRate;
+    const known = property.rooms.filter((r) => r.status !== "unknown" && r.weeklyRate > 0);
+    if (known.length === 0) return 0;
+    return known.reduce((sum, r) => sum + r.weeklyRate, 0) / known.length;
+  }
+  const leasedProperties = properties
+    .filter((p) => getPropertyConfirmationStatus(p) === "tenanted")
+    .sort((a, b) => sortRate(b) - sortRate(a));
+  const advertisedProperties = properties
+    .filter((p) => getPropertyConfirmationStatus(p) === "advertised")
+    .sort((a, b) => sortRate(b) - sortRate(a));
 
   return (
     <div>
@@ -166,41 +182,33 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
         {(addresses.length > 0 || properties.length > 0) && (
           <CardContent>
             {properties.length > 0 && (
-              <div className="mb-5 space-y-2">
-                {properties.map((property) => {
-                  const status = getPropertyConfirmationStatus(property);
-                  return (
-                    <Link
-                      key={property.id}
-                      href={`/dashboard/suburbs/${suburb.id}/property/${property.id}`}
-                      className={cn(
-                        "flex items-center justify-between gap-3 rounded-btn border-2 px-4 py-3 text-sm transition-colors",
-                        status === "tenanted"
-                          ? "border-green-600 bg-green-50 hover:bg-green-100"
-                          : "border-blue-600 bg-blue-50 hover:bg-blue-100"
-                      )}
-                    >
-                      <div>
-                        <p className="font-medium text-ink">{property.address}</p>
-                        <p className="text-xs text-muted">
-                          {property.rooms.length} rooms &middot; {getPropertyRateSummary(property)}{" "}
-                          &middot; {status === "tenanted" ? "confirmed tenanted rate" : "advertised, not yet tenanted"}
-                        </p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-ink" />
-                    </Link>
-                  );
-                })}
-                <p className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-xs text-muted">
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-green-600" />
-                    Confirmed tenanted
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-blue-600" />
-                    Advertised only
-                  </span>
-                </p>
+              <div className="mb-5 space-y-5">
+                {leasedProperties.length > 0 && (
+                  <div>
+                    <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted">
+                      <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-green-600" />
+                      Leased ({leasedProperties.length})
+                    </p>
+                    <div className="space-y-2">
+                      {leasedProperties.map((property) => (
+                        <PropertyRow key={property.id} suburbId={suburb.id} property={property} status="tenanted" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {advertisedProperties.length > 0 && (
+                  <div>
+                    <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted">
+                      <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+                      Advertised ({advertisedProperties.length})
+                    </p>
+                    <div className="space-y-2">
+                      {advertisedProperties.map((property) => (
+                        <PropertyRow key={property.id} suburbId={suburb.id} property={property} status="advertised" />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {plainAddresses.length > 0 && (
@@ -214,6 +222,37 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
         )}
       </Card>
     </div>
+  );
+}
+
+function PropertyRow({
+  suburbId,
+  property,
+  status,
+}: {
+  suburbId: string;
+  property: PropertyRental;
+  status: "tenanted" | "advertised";
+}) {
+  return (
+    <Link
+      href={`/dashboard/suburbs/${suburbId}/property/${property.id}`}
+      className={cn(
+        "flex items-center justify-between gap-3 rounded-btn border-2 px-4 py-3 text-sm transition-colors",
+        status === "tenanted"
+          ? "border-green-600 bg-green-50 hover:bg-green-100"
+          : "border-blue-600 bg-blue-50 hover:bg-blue-100"
+      )}
+    >
+      <div>
+        <p className="font-medium text-ink">{property.address}</p>
+        <p className="text-xs text-muted">
+          {property.rooms.length} rooms &middot; {getPropertyRateSummary(property)}{" "}
+          &middot; {status === "tenanted" ? "confirmed tenanted rate" : "advertised, not yet tenanted"}
+        </p>
+      </div>
+      <ChevronRight className="h-4 w-4 shrink-0 text-ink" />
+    </Link>
   );
 }
 
