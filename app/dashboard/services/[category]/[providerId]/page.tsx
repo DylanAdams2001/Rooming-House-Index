@@ -59,7 +59,7 @@ export default async function ProviderProfilePage({
             <CardTitle>About</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-body">{provider.description || "No description provided yet."}</p>
+            <p className="whitespace-pre-line text-body">{provider.description || "No description provided yet."}</p>
             <div className="text-sm text-body">
               <p>
                 <span className="text-muted">Email:</span> {provider.contact_email}
@@ -112,7 +112,9 @@ export default async function ProviderProfilePage({
                   <p className="font-display text-base text-ink">{pkg.label}</p>
                   <p className="font-display text-lg text-ink">{pkg.price}</p>
                 </div>
-                {pkg.description && <p className="mt-1 text-sm text-body">{pkg.description}</p>}
+                {pkg.description && (
+                  <p className="mt-1 whitespace-pre-line text-sm text-body">{pkg.description}</p>
+                )}
                 {pkg.document_url && (
                   <a
                     href={pkg.document_url}

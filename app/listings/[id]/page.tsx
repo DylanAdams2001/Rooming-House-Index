@@ -75,7 +75,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 <Card className="mt-6">
                   <CardContent className="p-6">
                     <h2 className="font-display text-lg text-ink">Description</h2>
-                    <p className="mt-2 text-body">{listing.description}</p>
+                    <p className="mt-2 whitespace-pre-line text-body">{listing.description}</p>
                   </CardContent>
                 </Card>
 

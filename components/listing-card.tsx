@@ -45,7 +45,7 @@ export function ListingCard({ listing }: { listing: RoomListing }) {
         <CardContent className="flex flex-1 flex-col justify-between gap-6 pt-0">
           <div>
             <p className="font-display text-2xl text-ink">${listing.weeklyRate}/wk</p>
-            <p className="mt-2 line-clamp-3 text-sm text-body">{listing.description}</p>
+            <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-body">{listing.description}</p>
             {listing.inspectionTime && (
               <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
                 <CalendarClock className="h-3.5 w-3.5" />

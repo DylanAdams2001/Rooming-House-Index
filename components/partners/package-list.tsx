@@ -27,7 +27,9 @@ export function PackageList({ providerId, packages }: { providerId: string; pack
                 <p className="font-display text-base text-ink">{pkg.label}</p>
                 <span className="text-sm text-muted">{pkg.price}</span>
               </div>
-              {pkg.description && <p className="mt-1 text-sm text-body">{pkg.description}</p>}
+              {pkg.description && (
+                <p className="mt-1 whitespace-pre-line text-sm text-body">{pkg.description}</p>
+              )}
               {pkg.documentUrl && (
                 <a
                   href={pkg.documentUrl}

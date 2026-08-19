@@ -29,7 +29,7 @@ export function ProviderCard({
         <p className="text-sm text-muted">{provider.coverage_areas.join(", ")}</p>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col justify-between gap-6 pt-0">
-        <p className="text-sm text-body">{provider.description}</p>
+        <p className="whitespace-pre-line text-sm text-body">{provider.description}</p>
         <Button asChild size="sm" className="w-full">
           <Link href={`/dashboard/services/${categorySlug}/${provider.slug}`}>View Profile</Link>
         </Button>
