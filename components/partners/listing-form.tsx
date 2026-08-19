@@ -73,12 +73,17 @@ export type ListingFormInitial = {
 export function ListingForm({
   initial,
   redirectTo = "/partners/listings",
+  insertAsUnowned = false,
 }: {
   initial?: ListingFormInitial;
   // Defaults to the owner's own "my listings" page — admin editing another
   // owner's listing from the Business Partners directory overrides this so
   // saving doesn't land them on their own (unrelated, likely empty) list.
   redirectTo?: string;
+  // Admin uploading a listing directly (rather than through a property
+  // manager's account) — insert with owner_id: null, same as the original
+  // seed data, instead of attributing it to admin's own account.
+  insertAsUnowned?: boolean;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -219,7 +224,11 @@ export function ListingForm({
     // listing must not silently reassign it to themselves on save.
     const { error: writeError } = initial?.id
       ? await supabase.from("listings").update(payload).eq("id", initial.id)
-      : await supabase.from("listings").insert({ ...payload, owner_id: user.id, status: "approved" });
+      : await supabase.from("listings").insert({
+          ...payload,
+          owner_id: insertAsUnowned ? null : user.id,
+          status: "approved",
+        });
 
     if (writeError) {
       setStatus("idle");

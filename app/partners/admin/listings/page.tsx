@@ -2,7 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Home, Plus } from "lucide-react";
 import { ProductTour } from "@/components/tour/product-tour";
 import { ListingDeleteButton } from "@/components/partners/listing-delete-button";
 import { MarkRentedButton } from "@/components/partners/mark-rented-button";
@@ -67,9 +68,17 @@ export default async function AdminListingsPage() {
         }}
       />
 
-      <div className="flex items-center gap-2">
-        <Home className="h-6 w-6 text-ink" />
-        <h1 className="font-display text-3xl text-ink">All Listings</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Home className="h-6 w-6 text-ink" />
+          <h1 className="font-display text-3xl text-ink">All Listings</h1>
+        </div>
+        <Button asChild size="sm">
+          <Link href="/partners/admin/listings/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Listing
+          </Link>
+        </Button>
       </div>
       <p className="mt-2 text-body">
         Every room listed across every property manager — edit any of them directly.
@@ -100,7 +109,7 @@ export default async function AdminListingsPage() {
                   <p className="text-xs text-muted">
                     {listing.owner_id
                       ? ownerNameByUserId.get(listing.owner_id) ?? "Owner account"
-                      : "No owner (seeded listing)"}
+                      : "No owner (added directly by admin)"}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">

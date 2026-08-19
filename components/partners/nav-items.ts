@@ -44,6 +44,13 @@ export function getPartnerNavItems(
         tourDescription: "Every room listed across every property manager, in one place.",
       },
       {
+        href: "/partners/admin/listings/new",
+        label: "Add Listing",
+        icon: Plus,
+        tourDescription:
+          "Upload a room directly, without needing to sign into a property manager's account.",
+      },
+      {
         href: "/partners/admin/quotes",
         label: "All Quotes",
         icon: FileText,
