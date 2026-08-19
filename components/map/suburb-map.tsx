@@ -222,6 +222,40 @@ export function SuburbMap({
             All suburbs
           </button>
         )}
+
+        <div className="absolute bottom-3 left-3 z-[1000] space-y-1.5 rounded-btn border border-line bg-white px-3 py-2 text-xs text-body shadow-sm">
+          {!expanded && (
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-muted">Demand</span>
+              {(["High", "Medium", "Low"] as DemandLevel[]).map((level) => (
+                <span key={level} className="flex items-center gap-1.5">
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: markerColor[level] }}
+                  />
+                  {level}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-muted">Real rent data</span>
+            <span className="flex items-center gap-1.5">
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
+              />
+              Tenanted
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
+              />
+              Advertised
+            </span>
+          </div>
+        </div>
       </div>
 
       {expanded ? (
@@ -254,58 +288,14 @@ export function SuburbMap({
             </p>
           )}
           {propertiesForExpanded.length > 0 && (
-            <div className="mt-3 space-y-1.5 text-sm text-body">
-              <p className="flex items-center gap-2">
-                <span
-                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
-                />
-                Green — confirmed tenanted rate (real rent being paid)
-              </p>
-              <p className="flex items-center gap-2">
-                <span
-                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
-                />
-                Blue — advertised asking price, not yet tenanted
-              </p>
-              <p className="text-xs text-muted">Click a marker on the map to view its room-by-room rents.</p>
-            </div>
+            <p className="mt-3 text-xs text-muted">
+              Click a colored marker on the map to view its room-by-room rents.
+            </p>
           )}
         </div>
       ) : (
-        <div className="space-y-2 border-t border-line bg-white px-6 py-3 text-xs text-body">
-          <div className="flex flex-wrap items-center gap-6">
-            <span className="font-medium text-muted">Demand</span>
-            {(["High", "Medium", "Low"] as DemandLevel[]).map((level) => (
-              <span key={level} className="flex items-center gap-2">
-                <span
-                  className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: markerColor[level] }}
-                />
-                {level}
-              </span>
-            ))}
-            <span className="ml-auto text-muted">Click a suburb to see individual addresses</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-6 border-t border-line pt-2">
-            <span className="font-medium text-muted">Real rent data</span>
-            <span className="flex items-center gap-2">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
-              />
-              Green — confirmed tenanted
-            </span>
-            <span className="flex items-center gap-2">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
-              />
-              Blue — advertised only
-            </span>
-            <span className="text-muted">Shown when you click into a suburb that has them</span>
-          </div>
+        <div className="flex items-center gap-6 border-t border-line bg-white px-6 py-3 text-xs text-body">
+          <span className="ml-auto text-muted">Click a suburb to see individual addresses</span>
         </div>
       )}
     </div>
