@@ -24,6 +24,13 @@ export type ServiceCategory = {
   // vets the investor before ever introducing the actual builder. New
   // request notifications go to admin instead of category providers.
   adminManagedQuotes?: boolean;
+  // Insurance only, for now: no real broker has a provider account on the
+  // platform yet, so admin is the one actually sourcing quotes (manually
+  // filling out broker slips). Unlike adminManagedQuotes, this doesn't
+  // replace the provider broadcast — admin gets notified in addition to
+  // whatever category providers exist, so nothing needs to change again
+  // once real brokers do join.
+  alsoNotifyAdmin?: boolean;
 };
 
 export const serviceCategories: ServiceCategory[] = [
@@ -34,6 +41,7 @@ export const serviceCategories: ServiceCategory[] = [
     comingSoon: false,
     description: "Tell us about your rooming house and we'll bring back multiple insurance quotes.",
     quoteBased: true,
+    alsoNotifyAdmin: true,
     credentialFields: [
       { key: "afslNumber", label: "AFSL Number", placeholder: "AFSL 123456" },
       {

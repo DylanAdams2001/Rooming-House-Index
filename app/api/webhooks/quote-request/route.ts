@@ -71,7 +71,14 @@ export async function POST(req: Request) {
     : (await supabase.from("service_providers").select("contact_email").eq("category", category).eq("status", "approved"))
         .data?.map((r) => r.contact_email) ?? [];
 
-  const validRecipients = recipients.filter(Boolean);
+  // alsoNotifyAdmin (Insurance, for now) adds admin on top of the normal
+  // provider broadcast, rather than replacing it like adminManagedQuotes does.
+  if (categoryConfig.alsoNotifyAdmin && !categoryConfig.adminManagedQuotes) {
+    const { data: admins } = await supabase.from("users").select("email").eq("role", "admin");
+    recipients.push(...(admins?.map((a) => a.email) ?? []));
+  }
+
+  const validRecipients = Array.from(new Set(recipients.filter(Boolean)));
   if (validRecipients.length === 0) {
     return NextResponse.json({ ok: true });
   }
@@ -90,16 +97,24 @@ export async function POST(req: Request) {
     },
     {
       type: "paragraph",
-      text: categoryConfig.adminManagedQuotes
-        ? "Head over to All Quotes to add the price options for this request."
-        : "Head over to Quote Requests to reply with your quote.",
+      text:
+        categoryConfig.adminManagedQuotes || categoryConfig.alsoNotifyAdmin
+          ? "Head over to All Quotes to see the full details and add a quote."
+          : "Head over to Quote Requests to reply with your quote.",
     },
   ];
 
-  const ctaUrl = categoryConfig.adminManagedQuotes
-    ? `${SITE_URL}/partners/admin/quotes`
-    : `${SITE_URL}/partners/quotes`;
-  const ctaLabel = categoryConfig.adminManagedQuotes ? "View in All Quotes" : "View quote requests";
+  // alsoNotifyAdmin mixes admin + provider recipients into one email, so the
+  // link points at admin's All Quotes view — that's who's actually expected
+  // to act on it today (no real provider exists in this category yet).
+  const ctaUrl =
+    categoryConfig.adminManagedQuotes || categoryConfig.alsoNotifyAdmin
+      ? `${SITE_URL}/partners/admin/quotes`
+      : `${SITE_URL}/partners/quotes`;
+  const ctaLabel =
+    categoryConfig.adminManagedQuotes || categoryConfig.alsoNotifyAdmin
+      ? "View in All Quotes"
+      : "View quote requests";
 
   await resend.emails.send({
     from: `Rooming House Standard <${fromAddress}>`,
