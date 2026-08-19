@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { suburbs, type DemandLevel } from "@/lib/mock-data";
+import { suburbs } from "@/lib/mock-data";
 import type { FocusSuburbTrigger } from "@/components/map/suburb-map";
 import { SuburbCard } from "@/components/suburb-card";
 import { Input } from "@/components/ui/input";
@@ -34,14 +34,11 @@ const SuburbMap = dynamic(
   }
 );
 
-const DEMAND_OPTIONS: (DemandLevel | "All")[] = ["All", "High", "Medium", "Low"];
-
 export function SuburbExplorer() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [state, setState] = useState("VIC");
-  const [demand, setDemand] = useState<DemandLevel | "All">("All");
   const [rateRange, setRateRange] = useState<[number, number]>([150, 450]);
   const [view, setView] = useState<"grid" | "map">("map");
   const [focusSuburb, setFocusSuburb] = useState<FocusSuburbTrigger | null>(null);
@@ -54,11 +51,10 @@ export function SuburbExplorer() {
         s.name.toLowerCase().includes(query.toLowerCase()) ||
         s.postcode.includes(query.trim());
       const matchesState = s.state === state;
-      const matchesDemand = demand === "All" || s.demandLevel === demand;
       const matchesRate = s.avgRoomRate >= rateRange[0] && s.avgRoomRate <= rateRange[1];
-      return matchesQuery && matchesState && matchesDemand && matchesRate;
+      return matchesQuery && matchesState && matchesRate;
     });
-  }, [query, state, demand, rateRange]);
+  }, [query, state, rateRange]);
 
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
@@ -80,11 +76,6 @@ export function SuburbExplorer() {
             description: "Jump straight to a suburb by name or postcode.",
           },
           {
-            selector: '[data-tour="suburbs-demand"]',
-            title: "Demand Level",
-            description: "Filter to only High-demand suburbs to see where competition for rooms is strongest.",
-          },
-          {
             selector: '[data-tour="suburbs-rate"]',
             title: "Average Room Rate",
             description: "Drag either end to narrow results to your target weekly rate.",
@@ -99,11 +90,11 @@ export function SuburbExplorer() {
 
       <h1 className="font-display text-3xl text-ink">Suburb Explorer</h1>
       <p className="mt-2 text-body">
-        Search and filter suburbs by demand, rate, and location.
+        Search and filter suburbs by rate and location.
       </p>
 
       <div className="mt-8 rounded-card border border-line bg-white p-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="relative md:col-span-2" data-tour="suburbs-search">
             <Label htmlFor="search" className="mb-2 block text-xs uppercase tracking-wide text-muted">
               Search
@@ -151,24 +142,6 @@ export function SuburbExplorer() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="VIC">Victoria</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div data-tour="suburbs-demand">
-            <Label className="mb-2 block text-xs uppercase tracking-wide text-muted">
-              Demand Level
-            </Label>
-            <Select value={demand} onValueChange={(v) => setDemand(v as DemandLevel | "All")}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {DEMAND_OPTIONS.map((d) => (
-                  <SelectItem key={d} value={d}>
-                    {d === "All" ? "All levels" : d}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
           </div>

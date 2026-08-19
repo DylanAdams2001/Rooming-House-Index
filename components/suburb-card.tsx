@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DemandBadge } from "@/components/demand-badge";
 import { formatAvgRoomRate, type Suburb } from "@/lib/mock-data";
 
 export function SuburbCard({
@@ -14,15 +13,10 @@ export function SuburbCard({
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-display text-xl text-ink">{suburb.name}</h3>
-            <p className="text-sm text-muted">
-              {suburb.postcode} · {suburb.state}
-            </p>
-          </div>
-          <DemandBadge level={suburb.demandLevel} />
-        </div>
+        <h3 className="font-display text-xl text-ink">{suburb.name}</h3>
+        <p className="text-sm text-muted">
+          {suburb.postcode} · {suburb.state}
+        </p>
         <p className="text-sm text-body">{suburb.council}</p>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col justify-between gap-6 pt-0">

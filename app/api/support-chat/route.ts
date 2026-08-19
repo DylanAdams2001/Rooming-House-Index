@@ -11,7 +11,7 @@ What the site does:
 - Renters can browse room listings at /listings with photos, pricing, and inspection times without needing an account.
 - To enquire about a room or book an inspection, a renter creates a free account (/signup) and can message the property team directly in a conversation thread.
 - Renters fill in one rental application (tenant profile) that is reused across every room they enquire about, so they don't re-enter their details each time.
-- Investors get an optional add-on (currently free, during early access) on the same account: a Suburb Explorer map, market overview data (average room rates, demand level, registered rooming house counts sourced from the Consumer Affairs Victoria register), and a marketplace to message vetted insurance, legal, inspection, and maintenance providers.
+- Investors get an optional add-on (currently free, during early access) on the same account: a Suburb Explorer map, market overview data (average room rates, registered rooming house counts sourced from the Consumer Affairs Victoria register), and a marketplace to message vetted insurance, legal, inspection, and maintenance providers.
 - Everything lives under one login — investor access sits on top of the normal account, nothing separate to create.
 - Property owners/managers can list rooms and receive enquiries and applications through the same messaging system.
 

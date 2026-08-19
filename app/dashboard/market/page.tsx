@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { suburbs, dashboardStats, formatAvgRoomRate, type Suburb } from "@/lib/mock-data";
-import { DemandBadge } from "@/components/demand-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -16,13 +15,10 @@ import { ArrowDown, ArrowUp, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { ProductTour } from "@/components/tour/product-tour";
 
-const demandRank: Record<Suburb["demandLevel"], number> = { Low: 0, Medium: 1, High: 2 };
-
 const SORT_OPTIONS = {
   avgRoomRate: { label: "Avg. Room Rate", get: (s: Suburb) => s.avgRoomRate },
   numRoomingHouses: { label: "Rooming Houses", get: (s: Suburb) => s.numRoomingHouses },
   name: { label: "Suburb Name", get: (s: Suburb) => s.name.toLowerCase() },
-  demandLevel: { label: "Demand Level", get: (s: Suburb) => demandRank[s.demandLevel] },
 } as const;
 
 type SortKey = keyof typeof SORT_OPTIONS;
@@ -59,7 +55,7 @@ export default function MarketOverviewPage() {
           {
             selector: '[data-tour="market-sort"]',
             title: "Sort by",
-            description: "Switch what the table ranks suburbs on — rate, rooming houses, name, or demand.",
+            description: "Switch what the table ranks suburbs on — rate, rooming houses, or name.",
           },
           {
             selector: '[data-tour="market-direction"]',
@@ -148,7 +144,6 @@ export default function MarketOverviewPage() {
                 <tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
                   <th className="px-6 py-3 font-medium">Suburb</th>
                   <th className="px-6 py-3 font-medium">Council</th>
-                  <th className="px-6 py-3 font-medium">Demand</th>
                   <th className="px-6 py-3 font-medium">Avg. Rate</th>
                   <th className="px-6 py-3 font-medium">Rooming Houses</th>
                   <th className="px-6 py-3 font-medium">Listings</th>
@@ -161,9 +156,6 @@ export default function MarketOverviewPage() {
                       {s.name} <span className="text-muted">{s.postcode}</span>
                     </td>
                     <td className="px-6 py-4 text-body">{s.council}</td>
-                    <td className="px-6 py-4">
-                      <DemandBadge level={s.demandLevel} />
-                    </td>
                     <td className={s.avgRoomRateVerified ? "px-6 py-4 text-body" : "px-6 py-4 text-muted"}>
                       {formatAvgRoomRate(s)}
                     </td>

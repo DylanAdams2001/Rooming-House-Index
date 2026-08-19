@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
+import { DeleteQuoteButton } from "@/components/partners/delete-quote-button";
 import { InsuranceDetailsBlock } from "@/components/partners/insurance-details-block";
 import { DownloadInsuranceQuoteButton } from "@/components/partners/download-insurance-quote-button";
 import { ProductTour } from "@/components/tour/product-tour";
@@ -167,16 +168,20 @@ export default async function AdminQuotesPage() {
                             <span className="text-muted">{fee}</span>
                           </div>
                         );
-                        return conversationId ? (
-                          <Link
-                            key={quote.id}
-                            href={`/partners/admin/conversations/quote-${conversationId}`}
-                            className="block transition-colors hover:bg-linen"
-                          >
-                            {row}
-                          </Link>
-                        ) : (
-                          <div key={quote.id}>{row}</div>
+                        return (
+                          <div key={quote.id} className="flex items-center gap-2">
+                            {conversationId ? (
+                              <Link
+                                href={`/partners/admin/conversations/quote-${conversationId}`}
+                                className="block flex-1 transition-colors hover:bg-linen"
+                              >
+                                {row}
+                              </Link>
+                            ) : (
+                              <div className="flex-1">{row}</div>
+                            )}
+                            <DeleteQuoteButton quoteId={quote.id} />
+                          </div>
                         );
                       })}
                     </div>

@@ -44,7 +44,7 @@ export function InvestorAccessCard() {
           </div>
         </div>
         <p className="text-sm text-muted">
-          Suburb demand data, registered supply, average room rates, saved suburbs, and the
+          Registered supply, average room rates, saved suburbs, and the
           service provider marketplace.
         </p>
         <Button

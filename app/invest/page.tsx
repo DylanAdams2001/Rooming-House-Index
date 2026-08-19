@@ -26,14 +26,14 @@ const TOUR = [
     icon: MapPin,
     title: "Suburb Explorer",
     description:
-      "Every tracked suburb on an interactive map — colour-coded by demand, filterable by room rate and postcode, with registered supply one click away.",
+      "Every tracked suburb on an interactive map — filterable by room rate and postcode, with registered supply one click away.",
     image: "/screenshots/dashboard-map.png",
   },
   {
     icon: BarChart3,
     title: "Market Overview",
     description:
-      "Every suburb sortable by average room rate, demand level, and registered rooming house count — the whole state at a glance.",
+      "Every suburb sortable by average room rate and registered rooming house count — the whole state at a glance.",
     image: "/screenshots/dashboard-market.png",
   },
   {
@@ -97,7 +97,7 @@ export default function InvestPage() {
               Most investors guess which suburb to build in. See the numbers first.
             </h1>
             <p className="mt-6 max-w-xl text-base text-white/80 md:text-lg">
-              Suburb-level demand, registered supply, and room rental rates across Victoria —
+              Suburb-level registered supply and room rental rates across Victoria —
               built specifically for the rooming house asset class, not generic property data.
             </p>
             <Button
@@ -119,8 +119,8 @@ export default function InvestPage() {
               <p className="mt-1 text-sm text-muted">Suburbs tracked across Victoria</p>
             </div>
             <div>
-              <p className="font-display text-4xl text-ink">{dashboardStats.highDemandSuburbs}</p>
-              <p className="mt-1 text-sm text-muted">Suburbs currently showing high demand</p>
+              <p className="font-display text-4xl text-ink">{dashboardStats.verifiedSuburbs}</p>
+              <p className="mt-1 text-sm text-muted">Suburbs with real, verified rate data</p>
             </div>
             <div>
               <p className="font-display text-4xl text-ink">{dashboardStats.avgGrossYield}</p>
@@ -140,7 +140,7 @@ export default function InvestPage() {
             </h2>
             <p className="mt-4 text-body">
               Whichever structure your broker or accountant has you looking at, the deal still
-              lives or dies on the suburb — demand, supply, and what a room actually rents for.
+              lives or dies on the suburb — supply, and what a room actually rents for.
               That's the part most investors are guessing at.
             </p>
           </div>
@@ -150,10 +150,10 @@ export default function InvestPage() {
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-linen text-ink">
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <h3 className="font-display text-lg text-ink">Demand, suburb by suburb</h3>
+              <h3 className="font-display text-lg text-ink">What rooms actually rent for</h3>
               <p className="mt-2 text-sm text-body">
-                Understand where renter demand for shared and rooming accommodation is actually
-                strongest.
+                Real closed rents from real listings on the platform, not just advertised
+                asking prices.
               </p>
             </div>
             <div className="rounded-card border border-line bg-white p-6">
@@ -254,7 +254,7 @@ export default function InvestPage() {
               Investor access is free while we're in early access
             </h2>
             <p className="mt-4 max-w-md text-sm text-white/70">
-              Suburb demand, registered supply, room rental rates, saved suburbs, and the
+              Registered supply, room rental rates, saved suburbs, and the
               provider marketplace — no card, no ongoing charge for now.
             </p>
             <Button
@@ -266,7 +266,7 @@ export default function InvestPage() {
             </Button>
             <ul className="mt-8 grid grid-cols-1 gap-2 self-start text-left text-sm text-white/80 sm:grid-cols-2">
               {[
-                "Suburb demand & supply data",
+                "Suburb supply data",
                 "Average room rental rates",
                 "Saved suburbs",
                 "Provider marketplace + messaging",

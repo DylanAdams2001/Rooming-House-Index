@@ -40,7 +40,7 @@ const BASE_NAV_ITEMS: NavItem[] = [
     label: "Suburb Explorer",
     icon: Compass,
     tourDescription:
-      "Search and filter every tracked suburb on a map — by yield, demand, or room rate. Click into any suburb for its full stats, or save it for quick comparison later.",
+      "Search and filter every tracked suburb on a map — by yield or room rate. Click into any suburb for its full stats, or save it for quick comparison later.",
   },
   {
     href: "/dashboard/saved",
@@ -54,7 +54,7 @@ const BASE_NAV_ITEMS: NavItem[] = [
     label: "Market Overview",
     icon: LineChart,
     tourDescription:
-      "Compare every tracked suburb side by side on room rate, demand, and supply. Sort by any column to spot where yields are strongest right now.",
+      "Compare every tracked suburb side by side on room rate and supply. Sort by any column to spot where yields are strongest right now.",
   },
   {
     href: "https://parcel-scout.onrender.com/app.html",

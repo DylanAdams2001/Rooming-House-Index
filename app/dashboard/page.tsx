@@ -7,7 +7,7 @@ import { dashboardStats, suburbs } from "@/lib/mock-data";
 import {
   Building2,
   TrendingUp,
-  Flame,
+  BadgeCheck,
   CalendarClock,
   ArrowRight,
   Compass,
@@ -26,7 +26,7 @@ const TOOLS = [
   {
     href: "/dashboard/market",
     label: "Market Overview",
-    description: "Compare suburbs side by side on rate, demand, and supply.",
+    description: "Compare suburbs side by side on rate and registered supply.",
     icon: LineChart,
   },
   {
@@ -77,9 +77,9 @@ export default async function DashboardHomePage() {
       icon: TrendingUp,
     },
     {
-      label: "Suburbs with High Demand",
-      value: dashboardStats.highDemandSuburbs,
-      icon: Flame,
+      label: "Suburbs with Verified Data",
+      value: dashboardStats.verifiedSuburbs,
+      icon: BadgeCheck,
     },
     {
       label: "New Data Updated",
@@ -88,11 +88,10 @@ export default async function DashboardHomePage() {
     },
   ];
 
-  // "Trending" = highest room rate among the currently high-demand suburbs —
-  // demand levels are estimates pending a verified source (flagged on the
-  // suburb pages themselves), so this is framed as a starting point, not a fact.
+  // "Trending" = highest room rate among suburbs with a real, verified rate —
+  // no fabricated ranking, just the genuine numbers sorted highest first.
   const trendingSuburbs = suburbs
-    .filter((s) => s.demandLevel === "High")
+    .filter((s) => s.avgRoomRateVerified)
     .sort((a, b) => b.avgRoomRate - a.avgRoomRate)
     .slice(0, 3);
 
@@ -129,7 +128,7 @@ export default async function DashboardHomePage() {
           <div>
             <h2 className="font-display text-2xl text-ink">Trending Suburbs</h2>
             <p className="mt-1 text-sm text-body">
-              Highest room rates among suburbs currently showing high demand (est.).
+              Highest room rates among suburbs with real, verified rate data.
             </p>
           </div>
           <Link

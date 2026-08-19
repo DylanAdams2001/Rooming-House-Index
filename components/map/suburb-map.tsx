@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
-import { formatAvgRoomRate, type Suburb, type DemandLevel } from "@/lib/mock-data";
+import { formatAvgRoomRate, type Suburb } from "@/lib/mock-data";
 import {
   getPropertyRentalsForSuburb,
   getPropertyConfirmationStatus,
@@ -13,7 +13,6 @@ import {
 } from "@/lib/property-rentals";
 import { listingsToPropertyRentals } from "@/lib/listing-property-adapter";
 import { createClient } from "@/lib/supabase/client";
-import { DemandBadge } from "@/components/demand-badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import {
@@ -22,11 +21,7 @@ import {
   type AddressPoint,
 } from "@/lib/load-suburb-addresses";
 
-const markerColor: Record<DemandLevel, string> = {
-  High: "#1a1a1a",
-  Medium: "#999999",
-  Low: "#c9c9c9",
-};
+const SUBURB_MARKER_COLOR = "#1a1a1a";
 
 const PROPERTY_STATUS_COLOR: Record<"tenanted" | "advertised", string> = {
   tenanted: "#16a34a",
@@ -159,7 +154,7 @@ export function SuburbMap({
                 pathOptions={{
                   color: "#ffffff",
                   weight: 2,
-                  fillColor: markerColor[suburb.demandLevel],
+                  fillColor: SUBURB_MARKER_COLOR,
                   fillOpacity: 1,
                 }}
                 eventHandlers={{ click: () => expandSuburb(suburb) }}
@@ -243,20 +238,6 @@ export function SuburbMap({
         )}
 
         <div className="absolute bottom-3 left-3 z-[1000] space-y-1.5 rounded-btn border border-line bg-white px-3 py-2 text-xs text-body shadow-sm">
-          {!expanded && (
-            <div className="flex items-center gap-3">
-              <span className="font-medium text-muted">Demand</span>
-              {(["High", "Medium", "Low"] as DemandLevel[]).map((level) => (
-                <span key={level} className="flex items-center gap-1.5">
-                  <span
-                    className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: markerColor[level] }}
-                  />
-                  {level}
-                </span>
-              ))}
-            </div>
-          )}
           <div className="flex items-center gap-3">
             <span className="font-medium text-muted">Real rent data</span>
             <span className="flex items-center gap-1.5">

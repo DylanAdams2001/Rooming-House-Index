@@ -9,7 +9,7 @@ import { BackLink } from "@/components/back-link";
 import { BarChart3, Building2, Check, TrendingUp } from "lucide-react";
 
 const BENEFITS = [
-  { icon: TrendingUp, text: "Suburb-level demand data across Victoria" },
+  { icon: TrendingUp, text: "Real, verified room rates across Victoria" },
   { icon: Building2, text: "Registered rooming house supply, sourced from the CAV register" },
   { icon: BarChart3, text: "Average room rental rates to benchmark acquisitions" },
 ];

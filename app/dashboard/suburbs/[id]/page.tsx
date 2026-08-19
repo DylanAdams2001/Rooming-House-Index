@@ -9,7 +9,6 @@ import {
 import { listingsToPropertyRentals } from "@/lib/listing-property-adapter";
 import { loadSuburbAddresses } from "@/lib/load-suburb-addresses";
 import { createClient } from "@/lib/supabase/server";
-import { DemandBadge } from "@/components/demand-badge";
 import { SaveSuburbButton } from "@/components/save-suburb-button";
 import { RentalTrendChart } from "@/components/charts/rental-trend-chart";
 import { SupplyGrowthChart } from "@/components/charts/supply-growth-chart";
@@ -74,24 +73,13 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatTile
           label="Avg. room rate"
           value={formatAvgRoomRate(suburb)}
           muted={!suburb.avgRoomRateVerified}
         />
         <StatTile label="Rooming houses" value={String(suburb.numRoomingHouses)} />
-        <StatTile
-          label="Demand level"
-          value={
-            <div className="flex items-center gap-2">
-              <DemandBadge level={suburb.demandLevel} />
-              {!suburb.demandVerified && (
-                <span className="font-sans text-xs font-normal text-muted">est.</span>
-              )}
-            </div>
-          }
-        />
       </div>
 
       {suburb.rentalInsights && (

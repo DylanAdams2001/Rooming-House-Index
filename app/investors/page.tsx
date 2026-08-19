@@ -14,9 +14,9 @@ import {
 const BENEFITS = [
   {
     icon: TrendingUp,
-    title: "Suburb Demand Data",
+    title: "Real Closed Rents",
     description:
-      "Understand where renter demand for shared and rooming accommodation is strongest, suburb by suburb.",
+      "See what rooms actually rent for, not just the advertised asking price, suburb by suburb.",
   },
   {
     icon: Building2,
@@ -59,7 +59,7 @@ export default function InvestorsPage() {
               Rooming House Intelligence. Built for Serious Investors.
             </h1>
             <p className="mt-6 max-w-xl text-base text-body md:text-lg">
-              Suburb-level data on demand, registered supply, and rental rates across Victoria —
+              Suburb-level data on registered supply and rental rates across Victoria —
               plus a direct line to the service providers you need to run a compliant property.
             </p>
             <InvestorCtaButton className="mt-10">Become an Investor — Free</InvestorCtaButton>
@@ -99,7 +99,7 @@ export default function InvestorsPage() {
                 <p className="font-display text-2xl text-ink">$0</p>
                 <ul className="mt-6 space-y-3">
                   {[
-                    "Suburb demand & supply data",
+                    "Suburb supply data",
                     "Average room rental rates",
                     "Saved suburbs",
                     "Provider marketplace + messaging",

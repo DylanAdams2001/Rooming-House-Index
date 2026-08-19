@@ -1,15 +1,16 @@
 // numRoomingHouses is real, sourced from Consumer Affairs Victoria's public register
 // (registers.consumer.vic.gov.au/rhrsearch/browse, 1968 records, exported 25 Jul 2026 —
 // see lib/data/rooming-house-register-2026-07.json for the full postcode breakdown).
-// demandLevel and avgRoomRate are still placeholders pending a real source,
-// except where avgRoomRateVerified is true (manually supplied real figures).
+// avgRoomRate is still a placeholder pending a real source, except where
+// avgRoomRateVerified is true (manually supplied real figures). There used to
+// be a "Demand Level" (High/Medium/Low) field here too — removed because for
+// ~200 of 211 suburbs it was really just a percentile rank of registered
+// rooming-house *count*, a supply proxy mislabeled as a demand signal.
 // There is no vacancyRate field — "vacancy rate" as normally measured (whole-property
 // turnover in the general rental market) doesn't map onto rooming houses, which are
 // let room-by-room and run near-full occupancy by design. No suburb-level source for
 // rooming-house-specific vacancy exists, so the metric was removed rather than faked.
 import vicSuburbsExtra from "./data/vic-suburbs-extra.json";
-
-export type DemandLevel = "High" | "Medium" | "Low";
 
 export type Suburb = {
   id: string;
@@ -17,8 +18,6 @@ export type Suburb = {
   postcode: string;
   state: string;
   council: string;
-  demandLevel: DemandLevel;
-  demandVerified?: boolean; // true only when demandLevel is backed by real rentersInterested-style data
   avgRoomRate: number; // per week, AUD
   avgRoomRateVerified?: boolean; // true only when a real figure has been supplied (not estimated)
   avgRoomRateDisplay?: string; // overrides the $X/wk label, e.g. "$330-350/wk" for a real range
@@ -74,7 +73,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3011",
     state: "VIC",
     council: "Maribyrnong City Council",
-    demandLevel: "High",
     avgRoomRate: 245,
     numRoomingHouses: 25,
     lat: -37.7999,
@@ -90,7 +88,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3175",
     state: "VIC",
     council: "Greater Dandenong City Council",
-    demandLevel: "High",
     avgRoomRate: 380,
     avgRoomRateVerified: true,
     numRoomingHouses: 89,
@@ -107,7 +104,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3021",
     state: "VIC",
     council: "Brimbank City Council",
-    demandLevel: "Medium",
     avgRoomRate: 320,
     avgRoomRateVerified: true,
     numRoomingHouses: 31,
@@ -124,7 +120,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3171",
     state: "VIC",
     council: "Greater Dandenong City Council",
-    demandLevel: "High",
     avgRoomRate: 205,
     numRoomingHouses: 15,
     lat: -37.9498,
@@ -140,7 +135,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3020",
     state: "VIC",
     council: "Brimbank City Council",
-    demandLevel: "Medium",
     avgRoomRate: 200,
     numRoomingHouses: 14,
     lat: -37.7887,
@@ -156,7 +150,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3047",
     state: "VIC",
     council: "Hume City Council",
-    demandLevel: "Medium",
     avgRoomRate: 175,
     numRoomingHouses: 11,
     lat: -37.682,
@@ -172,7 +165,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3168",
     state: "VIC",
     council: "Monash City Council",
-    demandLevel: "High",
     avgRoomRate: 260,
     numRoomingHouses: 220,
     lat: -37.9152,
@@ -188,7 +180,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3073",
     state: "VIC",
     council: "Darebin City Council",
-    demandLevel: "Medium",
     avgRoomRate: 215,
     numRoomingHouses: 13,
     lat: -37.7182,
@@ -204,7 +195,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3199",
     state: "VIC",
     council: "Frankston City Council",
-    demandLevel: "Low",
     avgRoomRate: 400,
     avgRoomRateVerified: true,
     numRoomingHouses: 107,
@@ -221,8 +211,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3030",
     state: "VIC",
     council: "Wyndham City Council",
-    demandLevel: "High",
-    demandVerified: true,
     avgRoomRate: 370,
     avgRoomRateVerified: true,
     numRoomingHouses: 32,
@@ -248,7 +236,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3018",
     state: "VIC",
     council: "Hobsons Bay City Council",
-    demandLevel: "Medium",
     avgRoomRate: 410,
     avgRoomRateVerified: true,
     numRoomingHouses: 7,
@@ -265,8 +252,6 @@ const curatedSuburbs: Suburb[] = [
     postcode: "3630",
     state: "VIC",
     council: "Greater Shepparton City Council",
-    demandLevel: "High",
-    demandVerified: true,
     avgRoomRate: 345,
     avgRoomRateVerified: true,
     numRoomingHouses: 22,
@@ -281,19 +266,10 @@ const curatedSuburbs: Suburb[] = [
 
 // The remaining ~200 Victorian suburbs from the CAV register, covering every postcode
 // in the register. name/postcode/council/lat/lng/numRoomingHouses are real (see
-// lib/data/vic-suburbs-extra.json and rooming-house-register-2026-07.json). demandLevel,
-// and avgRoomRate are NOT real — they're deterministically generated
-// placeholders (stable across reloads, not random) pending verified figures, same as the
-// curated suburbs above before they get real data. avgRoomRateVerified is always false here.
-const roomingHouseCounts = vicSuburbsExtra.map((s) => s.numRoomingHouses).sort((a, b) => a - b);
-const p25 = roomingHouseCounts[Math.floor(roomingHouseCounts.length * 0.25)];
-const p75 = roomingHouseCounts[Math.floor(roomingHouseCounts.length * 0.75)];
-
-function estimateDemand(numRoomingHouses: number): DemandLevel {
-  if (numRoomingHouses >= p75) return "High";
-  if (numRoomingHouses <= p25) return "Low";
-  return "Medium";
-}
+// lib/data/vic-suburbs-extra.json and rooming-house-register-2026-07.json). avgRoomRate
+// is NOT real — it's a deterministically generated placeholder (stable across
+// reloads, not random) pending verified figures, same as the curated suburbs
+// above before they get real data. avgRoomRateVerified is always false here.
 
 // Deterministic (not random) hash so placeholder figures are stable across reloads/builds.
 function seededValue(seed: string, min: number, max: number) {
@@ -329,7 +305,6 @@ const generatedSuburbs: Suburb[] = vicSuburbsExtra
     postcode: s.postcode,
     state: "VIC",
     council: s.council,
-    demandLevel: estimateDemand(s.numRoomingHouses),
     avgRoomRate,
     avgRoomRateVerified,
     numRoomingHouses: s.numRoomingHouses,
@@ -341,7 +316,7 @@ const generatedSuburbs: Suburb[] = vicSuburbsExtra
         } on the Consumer Affairs Victoria register.`
       : `${s.name} has ${s.numRoomingHouses} registered rooming house${
           s.numRoomingHouses === 1 ? "" : "s"
-        } on the Consumer Affairs Victoria register. Rate and demand figures for this suburb are estimated pending verified data.`,
+        } on the Consumer Affairs Victoria register. Rate figures for this suburb are estimated pending verified data.`,
     rentalTrend: rentalTrend(avgRoomRate - 15),
     supplyGrowth: supplyGrowth(Math.max(s.numRoomingHouses - 4, 1)),
   };
@@ -363,6 +338,6 @@ export function formatAvgRoomRate(suburb: Suburb): string {
 export const dashboardStats = {
   totalSuburbsTracked: suburbs.length,
   avgGrossYield: "12.4%",
-  highDemandSuburbs: suburbs.filter((s) => s.demandLevel === "High").length,
+  verifiedSuburbs: suburbs.filter((s) => s.avgRoomRateVerified).length,
   dataUpdated: "25 Jul 2026",
 };
