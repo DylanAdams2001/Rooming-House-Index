@@ -567,6 +567,56 @@ export const propertyRentals: PropertyRental[] = [
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-19",
   },
+  {
+    id: "48-quail-cres-melton-3337",
+    address: "48 Quail Cres, Melton VIC 3337",
+    suburbId: "melton-3337",
+    lat: -37.6779604,
+    lng: 144.5711647,
+    rooms: [{ label: "Room 1", weeklyRate: 340, status: "tenanted" }],
+    avgWeeklyRate: 340,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "188-station-rd-melton-3337",
+    address: "188 Station Rd, Melton VIC 3337",
+    suburbId: "melton-3337",
+    lat: -37.6865827,
+    lng: 144.5784012,
+    rooms: [{ label: "Room 1", weeklyRate: 350, status: "tenanted" }],
+    avgWeeklyRate: 350,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "11-raymond-st-melton-south-3338",
+    address: "11 Raymond St, Melton South VIC 3338",
+    suburbId: "melton-south-3338",
+    lat: -37.6951794,
+    lng: 144.5812414,
+    rooms: [
+      { label: "Room 1", weeklyRate: 310, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 310,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "3-raymond-st-melton-south-3338",
+    address: "3 Raymond St, Melton South VIC 3338",
+    suburbId: "melton-south-3338",
+    lat: -37.6947807,
+    lng: 144.5801746,
+    rooms: [
+      { label: "Room 1", weeklyRate: 330, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 330,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
 ];
 
 export function getPropertyRentalsForSuburb(suburbId: string) {
