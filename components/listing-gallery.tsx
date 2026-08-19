@@ -5,7 +5,6 @@ import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const LABELS = ["", "Shared kitchen"];
 // Minimum horizontal drag distance (px) before a touch gesture counts as a
 // swipe rather than an incidental tap/scroll wobble.
 const SWIPE_THRESHOLD = 50;
@@ -62,13 +61,19 @@ export function ListingGallery({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openIndex, photos.length]);
 
+  // Mimics a real-estate-style preview: one large hero plus up to 4 smaller
+  // thumbnails, with a "+N photos" overlay on the last one if there are more
+  // than that — all without leaving the page (full gallery opens on click).
+  const extraPhotos = photos.slice(1, 5);
+  const remainingCount = photos.length - 5;
+
   return (
     <>
-      <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-card sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-card sm:grid-cols-3 sm:h-[420px]">
         <button
           type="button"
           onClick={() => setOpenIndex(0)}
-          className="group relative h-72 cursor-zoom-in sm:col-span-2 sm:h-[420px]"
+          className="group relative h-72 cursor-zoom-in sm:col-span-2 sm:h-full"
         >
           <Image
             src={photos[0]}
@@ -78,22 +83,35 @@ export function ListingGallery({
             priority
           />
         </button>
-        {photos[1] && (
-          <button
-            type="button"
-            onClick={() => setOpenIndex(1)}
-            className="group relative h-72 cursor-zoom-in sm:h-[420px]"
-          >
-            <Image
-              src={photos[1]}
-              alt={`${altBase} — ${LABELS[1]}`}
-              fill
-              className="object-cover transition-opacity group-hover:opacity-90"
-            />
-            <span className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2.5 py-1 text-xs text-ink">
-              {LABELS[1]}
-            </span>
-          </button>
+        {extraPhotos.length > 0 && (
+          <div className="grid grid-cols-2 grid-rows-2 gap-2 sm:h-full">
+            {extraPhotos.map((url, i) => {
+              const realIndex = i + 1;
+              const showMoreOverlay = i === extraPhotos.length - 1 && remainingCount > 0;
+              return (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => setOpenIndex(realIndex)}
+                  className="group relative h-36 cursor-zoom-in sm:h-full"
+                >
+                  <Image
+                    src={url}
+                    alt={`${altBase} — photo ${realIndex + 1}`}
+                    fill
+                    className="object-cover transition-opacity group-hover:opacity-90"
+                  />
+                  {showMoreOverlay && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-ink/60">
+                      <span className="font-display text-lg text-white">
+                        +{remainingCount} photo{remainingCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -166,12 +184,6 @@ export function ListingGallery({
                 />
               ))}
             </div>
-          )}
-
-          {openIndex !== null && LABELS[openIndex] && (
-            <span className="absolute bottom-6 hidden rounded-full bg-white/90 px-3 py-1 text-sm text-ink sm:block">
-              {LABELS[openIndex]}
-            </span>
           )}
         </div>
       )}
