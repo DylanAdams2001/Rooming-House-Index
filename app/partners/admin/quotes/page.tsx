@@ -7,6 +7,7 @@ import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
 import { InsuranceDetailsBlock } from "@/components/partners/insurance-details-block";
+import { DownloadInsuranceQuoteButton } from "@/components/partners/download-insurance-quote-button";
 import { ProductTour } from "@/components/tour/product-tour";
 import { ChevronDown } from "lucide-react";
 
@@ -192,6 +193,12 @@ export default async function AdminQuotesPage() {
                         <ChevronDown className="h-4 w-4 shrink-0 text-muted" />
                       </summary>
                       <div className="border-t border-line p-4">
+                        <div className="mb-4 flex justify-end">
+                          <DownloadInsuranceQuoteButton
+                            propertyAddress={request.property_address}
+                            details={request.insurance_details}
+                          />
+                        </div>
                         <InsuranceDetailsBlock details={request.insurance_details} />
                       </div>
                     </details>
