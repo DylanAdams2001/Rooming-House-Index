@@ -289,6 +289,8 @@ const VERIFIED_RATES: Record<string, number> = {
   "melton-south-3338": 320,
   "wyndham-vale-3024": 308,
   "hoppers-crossing-3029": 380,
+  "highton-3216": 270,
+  "hamlyn-heights-3215": 370,
 };
 
 // Shepparton is promoted into curatedSuburbs above (real regional market data

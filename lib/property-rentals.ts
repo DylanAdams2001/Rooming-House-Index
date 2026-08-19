@@ -393,6 +393,62 @@ export const propertyRentals: PropertyRental[] = [
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-14",
   },
+  {
+    id: "6-panabeh-pl-grovedale-3216",
+    address: "6 Panabeh Pl, Grovedale VIC 3216",
+    suburbId: "highton-3216",
+    lat: -38.2127574,
+    lng: 144.3116288,
+    rooms: [
+      { label: "Room 1", weeklyRate: 240, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 240,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "51-braund-ave-bell-post-hill-3215",
+    address: "51 Braund Ave, Bell Post Hill VIC 3215",
+    suburbId: "hamlyn-heights-3215",
+    lat: -38.098092,
+    lng: 144.3285853,
+    rooms: [
+      { label: "Room 1", weeklyRate: 370, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 370,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "1-catania-cl-waurn-ponds-3216",
+    address: "1 Catania Cl, Waurn Ponds VIC 3216",
+    suburbId: "highton-3216",
+    lat: -38.2154361,
+    lng: 144.2991566,
+    rooms: [
+      { label: "Room 1", weeklyRate: 300, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 300,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "34-primrose-dr-waurn-ponds-3216",
+    address: "34 Primrose Dr, Waurn Ponds VIC 3216",
+    suburbId: "highton-3216",
+    lat: -38.2151228,
+    lng: 144.2962771,
+    rooms: [
+      { label: "Room 1", weeklyRate: 270, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 270,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
 ];
 
 export function getPropertyRentalsForSuburb(suburbId: string) {
