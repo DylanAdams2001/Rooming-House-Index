@@ -382,7 +382,7 @@ export const propertyRentals: PropertyRental[] = [
   {
     id: "17-woodland-dr-albanvale-3021",
     address: "17 Woodland Dr, Albanvale VIC 3021",
-    suburbId: "st-albans-3021",
+    suburbId: "albanvale-3021",
     lat: -37.7457286,
     lng: 144.7657578,
     rooms: [
@@ -445,6 +445,86 @@ export const propertyRentals: PropertyRental[] = [
       { label: "Room 1", weeklyRate: 270, status: "vacant", note: "Advertised, not yet tenanted" },
     ],
     avgWeeklyRate: 270,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "1-halesworth-st-st-albans-3021",
+    address: "1 Halesworth St, St Albans VIC 3021",
+    suburbId: "st-albans-3021",
+    lat: -37.7477158,
+    lng: 144.81476,
+    rooms: [{ label: "Room 1", weeklyRate: 370, status: "tenanted" }],
+    avgWeeklyRate: 370,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "12-cox-st-st-albans-3021",
+    address: "12 Cox St, St Albans VIC 3021",
+    suburbId: "st-albans-3021",
+    lat: -37.7573071,
+    lng: 144.8058981,
+    rooms: [
+      { label: "Room 1", weeklyRate: 340, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 340,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "4-17-rhodes-st-st-albans-3021",
+    address: "4/17 Rhodes St, St Albans VIC 3021",
+    suburbId: "st-albans-3021",
+    lat: -37.7568455,
+    lng: 144.8062742,
+    rooms: [
+      { label: "Unit 4", weeklyRate: 375, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 375,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "38-george-st-st-albans-3021",
+    address: "38 George St, St Albans VIC 3021",
+    suburbId: "st-albans-3021",
+    lat: -37.7313505,
+    lng: 144.8047968,
+    rooms: [
+      { label: "Room 1", weeklyRate: 280, status: "tenanted", note: "Leased from 16 Feb 2026" },
+    ],
+    avgWeeklyRate: 280,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "74-oberon-ave-st-albans-3021",
+    address: "74 Oberon Ave, St Albans VIC 3021",
+    suburbId: "st-albans-3021",
+    lat: -37.7387666,
+    lng: 144.8088051,
+    rooms: [
+      { label: "Room 1", weeklyRate: 325, status: "tenanted", note: "Leased from 12 May 2026" },
+      { label: "Room 2", weeklyRate: 345, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 335,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "19-annetta-ct-albanvale-3021",
+    address: "19 Annetta Court, Albanvale VIC 3021",
+    suburbId: "albanvale-3021",
+    lat: -37.7436625,
+    lng: 144.7717198,
+    rooms: [
+      { label: "Room 1", weeklyRate: 310, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 310,
     sourceNote:
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-19",

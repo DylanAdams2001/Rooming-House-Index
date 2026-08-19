@@ -31,7 +31,7 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
 
   const supabase = createClient();
   const [addresses, { data: listingRows }] = await Promise.all([
-    loadSuburbAddresses(suburb.postcode),
+    loadSuburbAddresses(suburb.id, suburb.postcode),
     supabase
       .from("listings")
       .select("id, address, suburb_id, lat, lng, room_type, weekly_rate, rented_weekly_rate, status, created_at, rented_at")

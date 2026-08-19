@@ -75,7 +75,7 @@ export function SuburbMap({
   function expandSuburb(suburb: Suburb) {
     setExpanded(suburb);
     setLoadingAddresses(true);
-    loadSuburbAddresses(suburb.postcode).then((points) => {
+    loadSuburbAddresses(suburb.id, suburb.postcode).then((points) => {
       setAddresses(points);
       setLoadingAddresses(false);
     });

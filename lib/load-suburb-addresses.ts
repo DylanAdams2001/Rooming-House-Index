@@ -7,7 +7,21 @@ export type AddressPoint = {
 // Individual rooming house addresses, split into one JSON file per postcode
 // (lib/data/addresses/<postcode>.json) so the map only loads the ~5-50 points
 // for a suburb the user actually drills into, not all ~1960 addresses at once.
-export async function loadSuburbAddresses(postcode: string): Promise<AddressPoint[]> {
+//
+// A postcode can genuinely cover several distinct real suburbs (e.g. 3021
+// spans both St Albans and Albanvale) — the CAV register source data has no
+// per-address locality, only postcode, so most suburbs still share one file.
+// When a suburb has been reverse-geocoded and split out on its own, its
+// addresses live in a file keyed by suburb id instead (e.g.
+// lib/data/addresses/albanvale-3021.json) — tried first, falling back to the
+// shared postcode file so every other, unsplit suburb keeps working as-is.
+export async function loadSuburbAddresses(suburbId: string, postcode: string): Promise<AddressPoint[]> {
+  try {
+    const mod = await import(`./data/addresses/${suburbId}.json`);
+    return mod.default as AddressPoint[];
+  } catch {
+    // Falls through to the shared postcode file below.
+  }
   try {
     const mod = await import(`./data/addresses/${postcode}.json`);
     return mod.default as AddressPoint[];
