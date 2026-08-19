@@ -61,19 +61,19 @@ export function ListingGallery({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openIndex, photos.length]);
 
-  // Mimics a real-estate-style preview: one large hero plus up to 4 smaller
-  // thumbnails, with a "+N photos" overlay on the last one if there are more
-  // than that — all without leaving the page (full gallery opens on click).
-  const extraPhotos = photos.slice(1, 5);
-  const remainingCount = photos.length - 5;
+  // Main photo centred on top, up to 3 smaller thumbnails in a row below —
+  // with a "+N photos" overlay on the last one if there are more than that —
+  // all without leaving the page (full gallery opens on click).
+  const extraPhotos = photos.slice(1, 4);
+  const remainingCount = photos.length - 4;
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-card sm:grid-cols-3 sm:h-[420px]">
+      <div>
         <button
           type="button"
           onClick={() => setOpenIndex(0)}
-          className="group relative h-72 cursor-zoom-in sm:col-span-2 sm:h-full"
+          className="group relative h-72 w-full cursor-zoom-in overflow-hidden rounded-card sm:h-[420px]"
         >
           <Image
             src={photos[0]}
@@ -84,7 +84,7 @@ export function ListingGallery({
           />
         </button>
         {extraPhotos.length > 0 && (
-          <div className="grid grid-cols-2 grid-rows-2 gap-2 sm:h-full">
+          <div className="mt-2 grid grid-cols-3 gap-2">
             {extraPhotos.map((url, i) => {
               const realIndex = i + 1;
               const showMoreOverlay = i === extraPhotos.length - 1 && remainingCount > 0;
@@ -93,7 +93,7 @@ export function ListingGallery({
                   key={url}
                   type="button"
                   onClick={() => setOpenIndex(realIndex)}
-                  className="group relative h-36 cursor-zoom-in sm:h-full"
+                  className="group relative h-24 cursor-zoom-in overflow-hidden rounded-card sm:h-32"
                 >
                   <Image
                     src={url}
