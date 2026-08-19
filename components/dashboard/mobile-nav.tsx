@@ -130,6 +130,21 @@ export function MobileNav({
                   );
                 }
 
+                if (item.comingSoon) {
+                  return (
+                    <div
+                      key={item.href}
+                      className="flex items-center gap-3 rounded-btn px-3 py-3 text-sm text-muted"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="flex-1">{item.label}</span>
+                      <span className="whitespace-nowrap rounded-full border border-line bg-white px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                        Coming Soon
+                      </span>
+                    </div>
+                  );
+                }
+
                 const unread = item.href === "/dashboard/messages" && unreadMessageCount > 0;
 
                 return (

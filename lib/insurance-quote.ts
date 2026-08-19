@@ -18,7 +18,6 @@ export type InsuranceDetails = {
   mortgageProvider: string;
   isStrata: YesNo;
   hasPropertyManager: YesNo;
-  propertyManagerName: string;
   businessConducted: YesNo;
 
   currentlyOccupied: YesNo;
@@ -27,7 +26,6 @@ export type InsuranceDetails = {
   buildingSumInsured: string;
   contentsSumInsured: string;
   avgWeeklyRental: string;
-  excess: string;
 
   coverLossOfRent: YesNo;
   coverRentDefault: YesNo;
@@ -69,14 +67,12 @@ export const EMPTY_INSURANCE_DETAILS: InsuranceDetails = {
   mortgageProvider: "",
   isStrata: null,
   hasPropertyManager: null,
-  propertyManagerName: "",
   businessConducted: null,
   currentlyOccupied: null,
   occupancyType: null,
   buildingSumInsured: "",
   contentsSumInsured: "",
   avgWeeklyRental: "",
-  excess: "",
   coverLossOfRent: null,
   coverRentDefault: null,
   coverTheftByTenant: null,
@@ -102,6 +98,13 @@ export const EMPTY_INSURANCE_DETAILS: InsuranceDetails = {
 
 function yesNo(v: YesNo): string | null {
   return v === null ? null : v ? "Yes" : "No";
+}
+
+// Stored as plain digits (e.g. "1300000") — format with thousand separators
+// for display, same as the form's own inputs.
+function formatMoney(digits: string): string | null {
+  if (!digits) return null;
+  return `$${Number(digits).toLocaleString("en-AU")}`;
 }
 
 const SOLAR_LABEL: Record<string, string> = {
@@ -164,7 +167,6 @@ export function formatInsuranceDetails(details: InsuranceDetails): InsuranceDeta
   add("Property", "Mortgage provider", details.mortgageProvider);
   add("Property", "Part of a strata?", yesNo(details.isStrata));
   add("Property", "Managed by a licensed property manager?", yesNo(details.hasPropertyManager));
-  add("Property", "Property manager name", details.propertyManagerName);
   add("Property", "Business conducted from property?", yesNo(details.businessConducted));
 
   add("Occupancy & sum insured", "Currently occupied?", yesNo(details.currentlyOccupied));
@@ -173,10 +175,9 @@ export function formatInsuranceDetails(details: InsuranceDetails): InsuranceDeta
     "Occupancy type",
     details.occupancyType === "short_term" ? "Short-term" : details.occupancyType === "long_term" ? "Long-term" : null
   );
-  add("Occupancy & sum insured", "Building sum insured", details.buildingSumInsured && `$${details.buildingSumInsured}`);
-  add("Occupancy & sum insured", "Contents sum insured", details.contentsSumInsured && `$${details.contentsSumInsured}`);
-  add("Occupancy & sum insured", "Average weekly rental", details.avgWeeklyRental && `$${details.avgWeeklyRental}`);
-  add("Occupancy & sum insured", "Excess", details.excess && `$${details.excess}`);
+  add("Occupancy & sum insured", "Building sum insured", formatMoney(details.buildingSumInsured));
+  add("Occupancy & sum insured", "Contents sum insured", formatMoney(details.contentsSumInsured));
+  add("Occupancy & sum insured", "Average weekly rental", formatMoney(details.avgWeeklyRental));
 
   add("Optional covers", "Loss of Rent", yesNo(details.coverLossOfRent));
   add("Optional covers", "Rent Default", yesNo(details.coverRentDefault));

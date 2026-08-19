@@ -18,6 +18,9 @@ export type NavItem = {
   icon: LucideIcon;
   external?: boolean;
   children?: { label: string; href?: string; comingSoon?: boolean }[];
+  // Renders as a non-clickable row with a "Coming Soon" badge instead of a
+  // link — for tools that exist but aren't live yet (e.g. only run locally).
+  comingSoon?: boolean;
   // Shown as a step in the first-login product tour when it highlights this
   // item in the sidebar — single source of truth so the tour can never drift
   // out of sync with what's actually in the nav.
@@ -58,6 +61,7 @@ const BASE_NAV_ITEMS: NavItem[] = [
     label: "Land Finder",
     icon: MapPin,
     external: true,
+    comingSoon: true,
     tourDescription: "A separate tool for finding development-ready land — opens in a new tab.",
   },
   {

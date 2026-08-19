@@ -35,6 +35,7 @@ const TOOLS = [
     description: "Search available parcels for your next build.",
     icon: MapPin,
     external: true,
+    comingSoon: true,
   },
   {
     href: "/dashboard/services",
@@ -153,21 +154,39 @@ export default async function DashboardHomePage() {
         <p className="mt-1 text-sm text-body">Everything you need to research your next investment.</p>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {TOOLS.map((tool) => (
-            <Link
-              key={tool.href}
-              href={tool.href}
-              target={tool.external ? "_blank" : undefined}
-              rel={tool.external ? "noopener noreferrer" : undefined}
-              className="group rounded-card border border-line bg-white p-5 transition-colors hover:border-ink"
-            >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-linen text-ink">
-                <tool.icon className="h-5 w-5" />
+          {TOOLS.map((tool) =>
+            tool.comingSoon ? (
+              <div
+                key={tool.href}
+                className="rounded-card border border-line bg-white p-5 opacity-60"
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linen text-ink">
+                    <tool.icon className="h-5 w-5" />
+                  </div>
+                  <span className="whitespace-nowrap rounded-full border border-line bg-white px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                    Coming Soon
+                  </span>
+                </div>
+                <h3 className="font-display text-base text-ink">{tool.label}</h3>
+                <p className="mt-1 text-sm text-body">{tool.description}</p>
               </div>
-              <h3 className="font-display text-base text-ink">{tool.label}</h3>
-              <p className="mt-1 text-sm text-body">{tool.description}</p>
-            </Link>
-          ))}
+            ) : (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                target={tool.external ? "_blank" : undefined}
+                rel={tool.external ? "noopener noreferrer" : undefined}
+                className="group rounded-card border border-line bg-white p-5 transition-colors hover:border-ink"
+              >
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-linen text-ink">
+                  <tool.icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-base text-ink">{tool.label}</h3>
+                <p className="mt-1 text-sm text-body">{tool.description}</p>
+              </Link>
+            )
+          )}
         </div>
       </div>
     </div>

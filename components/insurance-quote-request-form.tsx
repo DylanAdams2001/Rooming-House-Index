@@ -19,6 +19,16 @@ import {
 
 const TOTAL_STEPS = 7;
 
+// Money fields store plain digits (e.g. "1300000") and only format with
+// thousand separators for display, so submission/parsing stays simple.
+function parseThousands(displayValue: string): string {
+  return displayValue.replace(/[^\d]/g, "");
+}
+function formatThousands(digits: string): string {
+  if (!digits) return "";
+  return Number(digits).toLocaleString("en-AU");
+}
+
 function YesNoToggle({
   label,
   value,
@@ -327,16 +337,6 @@ export function InsuranceQuoteRequestForm({ userId }: { userId: string }) {
             value={details.hasPropertyManager}
             onChange={(v) => set("hasPropertyManager", v)}
           />
-          {details.hasPropertyManager && (
-            <div className="space-y-2">
-              <Label htmlFor="propertyManagerName">Property manager name</Label>
-              <Input
-                id="propertyManagerName"
-                value={details.propertyManagerName}
-                onChange={(e) => set("propertyManagerName", e.target.value)}
-              />
-            </div>
-          )}
           <YesNoToggle
             label="Is any business conducted from the property?"
             value={details.businessConducted}
@@ -374,40 +374,33 @@ export function InsuranceQuoteRequestForm({ userId }: { userId: string }) {
               <Label htmlFor="buildingSumInsured">Building sum insured ($)</Label>
               <Input
                 id="buildingSumInsured"
-                type="number"
-                min={0}
-                value={details.buildingSumInsured}
-                onChange={(e) => set("buildingSumInsured", e.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatThousands(details.buildingSumInsured)}
+                onChange={(e) => set("buildingSumInsured", parseThousands(e.target.value))}
+                placeholder="e.g. 1,300,000"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="contentsSumInsured">Contents sum insured ($)</Label>
               <Input
                 id="contentsSumInsured"
-                type="number"
-                min={0}
-                value={details.contentsSumInsured}
-                onChange={(e) => set("contentsSumInsured", e.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatThousands(details.contentsSumInsured)}
+                onChange={(e) => set("contentsSumInsured", parseThousands(e.target.value))}
+                placeholder="e.g. 80,000"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="avgWeeklyRental">Average weekly rental amount ($)</Label>
               <Input
                 id="avgWeeklyRental"
-                type="number"
-                min={0}
-                value={details.avgWeeklyRental}
-                onChange={(e) => set("avgWeeklyRental", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="excess">Excess ($)</Label>
-              <Input
-                id="excess"
-                type="number"
-                min={0}
-                value={details.excess}
-                onChange={(e) => set("excess", e.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatThousands(details.avgWeeklyRental)}
+                onChange={(e) => set("avgWeeklyRental", parseThousands(e.target.value))}
+                placeholder="e.g. 3,150"
               />
             </div>
           </div>
