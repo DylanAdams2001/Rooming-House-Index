@@ -779,6 +779,54 @@ export const propertyRentals: PropertyRental[] = [
     sourceNote: "Real rent income and lease history supplied directly (property manager's leased-properties report).",
     dateAdded: "2026-08-19",
   },
+  {
+    id: "55-oneills-rd-melton-3337",
+    address: "55 O'Neills Rd, Melton VIC 3337 (Units 1, 2, 3, 8, 9)",
+    suburbId: "melton-3337",
+    lat: -37.6781157,
+    lng: 144.5773415,
+    rooms: [
+      { label: "Unit 1", weeklyRate: 300, status: "tenanted", note: "Leased from 19 May 2026" },
+      { label: "Unit 2", weeklyRate: 335, status: "tenanted", note: "Leased from 24 Feb 2026" },
+      { label: "Unit 3", weeklyRate: 335, status: "tenanted", note: "Leased from 19 Jun 2026" },
+      { label: "Unit 8", weeklyRate: 335, status: "tenanted", note: "Leased from 8 Jan 2026" },
+      { label: "Unit 9", weeklyRate: 310, status: "tenanted", note: "Leased from 27 May 2026" },
+    ],
+    avgWeeklyRate: 323,
+    sourceNote:
+      "Real rent income and lease history supplied directly (property manager's leased-properties report). Not in the CAV register scrape used elsewhere for address-book data — confirmed as a real rooming house directly by the property manager.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "71-duncans-rd-werribee-3030",
+    address: "71 Duncans Rd, Werribee VIC 3030 (Unit 2)",
+    suburbId: "werribee-3030",
+    lat: -37.9076592,
+    lng: 144.6728257,
+    rooms: [{ label: "Unit 2", weeklyRate: 375, status: "tenanted", note: "Leased from 11 Aug 2026" }],
+    avgWeeklyRate: 375,
+    sourceNote:
+      "Real rent income supplied directly (property manager's leased-properties report). Not in the CAV register scrape used elsewhere for address-book data — confirmed as a real rooming house directly by the property manager.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "42-albert-cres-st-albans-3021",
+    address: "42 Albert Cres, St Albans VIC 3021 (Units 1, 5, 6, 7, 8)",
+    suburbId: "st-albans-3021",
+    lat: -37.7408906,
+    lng: 144.7964292,
+    rooms: [
+      { label: "Unit 1", weeklyRate: 385, status: "tenanted", note: "Leased from 14 May 2026" },
+      { label: "Unit 5", weeklyRate: 350, status: "tenanted", note: "Leased from 20 Oct 2025" },
+      { label: "Unit 6", weeklyRate: 400, status: "tenanted", note: "Leased from 29 Sep 2025" },
+      { label: "Unit 7", weeklyRate: 375, status: "tenanted", note: "Leased from 29 Oct 2025" },
+      { label: "Unit 8", weeklyRate: 375, status: "tenanted", note: "Leased from 29 Sep 2025" },
+    ],
+    avgWeeklyRate: 377,
+    sourceNote:
+      "Real rent income and lease history supplied directly (property manager's leased-properties report). Not in the CAV register scrape used elsewhere for address-book data — confirmed as a real rooming house directly by the property manager.",
+    dateAdded: "2026-08-19",
+  },
 ];
 
 export function getPropertyRentalsForSuburb(suburbId: string) {
