@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { suburbs, dashboardStats, formatAvgRoomRate, type Suburb } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,6 +25,7 @@ const SORT_OPTIONS = {
 type SortKey = keyof typeof SORT_OPTIONS;
 
 export default function MarketOverviewPage() {
+  const router = useRouter();
   const [sortKey, setSortKey] = useState<SortKey>("avgRoomRate");
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
 
@@ -151,7 +153,11 @@ export default function MarketOverviewPage() {
               </thead>
               <tbody>
                 {sorted.map((s, i) => (
-                  <tr key={s.id} className="border-b border-line last:border-0">
+                  <tr
+                    key={s.id}
+                    onClick={() => router.push(`/dashboard/suburbs/${s.id}`)}
+                    className="cursor-pointer border-b border-line last:border-0 hover:bg-linen"
+                  >
                     <td className="px-6 py-4 font-display text-base text-ink">
                       {s.name} <span className="text-muted">{s.postcode}</span>
                     </td>
@@ -164,6 +170,7 @@ export default function MarketOverviewPage() {
                       <Link
                         href={`/listings?suburb=${s.id}`}
                         target="_blank"
+                        onClick={(e) => e.stopPropagation()}
                         data-tour={i === 0 ? "market-explore" : undefined}
                         className="inline-flex items-center gap-1 text-sm text-ink underline underline-offset-4 hover:text-body"
                       >
