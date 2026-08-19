@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -151,6 +151,19 @@ export function ListingForm({
 
   function removePhoto(url: string) {
     setPhotos((prev) => prev.filter((p) => p !== url));
+  }
+
+  // The first photo is the cover image everywhere (listing cards, the gallery
+  // hero) — this is how a manager picks which one that is, and reorders the
+  // rest, without a drag-and-drop library.
+  function movePhoto(index: number, direction: -1 | 1) {
+    setPhotos((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   function handleAddressChange(value: string) {
@@ -352,10 +365,15 @@ export function ListingForm({
         <Label>Photos</Label>
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {photos.map((url) => (
+            {photos.map((url, index) => (
               <div key={url} className="group relative aspect-square overflow-hidden rounded-btn border border-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={url} alt="Room photo" className="h-full w-full object-cover" />
+                {index === 0 && (
+                  <span className="absolute left-1 top-1 rounded-full bg-ink/70 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white">
+                    Cover
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => removePhoto(url)}
@@ -364,9 +382,34 @@ export function ListingForm({
                 >
                   <X className="h-3 w-3" />
                 </button>
+                <div className="absolute inset-x-0 bottom-1 flex items-center justify-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => movePhoto(index, -1)}
+                    disabled={index === 0}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-white disabled:opacity-30"
+                    aria-label="Move photo earlier"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => movePhoto(index, 1)}
+                    disabled={index === photos.length - 1}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-white disabled:opacity-30"
+                    aria-label="Move photo later"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
+        )}
+        {photos.length > 1 && (
+          <p className="text-xs text-muted">
+            Hover a photo to reorder it — the first one is used as the cover image.
+          </p>
         )}
         <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink underline underline-offset-4">
           {uploading ? "Uploading…" : "Add photos"}
