@@ -1,4 +1,4 @@
-import { FileText, Home, ListChecks, MessageCircle, Package, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
+import { Archive, FileText, Home, ListChecks, MessageCircle, Package, Plus, ShieldCheck, User, type LucideIcon } from "lucide-react";
 
 export type PartnerNavItem = {
   href: string;
@@ -49,6 +49,13 @@ export function getPartnerNavItems(
         icon: FileText,
         tourDescription:
           "Every quote request across every category, and every quote submitted against it. Click any submitted quote to jump straight into that conversation.",
+      },
+      {
+        href: "/partners/archive",
+        label: "Archived Listings",
+        icon: Archive,
+        tourDescription:
+          "Every room that's actually been rented, platform-wide, with the real closed rate — not just the advertised asking price.",
       },
       {
         href: "/partners/admin/conversations",
@@ -126,6 +133,13 @@ export function getPartnerNavItems(
       label: "Add Room",
       icon: Plus,
       tourDescription: "Create a new room listing — it publishes immediately once submitted.",
+    });
+    items.push({
+      href: "/partners/archive",
+      label: "Archived Listings",
+      icon: Archive,
+      tourDescription:
+        "Every room that's actually been rented, platform-wide, with the real closed rate — not just the advertised asking price.",
     });
     // Room enquiries live in the unified Messages tab above now, not a
     // separate Enquiries tab.

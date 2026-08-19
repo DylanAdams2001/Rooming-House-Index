@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
 import { getSuburbById } from "@/lib/mock-data";
-import { getPropertyRentalById, propertyRentals } from "@/lib/property-rentals";
+import { getPropertyRentalById } from "@/lib/property-rentals";
+import { listingToPropertyRental } from "@/lib/listing-property-adapter";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BackLink } from "@/components/back-link";
 import { cn } from "@/lib/utils";
 import type { PropertyRoomRental } from "@/lib/property-rentals";
 
-export function generateStaticParams() {
-  return propertyRentals.map((p) => ({ id: p.suburbId, propertyId: p.id }));
-}
+// Real listings can flip to "rented" (or be newly approved) at any time, so
+// this page can't be statically generated — always fetch fresh.
+export const dynamic = "force-dynamic";
 
 const statusStyles: Record<PropertyRoomRental["status"], string> = {
   tenanted: "border-line bg-white text-body",
@@ -24,13 +26,24 @@ const statusLabels: Record<PropertyRoomRental["status"], string> = {
   unknown: "No data",
 };
 
-export default function PropertyRentalPage({
+export default async function PropertyRentalPage({
   params,
 }: {
   params: { id: string; propertyId: string };
 }) {
   const suburb = getSuburbById(params.id);
-  const property = getPropertyRentalById(params.propertyId);
+  let property = getPropertyRentalById(params.propertyId);
+
+  if (!property) {
+    const supabase = createClient();
+    const { data: listing } = await supabase
+      .from("listings")
+      .select("id, address, suburb_id, lat, lng, room_type, weekly_rate, rented_weekly_rate, status, created_at, rented_at")
+      .eq("id", params.propertyId)
+      .in("status", ["approved", "rented"])
+      .maybeSingle();
+    property = listing ? listingToPropertyRental(listing) ?? undefined : undefined;
+  }
 
   if (!suburb || !property || property.suburbId !== suburb.id) {
     notFound();

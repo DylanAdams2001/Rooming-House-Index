@@ -6,7 +6,9 @@ import {
   getPropertyRateSummary,
   getPropertyConfirmationStatus,
 } from "@/lib/property-rentals";
+import { listingsToPropertyRentals } from "@/lib/listing-property-adapter";
 import { loadSuburbAddresses } from "@/lib/load-suburb-addresses";
+import { createClient } from "@/lib/supabase/server";
 import { DemandBadge } from "@/components/demand-badge";
 import { SaveSuburbButton } from "@/components/save-suburb-button";
 import { RentalTrendChart } from "@/components/charts/rental-trend-chart";
@@ -28,8 +30,19 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
     notFound();
   }
 
-  const addresses = await loadSuburbAddresses(suburb.postcode);
-  const properties = getPropertyRentalsForSuburb(suburb.id);
+  const supabase = createClient();
+  const [addresses, { data: listingRows }] = await Promise.all([
+    loadSuburbAddresses(suburb.postcode),
+    supabase
+      .from("listings")
+      .select("id, address, suburb_id, lat, lng, room_type, weekly_rate, rented_weekly_rate, status, created_at, rented_at")
+      .eq("suburb_id", suburb.id)
+      .in("status", ["approved", "rented"]),
+  ]);
+  const properties = [
+    ...getPropertyRentalsForSuburb(suburb.id),
+    ...listingsToPropertyRentals(listingRows ?? []),
+  ];
   // Verified properties are often also in the plain CAV address list (same address) —
   // skip them there so each address only appears once, in its more useful form.
   const propertyCoordKeys = new Set(
@@ -162,7 +175,7 @@ export default async function SuburbDetailPage({ params }: { params: { id: strin
               : "Address-level data isn't available for this suburb yet."}
           </p>
         </CardHeader>
-        {addresses.length > 0 && (
+        {(addresses.length > 0 || properties.length > 0) && (
           <CardContent>
             {properties.length > 0 && (
               <div className="mb-5 space-y-2">

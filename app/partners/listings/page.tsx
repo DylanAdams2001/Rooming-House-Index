@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ListingDeleteButton } from "@/components/partners/listing-delete-button";
+import { MarkRentedButton } from "@/components/partners/mark-rented-button";
 import { Home, Plus } from "lucide-react";
 import { ProductTour } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ const STATUS_STYLES: Record<string, string> = {
   approved: "border-green-600 bg-green-600 text-white",
   pending: "border-line bg-linen text-ink",
   rejected: "border-red-600 bg-red-600 text-white",
+  rented: "border-line bg-ink text-white",
 };
 
 export default async function PartnersListingsPage() {
@@ -22,7 +24,7 @@ export default async function PartnersListingsPage() {
 
   const { data: listings } = await supabase
     .from("listings")
-    .select("id, address, suburb_name, room_type, weekly_rate, status, created_at")
+    .select("id, address, suburb_name, room_type, weekly_rate, rented_weekly_rate, status, created_at")
     .eq("owner_id", user!.id)
     .order("created_at", { ascending: false });
 
@@ -71,10 +73,16 @@ export default async function PartnersListingsPage() {
                     <Badge className={cn(STATUS_STYLES[listing.status])}>{listing.status}</Badge>
                   </div>
                   <p className="text-sm text-muted">
-                    {listing.suburb_name} · {listing.room_type} · ${listing.weekly_rate}/week
+                    {listing.suburb_name} · {listing.room_type} ·{" "}
+                    {listing.status === "rented" && listing.rented_weekly_rate
+                      ? `rented at $${listing.rented_weekly_rate}/week (advertised $${listing.weekly_rate}/week)`
+                      : `$${listing.weekly_rate}/week`}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {listing.status === "approved" && (
+                    <MarkRentedButton listingId={listing.id} advertisedRate={listing.weekly_rate} />
+                  )}
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/partners/listings/${listing.id}/edit`}>Edit</Link>
                   </Button>

@@ -1725,3 +1725,25 @@ where r.id = q.request_id
 -- ─────────────────────────────────────────────────────────────
 alter table public.service_quote_requests
   add column if not exists insurance_details jsonb;
+
+-- ─────────────────────────────────────────────────────────────
+-- Rented listings
+-- Real listings can now be marked "rented" with the actual agreed weekly
+-- rate (which may differ from the advertised weekly_rate) — this closes
+-- the loop with the manually-curated real-data system built earlier
+-- (lib/property-rentals.ts): an approved listing shows on the investor
+-- map/property pages as "advertised" (blue), and once rented it becomes
+-- "confirmed tenanted" (green), same as the hand-entered data. Everyone
+-- (admin, every property manager, every investor) can see rented listings
+-- — no per-owner scoping on the archive.
+-- ─────────────────────────────────────────────────────────────
+alter table public.listings drop constraint if exists listings_status_check;
+alter table public.listings
+  add constraint listings_status_check check (status in ('pending', 'approved', 'rejected', 'rented'));
+alter table public.listings add column if not exists rented_weekly_rate integer;
+alter table public.listings add column if not exists rented_at timestamptz;
+
+drop policy if exists "Anyone can view approved listings" on public.listings;
+create policy "Anyone can view approved or rented listings"
+  on public.listings for select
+  using (status in ('approved', 'rented'));

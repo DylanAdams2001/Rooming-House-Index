@@ -6,7 +6,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
 import { formatAvgRoomRate, type Suburb, type DemandLevel } from "@/lib/mock-data";
-import { getPropertyRentalsForSuburb, getPropertyConfirmationStatus } from "@/lib/property-rentals";
+import {
+  getPropertyRentalsForSuburb,
+  getPropertyConfirmationStatus,
+  type PropertyRental,
+} from "@/lib/property-rentals";
+import { listingsToPropertyRentals } from "@/lib/listing-property-adapter";
+import { createClient } from "@/lib/supabase/client";
 import { DemandBadge } from "@/components/demand-badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -65,9 +71,11 @@ export function SuburbMap({
   focusSuburb?: FocusSuburbTrigger | null;
 }) {
   const router = useRouter();
+  const supabase = createClient();
   const [expanded, setExpanded] = useState<Suburb | null>(null);
   const [addresses, setAddresses] = useState<AddressPoint[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [listingProperties, setListingProperties] = useState<PropertyRental[]>([]);
 
   function expandSuburb(suburb: Suburb) {
     setExpanded(suburb);
@@ -76,11 +84,20 @@ export function SuburbMap({
       setAddresses(points);
       setLoadingAddresses(false);
     });
+    supabase
+      .from("listings")
+      .select("id, address, suburb_id, lat, lng, room_type, weekly_rate, rented_weekly_rate, status, created_at, rented_at")
+      .eq("suburb_id", suburb.id)
+      .in("status", ["approved", "rented"])
+      .then(({ data }) => {
+        setListingProperties(listingsToPropertyRentals(data ?? []));
+      });
   }
 
   function collapse() {
     setExpanded(null);
     setAddresses([]);
+    setListingProperties([]);
   }
 
   // Selecting a suburb from the search box (while already on the map view) should
@@ -94,7 +111,9 @@ export function SuburbMap({
   }, [focusSuburb]);
 
   const streetCounts = expanded ? groupByStreet(addresses) : [];
-  const propertiesForExpanded = expanded ? getPropertyRentalsForSuburb(expanded.id) : [];
+  const propertiesForExpanded = expanded
+    ? [...getPropertyRentalsForSuburb(expanded.id), ...listingProperties]
+    : [];
   // A verified property is often also one of the plain CAV-register addresses (same
   // coordinates) — skip the generic dot for those so it doesn't sit underneath, and
   // block, the amber marker.

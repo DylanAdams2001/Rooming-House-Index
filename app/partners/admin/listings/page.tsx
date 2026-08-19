@@ -5,12 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Home } from "lucide-react";
 import { ProductTour } from "@/components/tour/product-tour";
 import { ListingDeleteButton } from "@/components/partners/listing-delete-button";
+import { MarkRentedButton } from "@/components/partners/mark-rented-button";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
   approved: "border-green-600 bg-green-600 text-white",
   pending: "border-line bg-linen text-ink",
   rejected: "border-red-600 bg-red-600 text-white",
+  rented: "border-line bg-ink text-white",
 };
 
 export default async function AdminListingsPage() {
@@ -39,7 +41,7 @@ export default async function AdminListingsPage() {
 
   const { data: listings } = await supabase
     .from("listings")
-    .select("id, address, suburb_name, room_type, weekly_rate, status, owner_id, created_at")
+    .select("id, address, suburb_name, room_type, weekly_rate, rented_weekly_rate, status, owner_id, created_at")
     .order("created_at", { ascending: false });
 
   const ownerIds = Array.from(new Set((listings ?? []).map((l) => l.owner_id).filter(Boolean))) as string[];
@@ -90,7 +92,10 @@ export default async function AdminListingsPage() {
                     <Badge className={cn(STATUS_STYLES[listing.status])}>{listing.status}</Badge>
                   </div>
                   <p className="text-sm text-muted">
-                    {listing.suburb_name} · {listing.room_type} · ${listing.weekly_rate}/week
+                    {listing.suburb_name} · {listing.room_type} ·{" "}
+                    {listing.status === "rented" && listing.rented_weekly_rate
+                      ? `rented at $${listing.rented_weekly_rate}/week (advertised $${listing.weekly_rate}/week)`
+                      : `$${listing.weekly_rate}/week`}
                   </p>
                   <p className="text-xs text-muted">
                     {listing.owner_id
@@ -98,7 +103,10 @@ export default async function AdminListingsPage() {
                       : "No owner (seeded listing)"}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  {listing.status === "approved" && (
+                    <MarkRentedButton listingId={listing.id} advertisedRate={listing.weekly_rate} />
+                  )}
                   <Link
                     href={`/partners/listings/${listing.id}/edit`}
                     className="text-sm text-ink underline underline-offset-4"
