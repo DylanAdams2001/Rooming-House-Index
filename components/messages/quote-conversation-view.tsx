@@ -42,7 +42,7 @@ export async function QuoteConversationView({
 
   const { data: request } = await supabase
     .from("service_quote_requests")
-    .select("id, user_id, property_address, number_of_rooms, current_arrangement, notes")
+    .select("id, user_id, property_address, number_of_rooms, current_arrangement, notes, insurance_details")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -127,6 +127,7 @@ export async function QuoteConversationView({
           notes: request.notes,
           investorName: investor?.full_name ?? null,
           investorEmail: investor?.email ?? null,
+          insuranceDetails: request.insurance_details,
         }}
       />
 

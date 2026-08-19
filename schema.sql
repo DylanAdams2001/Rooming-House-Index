@@ -1711,3 +1711,17 @@ where r.id = q.request_id
   and r.category = 'building'
   and q.provider_name = t.label
   and r.number_of_rooms = t.bedroom_count;
+
+-- ─────────────────────────────────────────────────────────────
+-- insurance_details on service_quote_requests
+-- The generic 4-field quote form (address/rooms/arrangement/notes) wasn't
+-- enough for an actual insurance broker to price a landlord policy (see
+-- Pacific Prime's "Landlords Quote Slip" — ~30 fields covering mortgage,
+-- sum insured, security, claims history, etc.), so admin had to manually
+-- chase investors for the rest after every submission. Rather than adding
+-- ~30 columns to a table shared with property_management/building (which
+-- don't need any of this), the insurance-specific answers live in one
+-- jsonb column, populated only when category = 'insurance'.
+-- ─────────────────────────────────────────────────────────────
+alter table public.service_quote_requests
+  add column if not exists insurance_details jsonb;

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getServiceCategory } from "@/lib/service-categories";
 import { ProviderCard, type RealProvider } from "@/components/provider-card";
 import { ServiceQuoteRequestForm } from "@/components/service-quote-request-form";
+import { InsuranceQuoteRequestForm } from "@/components/insurance-quote-request-form";
 import { QuoteCard } from "@/components/quote-card";
 import { BuildingInclusionsContent, InclusionsTextList } from "@/components/partners/building-inclusions-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,22 +96,19 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
         <h1 className="font-display text-3xl text-ink">{category.label}</h1>
         <p className="mt-2 max-w-2xl text-body">{category.description}</p>
 
-        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle>Request quotes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {user ? (
-                <ServiceQuoteRequestForm userId={user.id} category={category.dbCategory} />
-              ) : (
-                <p className="text-sm text-body">Log in to request quotes.</p>
-              )}
-            </CardContent>
-          </Card>
+        {(() => {
+          const isInsurance = category.dbCategory === "insurance";
 
-          <div className="space-y-4 lg:col-span-2">
-            {requests.length === 0 ? (
+          const requestForm = !user ? (
+            <p className="text-sm text-body">Log in to request quotes.</p>
+          ) : isInsurance ? (
+            <InsuranceQuoteRequestForm userId={user.id} />
+          ) : (
+            <ServiceQuoteRequestForm userId={user.id} category={category.dbCategory} />
+          );
+
+          const requestsList =
+            requests.length === 0 ? (
               <div className="rounded-card border border-dashed border-line bg-white p-12 text-center">
                 <p className="text-body">No quote requests yet.</p>
                 <p className="mt-1 text-sm text-muted">
@@ -190,9 +188,29 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
                   </Card>
                 );
               })
-            )}
-          </div>
-        </div>
+            );
+
+          if (isInsurance) {
+            return (
+              <div className="mt-8 space-y-8">
+                <div>{requestForm}</div>
+                <div className="space-y-4">{requestsList}</div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle>Request quotes</CardTitle>
+                </CardHeader>
+                <CardContent>{requestForm}</CardContent>
+              </Card>
+              <div className="space-y-4 lg:col-span-2">{requestsList}</div>
+            </div>
+          );
+        })()}
       </div>
     );
   }

@@ -1,5 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
+import { type InsuranceDetails } from "@/lib/insurance-quote";
+import { InsuranceDetailsBlock } from "@/components/partners/insurance-details-block";
 
 export type QuoteRequestSummaryData = {
   propertyAddress: string;
@@ -8,10 +10,12 @@ export type QuoteRequestSummaryData = {
   notes: string | null;
   investorName: string | null;
   investorEmail: string | null;
+  insuranceDetails?: InsuranceDetails | null;
 };
 
 export function QuoteRequestSummary({ request }: { request: QuoteRequestSummaryData }) {
   const r = request;
+
   return (
     <Card className="mb-4">
       <CardContent className="p-5">
@@ -48,6 +52,13 @@ export function QuoteRequestSummary({ request }: { request: QuoteRequestSummaryD
             <span className="text-xs uppercase tracking-wide text-muted">Notes: </span>
             {r.notes}
           </p>
+        )}
+
+        {r.insuranceDetails && (
+          <div className="mt-4 space-y-4 border-t border-line pt-4">
+            <p className="text-xs uppercase tracking-wide text-muted">Insurance quote details</p>
+            <InsuranceDetailsBlock details={r.insuranceDetails} />
+          </div>
         )}
       </CardContent>
     </Card>

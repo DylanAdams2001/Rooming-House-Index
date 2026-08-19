@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
+import { InsuranceDetailsBlock } from "@/components/partners/insurance-details-block";
 import { ProductTour } from "@/components/tour/product-tour";
+import { ChevronDown } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   quoted: "border-green-600 bg-green-600 text-white",
@@ -40,7 +42,7 @@ export default async function AdminQuotesPage() {
 
   const { data: requests } = await supabase
     .from("service_quote_requests")
-    .select("id, property_address, category, status, created_at, user_id")
+    .select("id, property_address, category, status, created_at, user_id, insurance_details")
     .order("created_at", { ascending: false });
 
   const requestIds = (requests ?? []).map((r) => r.id);
@@ -181,6 +183,18 @@ export default async function AdminQuotesPage() {
 
                   {request.category === "building" && requestQuotes.length === 0 && (
                     <AdminBuildingQuoteForm requestId={request.id} />
+                  )}
+
+                  {request.category === "insurance" && request.insurance_details && (
+                    <details className="mt-3 rounded-btn border border-line">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 p-3 text-sm text-ink [&::-webkit-details-marker]:hidden">
+                        View insurance quote details
+                        <ChevronDown className="h-4 w-4 shrink-0 text-muted" />
+                      </summary>
+                      <div className="border-t border-line p-4">
+                        <InsuranceDetailsBlock details={request.insurance_details} />
+                      </div>
+                    </details>
                   )}
                 </CardContent>
               </Card>
