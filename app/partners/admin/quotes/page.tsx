@@ -7,6 +7,7 @@ import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminBuildingQuoteForm } from "@/components/partners/admin-building-quote-form";
 import { DeleteQuoteButton } from "@/components/partners/delete-quote-button";
+import { DeleteQuoteRequestButton } from "@/components/partners/delete-quote-request-button";
 import { InsuranceDetailsBlock } from "@/components/partners/insurance-details-block";
 import { DownloadInsuranceQuoteButton } from "@/components/partners/download-insurance-quote-button";
 import { ProductTour } from "@/components/tour/product-tour";
@@ -134,7 +135,10 @@ export default async function AdminQuotesPage() {
                         {new Date(request.created_at).toLocaleDateString("en-AU")}
                       </p>
                     </div>
-                    <Badge className={cn(STATUS_STYLES[request.status])}>{request.status}</Badge>
+                    <div className="flex items-center gap-1">
+                      <Badge className={cn(STATUS_STYLES[request.status])}>{request.status}</Badge>
+                      <DeleteQuoteRequestButton requestId={request.id} />
+                    </div>
                   </div>
 
                   {requestQuotes.length === 0 ? (

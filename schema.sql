@@ -1747,3 +1747,21 @@ drop policy if exists "Anyone can view approved listings" on public.listings;
 create policy "Anyone can view approved or rented listings"
   on public.listings for select
   using (status in ('approved', 'rented'));
+
+-- ─────────────────────────────────────────────────────────────
+-- Admin can delete quote requests
+-- Admin previously only had select on service_quote_requests — deleting
+-- a submitted quote (service_quote_quotes) already worked, but there was
+-- no way to remove a request itself (e.g. a stale/test one still sitting
+-- at status='pending' with nothing submitted against it yet to delete).
+-- service_quote_quotes/quote_conversations both cascade on this table's
+-- id, so deleting a request cleanly removes its quotes/conversations too.
+-- Replaces the old select-only admin policy rather than stacking a
+-- second, overlapping one.
+-- ─────────────────────────────────────────────────────────────
+drop policy if exists "Admins can view every quote request" on public.service_quote_requests;
+create policy "Admins can manage every quote request"
+  on public.service_quote_requests for all
+  using (exists (
+    select 1 from public.users where id = auth.uid() and role = 'admin'
+  ));
