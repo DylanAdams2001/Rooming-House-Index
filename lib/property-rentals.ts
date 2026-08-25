@@ -363,7 +363,7 @@ export const propertyRentals: PropertyRental[] = [
   {
     id: "6-kalver-st-corio-3214",
     address: "6 Kalver St, Corio VIC 3214",
-    suburbId: "norlane-3214",
+    suburbId: "corio-3214",
     lat: -38.0701575,
     lng: 144.3626149,
     rooms: [
@@ -825,6 +825,137 @@ export const propertyRentals: PropertyRental[] = [
     avgWeeklyRate: 377,
     sourceNote:
       "Real rent income and lease history supplied directly (property manager's leased-properties report). Not in the CAV register scrape used elsewhere for address-book data — confirmed as a real rooming house directly by the property manager.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "24-laha-cres-preston-3072",
+    address: "24 Laha Cres, Preston VIC 3072",
+    suburbId: "preston-3072",
+    lat: -37.7341268,
+    lng: 145.0261464,
+    rooms: [{ label: "Room 1", weeklyRate: 385, status: "tenanted" }],
+    avgWeeklyRate: 385,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "3-black-knight-way-kurunjang-3337",
+    address: "3 Black Knight Way, Kurunjang VIC 3337",
+    suburbId: "kurunjang-3337",
+    lat: -37.6630114,
+    lng: 144.5901408,
+    rooms: [{ label: "Room 1", weeklyRate: 350, status: "tenanted" }],
+    avgWeeklyRate: 350,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "20-sutalo-st-marshall-3216",
+    address: "20 Sutalo St, Marshall VIC 3216",
+    suburbId: "marshall-3216",
+    lat: -38.196066,
+    lng: 144.3532229,
+    rooms: [
+      { label: "Room 1", weeklyRate: 395, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 395,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "7-lansell-pl-melton-west-3337",
+    address: "7 Lansell Pl, Melton West VIC 3337",
+    suburbId: "melton-west-3337",
+    lat: -37.6765662,
+    lng: 144.5663057,
+    rooms: [
+      { label: "Room 1", weeklyRate: 390, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 390,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "3-irving-rd-melton-3337",
+    address: "3 Irving Rd, Melton VIC 3337",
+    suburbId: "melton-3337",
+    lat: -37.6884293,
+    lng: 144.568199,
+    rooms: [
+      { label: "Room 1", weeklyRate: 390, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 390,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "25-argyle-cres-werribee-3030",
+    address: "25 Argyle Cres, Werribee VIC 3030",
+    suburbId: "werribee-3030",
+    lat: -37.8846486,
+    lng: 144.6671049,
+    rooms: [
+      { label: "Room 1", weeklyRate: 330, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 330,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "30-showers-st-braybrook-3019",
+    address: "30 Showers St, Braybrook VIC 3019",
+    suburbId: "braybrook-3019",
+    lat: -37.7927972,
+    lng: 144.8514078,
+    rooms: [{ label: "Room 1", weeklyRate: 415, status: "tenanted" }],
+    avgWeeklyRate: 415,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "2-76-kiora-st-altona-meadows-3028",
+    address: "2/76 Kiora St, Altona Meadows VIC 3028",
+    suburbId: "altona-meadows-3028",
+    lat: -37.8707432,
+    lng: 144.7751851,
+    rooms: [
+      { label: "Unit 2", weeklyRate: 410, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 410,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "50-paley-dr-corio-3214",
+    address: "50 Paley Dr, Corio VIC 3214",
+    suburbId: "corio-3214",
+    lat: -38.0737665,
+    lng: 144.3472887,
+    rooms: [
+      { label: "Room 1", weeklyRate: 395, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 395,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    dateAdded: "2026-08-19",
+  },
+  {
+    id: "34a-rowe-st-golden-square-3555",
+    address: "34a Rowe St, Golden Square VIC 3555",
+    suburbId: "golden-square-3555",
+    lat: -36.7773378,
+    lng: 144.2639387,
+    rooms: [
+      { label: "Room 1", weeklyRate: 440, status: "vacant", note: "Advertised, not yet tenanted" },
+    ],
+    avgWeeklyRate: 440,
+    sourceNote:
+      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-19",
   },
 ];
