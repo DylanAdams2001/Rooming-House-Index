@@ -25,7 +25,7 @@ export default async function ProviderProfilePage({
   const { data: provider } = await supabase
     .from("service_providers")
     .select(
-      "id, slug, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
+      "id, slug, user_id, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
     )
     .eq("slug", params.providerId)
     .eq("category", category.dbCategory)
@@ -60,16 +60,25 @@ export default async function ProviderProfilePage({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="whitespace-pre-line text-body">{provider.description || "No description provided yet."}</p>
-            <div className="text-sm text-body">
-              <p>
-                <span className="text-muted">Email:</span> {provider.contact_email}
-              </p>
-              {provider.contact_phone && (
+            {provider.user_id ? (
+              <div className="text-sm text-body">
                 <p>
-                  <span className="text-muted">Phone:</span> {provider.contact_phone}
+                  <span className="text-muted">Email:</span> {provider.contact_email}
                 </p>
-              )}
-            </div>
+                {provider.contact_phone && (
+                  <p>
+                    <span className="text-muted">Phone:</span> {provider.contact_phone}
+                  </p>
+                )}
+              </div>
+            ) : (
+              // Unclaimed/admin-managed listing — no direct contact details shown,
+              // so enquiries go through the platform's own messaging instead.
+              <p className="text-sm text-muted">
+                Message this provider directly through Rooming House Standard using the button
+                on the right.
+              </p>
+            )}
           </CardContent>
         </Card>
 
