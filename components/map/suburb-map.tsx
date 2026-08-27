@@ -148,15 +148,15 @@ export function SuburbMap({
           {/* CARTO's free anonymous basemap tiles now require an API key
               (carto.com/basemaps/apikey) — this switched over without
               warning and was showing "API KEY REQUIRED" watermarked tiles
-              in production. Falling back to OSM's standard tile server,
-              which needs no key. Worth revisiting with a real CARTO/MapTiler
-              API key later for their nicer light "Positron" style and
-              better production-traffic headroom — OSM's own tile usage
-              policy asks that heavy/commercial apps not lean on it long
-              term (operations.osmfoundation.org/policies/tiles). */}
+              in production. Esri's Light Gray Canvas is a free,
+              no-key-required basemap with the same muted, low-color look
+              CARTO's "Positron" style had — closer to how the map looked
+              before than OSM's full-color default tiles. Note the
+              {z}/{y}/{x} order here, which is reversed from the usual
+              {z}/{x}/{y} slippy-map convention. */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.esri.com">Esri</a>'
+            url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
           />
 
           {!expanded &&
