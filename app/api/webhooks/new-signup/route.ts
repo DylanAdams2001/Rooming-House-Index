@@ -14,8 +14,14 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rooming-house-inde
 // before any onboarding step), so all that's guaranteed to exist yet is the
 // email. Every admin gets one email per new account, same broadcast pattern
 // as the quote-request webhook.
+//
+// Uses its own NEW_SIGNUP_WEBHOOK_SECRET rather than the shared
+// SUPABASE_WEBHOOK_SECRET every other webhook route uses — that shared
+// secret became unreadable once Vercel marked it Sensitive, so a fresh,
+// independently-set secret sidesteps needing to rotate (and re-configure
+// everywhere) the one already in production use.
 export async function POST(req: Request) {
-  if (!isValidWebhookRequest(req)) {
+  if (!isValidWebhookRequest(req, "NEW_SIGNUP_WEBHOOK_SECRET")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
