@@ -33,6 +33,10 @@ const PROPERTY_STATUS_COLOR: Record<"tenanted" | "advertised", string> = {
   advertised: "#2563eb",
 };
 
+// Optional — see the TileLayer below for why. Undefined until this is set,
+// in which case the map falls back to Esri's (non-retina) tiles.
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
 const VIC_CENTER: [number, number] = [-37.95, 144.95];
 const VIC_ZOOM = 9;
 const SUBURB_ZOOM = 15;
@@ -145,25 +149,37 @@ export function SuburbMap({
                 : undefined
             }
           />
-          {/* CARTO's free anonymous basemap tiles now require an API key
-              (carto.com/basemaps/apikey) — this switched over without
-              warning and was showing "API KEY REQUIRED" watermarked tiles
-              in production. Esri's Light Gray Canvas is a free,
-              no-key-required basemap with the same muted, low-color look
-              CARTO's "Positron" style had — closer to how the map looked
-              before than OSM's full-color default tiles. Note the
-              {z}/{y}/{x} order here, which is reversed from the usual
-              {z}/{x}/{y} slippy-map convention. */}
-          <TileLayer
-            attribution='&copy; <a href="https://www.esri.com">Esri</a>'
-            url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-          />
-          {/* Esri splits labels into a separate transparent overlay from the
-              base canvas above — without this, suburb/place/road names don't
-              show up on the map at all. */}
-          <TileLayer
-            url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
-          />
+          {/* CARTO's free anonymous basemap tiles started requiring an API
+              key (carto.com/basemaps/apikey) and their free tier is
+              non-commercial-only anyway, so not a fit for this app. Mapbox's
+              free tier (50k loads/month) explicitly allows commercial use
+              and serves proper retina (@2x) tiles — Esri's free Light Gray
+              Canvas (the fallback below) doesn't, so it looks visibly
+              blurry on any high-DPI screen. Set NEXT_PUBLIC_MAPBOX_TOKEN to
+              switch over; falls back to the Esri tiles until then so the
+              map still works either way. */}
+          {MAPBOX_TOKEN ? (
+            <TileLayer
+              attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url={`https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}{r}?access_token=${MAPBOX_TOKEN}`}
+              tileSize={512}
+              zoomOffset={-1}
+              detectRetina={true}
+            />
+          ) : (
+            <>
+              <TileLayer
+                attribution='&copy; <a href="https://www.esri.com">Esri</a>'
+                url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              />
+              {/* Esri splits labels into a separate transparent overlay from
+                  the base canvas above — without this, suburb/place/road
+                  names don't show up on the map at all. */}
+              <TileLayer
+                url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+              />
+            </>
+          )}
 
           {!expanded &&
             suburbs.map((suburb) => (
