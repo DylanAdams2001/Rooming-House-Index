@@ -117,7 +117,7 @@ export default async function AdminConversationsPage() {
         intro={{
           title: "All Conversations",
           description:
-            "Every conversation on the platform — marketplace messages, quote requests, and room enquiries — merged into one list. Use this for payment verification and compliance oversight.",
+            "Every conversation on the platform — marketplace messages, quote requests, and room enquiries — merged into one list. Use this for payment verification and compliance oversight, or to reply as the business side of a conversation.",
         }}
       />
 
@@ -126,8 +126,9 @@ export default async function AdminConversationsPage() {
         <h1 className="font-display text-3xl text-ink">All Conversations</h1>
       </div>
       <p className="mt-2 text-body">
-        Every conversation across every provider, quote request, and room enquiry, for payment
-        verification and compliance oversight.
+        Every conversation across every provider, quote request, and room enquiry — for payment
+        verification and compliance oversight, and to reply on behalf of a supplier or contractor
+        that hasn&apos;t claimed their account yet.
       </p>
 
       {error && <p className="mt-6 text-sm text-red-600">{error.message}</p>}

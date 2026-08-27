@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ChatThread } from "@/components/chat/chat-thread";
 import { ArrowLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 type Kind = "conv" | "quote" | "enquiry";
 
@@ -36,7 +36,7 @@ export default async function AdminConversationPage({
     isAdmin = profile?.role === "admin";
   }
 
-  if (!isAdmin) {
+  if (!isAdmin || !user) {
     return (
       <div className="rounded-card border border-dashed border-line bg-white p-12 text-center">
         <p className="text-body">This page is restricted to admin accounts.</p>
@@ -48,9 +48,20 @@ export default async function AdminConversationPage({
   if (!parsed) notFound();
   const { kind, id } = parsed;
 
-  let title = "Conversation";
+  let businessLabel = "Conversation";
   let investorLabel = "Investor";
-  let messages: { id: string; body: string; created_at: string; mine: boolean }[] = [];
+  let table: "messages" | "quote_messages" | "listing_messages" = "messages";
+  let realConversationId = id;
+  let initialMessages: {
+    id: string;
+    sender_id: string | null;
+    body: string;
+    created_at: string;
+    is_manager?: boolean;
+    is_provider?: boolean;
+    attachment_url?: string | null;
+    attachment_name?: string | null;
+  }[] = [];
 
   if (kind === "conv") {
     const { data: conversation } = await supabase
@@ -63,24 +74,19 @@ export default async function AdminConversationPage({
 
     if (!conversation) notFound();
 
-    title =
+    businessLabel =
       (conversation.service_providers as unknown as { business_name: string } | null)?.business_name ??
       "Provider";
     investorLabel =
       (conversation.users as unknown as { email: string } | null)?.email ?? conversation.investor_id;
+    table = "messages";
 
     const { data: rows } = await supabase
       .from("messages")
-      .select("id, sender_id, body, created_at")
+      .select("id, sender_id, body, created_at, attachment_url, attachment_name")
       .eq("conversation_id", id)
       .order("created_at", { ascending: true });
-
-    messages = (rows ?? []).map((m) => ({
-      id: m.id,
-      body: m.body,
-      created_at: m.created_at,
-      mine: m.sender_id !== conversation.investor_id,
-    }));
+    initialMessages = rows ?? [];
   } else if (kind === "quote") {
     const { data: conversation } = await supabase
       .from("quote_conversations")
@@ -98,23 +104,18 @@ export default async function AdminConversationPage({
       users: { email: string } | null;
     } | null;
 
-    title =
+    businessLabel =
       (conversation.service_providers as unknown as { business_name: string } | null)?.business_name ??
       "Provider";
     investorLabel = request?.users?.email ?? request?.user_id ?? "Investor";
+    table = "quote_messages";
 
     const { data: rows } = await supabase
       .from("quote_messages")
-      .select("id, is_provider, body, created_at")
+      .select("id, sender_id, is_provider, body, created_at, attachment_url, attachment_name")
       .eq("conversation_id", id)
       .order("created_at", { ascending: true });
-
-    messages = (rows ?? []).map((m) => ({
-      id: m.id,
-      body: m.body,
-      created_at: m.created_at,
-      mine: m.is_provider,
-    }));
+    initialMessages = rows ?? [];
   } else {
     const { data: conversation } = await supabase
       .from("listing_conversations")
@@ -124,25 +125,20 @@ export default async function AdminConversationPage({
 
     if (!conversation) notFound();
 
-    title = (conversation.listings as unknown as { address: string } | null)?.address ?? "Room enquiry";
+    businessLabel = (conversation.listings as unknown as { address: string } | null)?.address ?? "Room enquiry";
     investorLabel = (conversation.users as unknown as { email: string } | null)?.email ?? conversation.tenant_id;
+    table = "listing_messages";
 
     const { data: rows } = await supabase
       .from("listing_messages")
-      .select("id, is_manager, body, created_at")
+      .select("id, sender_id, is_manager, body, created_at, attachment_url, attachment_name")
       .eq("conversation_id", id)
       .order("created_at", { ascending: true });
-
-    messages = (rows ?? []).map((m) => ({
-      id: m.id,
-      body: m.body,
-      created_at: m.created_at,
-      mine: m.is_manager,
-    }));
+    initialMessages = rows ?? [];
   }
 
   return (
-    <div>
+    <div className="flex h-[calc(100vh-8rem)] flex-col">
       <Link
         href="/partners/admin/conversations"
         className="mb-4 flex items-center gap-2 text-sm text-body hover:text-ink"
@@ -151,29 +147,15 @@ export default async function AdminConversationPage({
         All conversations
       </Link>
 
-      <div className="rounded-card border border-line bg-white">
-        <div className="border-b border-line px-6 py-4">
-          <p className="font-display text-lg text-ink">{title}</p>
-          <p className="text-xs text-muted">Investor/Tenant: {investorLabel}</p>
-        </div>
-        <div className="space-y-3 px-6 py-4">
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              className={cn(
-                "max-w-[75%] rounded-card px-4 py-2 text-sm",
-                m.mine ? "ml-auto bg-linen text-ink" : "bg-offwhite text-ink"
-              )}
-            >
-              <p>{m.body}</p>
-              <p className="mt-1 text-[10px] text-muted">
-                {new Date(m.created_at).toLocaleString("en-AU")}
-              </p>
-            </div>
-          ))}
-          {messages.length === 0 && <p className="text-sm text-muted">No messages in this conversation yet.</p>}
-        </div>
-      </div>
+      <ChatThread
+        conversationId={realConversationId}
+        currentUserId={user.id}
+        otherPartyName={`${investorLabel} ↔ ${businessLabel}`}
+        initialMessages={initialMessages}
+        table={table}
+        businessSideReply={table !== "messages"}
+        complianceNote="Replying here sends as the business side of this conversation — the other party sees it as coming from them, not from Rooming House Standard."
+      />
     </div>
   );
 }

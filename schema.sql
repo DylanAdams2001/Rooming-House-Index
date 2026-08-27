@@ -1765,3 +1765,31 @@ create policy "Admins can manage every quote request"
   using (exists (
     select 1 from public.users where id = auth.uid() and role = 'admin'
   ));
+
+-- ─────────────────────────────────────────────────────────────
+-- Admin reply capability — the "All Conversations" oversight page was
+-- read-only; admin can already view every message everywhere (see the
+-- "Admins can view every ..." select policies above) but couldn't send one.
+-- This matters most for seeded/unclaimed provider listings (no owning
+-- account exists to reply as them), but applies platform-wide.
+-- ─────────────────────────────────────────────────────────────
+create policy "Admins can send messages in any conversation"
+  on public.messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (select 1 from public.users where id = auth.uid() and role = 'admin')
+  );
+
+create policy "Admins can send quote messages in any conversation"
+  on public.quote_messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (select 1 from public.users where id = auth.uid() and role = 'admin')
+  );
+
+create policy "Admins can send listing messages in any conversation"
+  on public.listing_messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (select 1 from public.users where id = auth.uid() and role = 'admin')
+  );

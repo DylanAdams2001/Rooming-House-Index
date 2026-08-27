@@ -69,7 +69,7 @@ export function getPartnerNavItems(
         label: "All Conversations",
         icon: ShieldCheck,
         tourDescription:
-          "Every conversation on the platform — marketplace messages, quote requests, and room enquiries — merged into one list.",
+          "Every conversation on the platform — marketplace messages, quote requests, and room enquiries — merged into one list. Click into any of them to reply as that business, useful for suppliers without a claimed account yet.",
       },
       {
         href: "/partners/admin/partner-links",
