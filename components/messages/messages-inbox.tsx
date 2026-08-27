@@ -73,7 +73,7 @@ export async function MessagesInbox({
             ? supabase
                 .from("conversations")
                 .select(
-                  "id, last_message_at, last_message_body, provider_last_read_at, users!conversations_investor_id_fkey(full_name, email), messages!inner(id)"
+                  "id, last_message_at, last_message_body, provider_last_read_at, users!conversations_investor_id_fkey(full_name, email), messages(id)"
                 )
                 .in("provider_id", providerIds)
             : Promise.resolve({ data: [], error: null }),
@@ -81,7 +81,7 @@ export async function MessagesInbox({
             ? supabase
                 .from("quote_conversations")
                 .select(
-                  "id, request_id, last_message_at, last_message_body, provider_last_read_at, service_quote_requests(property_address, users(full_name, email)), quote_messages!inner(id)"
+                  "id, request_id, last_message_at, last_message_body, provider_last_read_at, service_quote_requests(property_address, users(full_name, email)), quote_messages(id)"
                 )
                 .in("provider_id", providerIds)
             : Promise.resolve({ data: [], error: null }),
@@ -89,7 +89,7 @@ export async function MessagesInbox({
             ? supabase
                 .from("listing_conversations")
                 .select(
-                  "id, listing_id, tenant_id, last_message_at, last_message_body, manager_last_read_at, listing_messages!inner(id)"
+                  "id, listing_id, tenant_id, last_message_at, last_message_body, manager_last_read_at, listing_messages(id)"
                 )
                 .in("listing_id", listingIds)
             : Promise.resolve({ data: [], error: null }),
@@ -176,13 +176,13 @@ export async function MessagesInbox({
       supabase
         .from("conversations")
         .select(
-          "id, last_message_at, last_message_body, investor_last_read_at, service_providers(business_name, category), messages!inner(id)"
+          "id, last_message_at, last_message_body, investor_last_read_at, service_providers(business_name, category), messages(id)"
         )
         .eq("investor_id", user.id),
       supabase
         .from("quote_conversations")
         .select(
-          "id, request_id, provider_id, last_message_at, last_message_body, investor_last_read_at, service_quote_requests(property_address), service_providers(business_name), quote_messages!inner(id)"
+          "id, request_id, provider_id, last_message_at, last_message_body, investor_last_read_at, service_quote_requests(property_address), service_providers(business_name), quote_messages(id)"
         ),
     ]);
 
