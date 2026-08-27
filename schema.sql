@@ -75,6 +75,13 @@ create table if not exists public.investor_profiles (
   updated_at timestamptz not null default now()
 );
 
+-- Replaces average_room_price as the onboarding follow-up when someone already
+-- owns a rooming house — which suburb it's in is more useful for tailoring
+-- their dashboard than the room price alone. average_room_price is left in
+-- place (nullable, no longer collected) rather than dropped, since nothing
+-- currently reads it but removing a column outright is needless risk.
+alter table public.investor_profiles add column if not exists suburb text;
+
 alter table public.investor_profiles enable row level security;
 
 create policy "Investors can view and manage their own investor profile"

@@ -19,7 +19,7 @@ function InvestorDetailsForm() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [hasRoomingHouse, setHasRoomingHouse] = useState<boolean | null>(null);
-  const [avgRoomPrice, setAvgRoomPrice] = useState("");
+  const [suburb, setSuburb] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +35,7 @@ function InvestorDetailsForm() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canContinue =
-    hasRoomingHouse === false || (hasRoomingHouse === true && avgRoomPrice.trim().length > 0);
+    hasRoomingHouse === false || (hasRoomingHouse === true && suburb.trim().length > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +46,7 @@ function InvestorDetailsForm() {
     const { error: upsertError } = await supabase.from("investor_profiles").upsert({
       user_id: userId,
       has_rooming_house: hasRoomingHouse,
-      average_room_price: hasRoomingHouse ? avgRoomPrice.trim() : null,
+      suburb: hasRoomingHouse ? suburb.trim() : null,
     });
 
     if (upsertError) {
@@ -89,7 +89,7 @@ function InvestorDetailsForm() {
               type="button"
               onClick={() => {
                 setHasRoomingHouse(false);
-                setAvgRoomPrice("");
+                setSuburb("");
               }}
               className={cn(
                 "rounded-btn border border-line px-4 py-3 text-sm transition-colors",
@@ -105,13 +105,13 @@ function InvestorDetailsForm() {
 
         {hasRoomingHouse && (
           <div className="space-y-2">
-            <Label htmlFor="avgRoomPrice">What is the average room price for your property?</Label>
+            <Label htmlFor="suburb">What suburb is it located in?</Label>
             <Input
-              id="avgRoomPrice"
+              id="suburb"
               required
-              value={avgRoomPrice}
-              onChange={(e) => setAvgRoomPrice(e.target.value)}
-              placeholder="e.g. $350/week"
+              value={suburb}
+              onChange={(e) => setSuburb(e.target.value)}
+              placeholder="e.g. St Albans"
             />
           </div>
         )}
