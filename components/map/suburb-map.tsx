@@ -158,6 +158,12 @@ export function SuburbMap({
             attribution='&copy; <a href="https://www.esri.com">Esri</a>'
             url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
           />
+          {/* Esri splits labels into a separate transparent overlay from the
+              base canvas above — without this, suburb/place/road names don't
+              show up on the map at all. */}
+          <TileLayer
+            url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+          />
 
           {!expanded &&
             suburbs.map((suburb) => (
