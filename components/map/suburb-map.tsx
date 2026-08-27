@@ -21,7 +21,12 @@ import {
   type AddressPoint,
 } from "@/lib/load-suburb-addresses";
 
-const SUBURB_MARKER_COLOR = "#1a1a1a";
+// Suburb-level dots (the unexpanded, all-Victoria view): green means this
+// suburb has a real verified average room rate, dark means it's still a
+// placeholder estimate — same distinction formatAvgRoomRate already makes
+// in text, just visible on the map before anyone clicks in.
+const SUBURB_VERIFIED_COLOR = "#16a34a";
+const SUBURB_UNVERIFIED_COLOR = "#1a1a1a";
 
 const PROPERTY_STATUS_COLOR: Record<"tenanted" | "advertised", string> = {
   tenanted: "#16a34a",
@@ -154,7 +159,7 @@ export function SuburbMap({
                 pathOptions={{
                   color: "#ffffff",
                   weight: 2,
-                  fillColor: SUBURB_MARKER_COLOR,
+                  fillColor: suburb.avgRoomRateVerified ? SUBURB_VERIFIED_COLOR : SUBURB_UNVERIFIED_COLOR,
                   fillOpacity: 1,
                 }}
                 eventHandlers={{ click: () => expandSuburb(suburb) }}
@@ -238,23 +243,43 @@ export function SuburbMap({
         )}
 
         <div className="absolute bottom-3 left-3 z-[1000] space-y-1.5 rounded-btn border border-line bg-white px-3 py-2 text-xs text-body shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="font-medium text-muted">Real rent data</span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
-              />
-              Tenanted
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
-              />
-              Advertised
-            </span>
-          </div>
+          {expanded ? (
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-muted">Real rent data</span>
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: PROPERTY_STATUS_COLOR.tenanted }}
+                />
+                Tenanted
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: PROPERTY_STATUS_COLOR.advertised }}
+                />
+                Advertised
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-muted">Suburb data</span>
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: SUBURB_VERIFIED_COLOR }}
+                />
+                Verified rate
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: SUBURB_UNVERIFIED_COLOR }}
+                />
+                No data yet
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
