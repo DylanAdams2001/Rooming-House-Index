@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { firstNameOf } from "@/lib/greeting";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SuburbCard } from "@/components/suburb-card";
 import { ReferralCard } from "@/components/referral-card";
@@ -53,13 +54,15 @@ export default async function DashboardHomePage() {
 
   let referralCode: string | null = null;
   let referralCount = 0;
+  let firstName: string | null = null;
   if (user) {
     const { data: profile } = await supabase
       .from("users")
-      .select("referral_code")
+      .select("referral_code, full_name")
       .eq("id", user.id)
       .maybeSingle();
     referralCode = profile?.referral_code ?? null;
+    firstName = firstNameOf(profile?.full_name, user.email ?? "");
 
     const { data: count } = await supabase.rpc("count_successful_referrals", { p_user_id: user.id });
     referralCount = count ?? 0;
@@ -98,7 +101,7 @@ export default async function DashboardHomePage() {
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">
-        Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}
+        Welcome back{firstName ? `, ${firstName}` : ""}
       </h1>
       <p className="mt-2 text-body">
         Here&apos;s the current state of the rooming house market across Victoria.

@@ -161,6 +161,16 @@ export function MobileNav({
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
+                    {item.badge && (
+                      <span
+                        className={cn(
+                          "whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide",
+                          active ? "border-white/30 text-white" : "border-line bg-white text-muted"
+                        )}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                     {unread && (
                       <span
                         className="ml-auto h-2 w-2 shrink-0 rounded-full bg-red-600"

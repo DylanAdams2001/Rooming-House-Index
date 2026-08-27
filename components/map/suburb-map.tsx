@@ -145,9 +145,18 @@ export function SuburbMap({
                 : undefined
             }
           />
+          {/* CARTO's free anonymous basemap tiles now require an API key
+              (carto.com/basemaps/apikey) — this switched over without
+              warning and was showing "API KEY REQUIRED" watermarked tiles
+              in production. Falling back to OSM's standard tile server,
+              which needs no key. Worth revisiting with a real CARTO/MapTiler
+              API key later for their nicer light "Positron" style and
+              better production-traffic headroom — OSM's own tile usage
+              policy asks that heavy/commercial apps not lean on it long
+              term (operations.osmfoundation.org/policies/tiles). */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
           {!expanded &&
