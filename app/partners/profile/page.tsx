@@ -13,7 +13,7 @@ export default async function PartnersProfilePage() {
   const { data: provider } = await supabase
     .from("service_providers")
     .select(
-      "id, category, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
+      "id, category, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials, response_time_label"
     )
     .eq("user_id", user!.id)
     .maybeSingle();
@@ -92,6 +92,7 @@ export default async function PartnersProfilePage() {
             coverageAreas: provider.coverage_areas ?? [],
             licenseNumber: provider.license_number,
             credentials: (provider.credentials as Record<string, string | string[]>) ?? {},
+            responseTimeLabel: provider.response_time_label,
           }}
         />
       </div>

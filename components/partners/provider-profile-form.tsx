@@ -7,9 +7,26 @@ import type { ServiceCategory } from "@/lib/service-categories";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+// Kept as a fixed set rather than free text — a response-time claim shown to
+// investors should stay within the realm of something a real business could
+// actually commit to, not an open field anyone could overstate.
+const RESPONSE_TIME_OPTIONS = [
+  "Typically responds within 5 minutes",
+  "Typically responds within an hour",
+  "Typically responds within a few hours",
+  "Typically responds within a day",
+];
 
 export function ProviderProfileForm({
   providerId,
@@ -26,6 +43,7 @@ export function ProviderProfileForm({
     coverageAreas: string[];
     licenseNumber: string | null;
     credentials: Record<string, string | string[]>;
+    responseTimeLabel: string | null;
   };
 }) {
   const router = useRouter();
@@ -37,6 +55,7 @@ export function ProviderProfileForm({
   const [contactPhone, setContactPhone] = useState(initial.contactPhone ?? "");
   const [coverageAreas, setCoverageAreas] = useState(initial.coverageAreas.join(", "));
   const [licenseNumber, setLicenseNumber] = useState(initial.licenseNumber ?? "");
+  const [responseTimeLabel, setResponseTimeLabel] = useState(initial.responseTimeLabel ?? "");
   const [credentialValues, setCredentialValues] = useState<Record<string, string>>(() => {
     const values: Record<string, string> = {};
     for (const field of category?.credentialFields ?? []) {
@@ -71,6 +90,7 @@ export function ProviderProfileForm({
         coverage_areas: coverageAreas.split(",").map((s) => s.trim()).filter(Boolean),
         license_number: licenseNumber || null,
         credentials,
+        response_time_label: responseTimeLabel || null,
       })
       .eq("id", providerId);
 
@@ -117,6 +137,26 @@ export function ProviderProfileForm({
       <div className="space-y-2">
         <Label htmlFor="licenseNumber">License / registration number</Label>
         <Input id="licenseNumber" value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="responseTimeLabel">Typical response time</Label>
+        <p className="text-xs text-muted">
+          Shown on your listing to encourage investors to message you — pick whatever you can
+          actually commit to.
+        </p>
+        <Select value={responseTimeLabel} onValueChange={setResponseTimeLabel}>
+          <SelectTrigger id="responseTimeLabel">
+            <SelectValue placeholder="Not shown" />
+          </SelectTrigger>
+          <SelectContent>
+            {RESPONSE_TIME_OPTIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {(category?.credentialFields ?? []).map((field) => (

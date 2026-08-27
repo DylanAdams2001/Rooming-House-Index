@@ -1800,3 +1800,10 @@ create policy "Admins can send listing messages in any conversation"
     auth.uid() = sender_id
     and exists (select 1 from public.users where id = auth.uid() and role = 'admin')
   );
+
+-- A short, provider-set expectation ("Typically responds within an hour")
+-- shown on the directory card and profile to nudge investors toward
+-- actually sending a message rather than just browsing. Free text but the
+-- provider-facing form only offers a handful of preset options, so this
+-- stays honest-ish rather than an open claim.
+alter table public.service_providers add column if not exists response_time_label text;

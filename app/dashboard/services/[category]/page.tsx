@@ -219,7 +219,7 @@ export default async function ServiceCategoryPage({ params }: { params: { catego
   const { data: providerRows } = await supabase
     .from("service_providers")
     .select(
-      "slug, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
+      "slug, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials, response_time_label"
     )
     .eq("category", category.dbCategory)
     .eq("status", "approved")

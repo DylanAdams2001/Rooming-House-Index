@@ -25,7 +25,7 @@ export default async function ProviderProfilePage({
   const { data: provider } = await supabase
     .from("service_providers")
     .select(
-      "id, slug, user_id, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials"
+      "id, slug, user_id, business_name, description, contact_email, contact_phone, coverage_areas, license_number, credentials, response_time_label"
     )
     .eq("slug", params.providerId)
     .eq("category", category.dbCategory)
@@ -101,6 +101,12 @@ export default async function ProviderProfilePage({
                 </p>
               </div>
             ))}
+            {provider.response_time_label && (
+              <p className="flex items-center gap-1.5 text-xs text-muted">
+                <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-green-600" />
+                {provider.response_time_label}
+              </p>
+            )}
             <StartConversationButton providerId={provider.slug!} businessName={provider.business_name} />
           </CardContent>
         </Card>

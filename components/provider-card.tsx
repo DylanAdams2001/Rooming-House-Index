@@ -13,6 +13,7 @@ export type RealProvider = {
   coverage_areas: string[];
   license_number: string | null;
   credentials: Record<string, unknown>;
+  response_time_label?: string | null;
 };
 
 export function ProviderCard({
@@ -28,11 +29,19 @@ export function ProviderCard({
         <h3 className="font-display text-xl text-ink">{provider.business_name}</h3>
         <p className="text-sm text-muted">{provider.coverage_areas.join(", ")}</p>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col justify-between gap-6 pt-0">
+      <CardContent className="flex flex-1 flex-col justify-between gap-4 pt-0">
         <p className="whitespace-pre-line text-sm text-body">{provider.description}</p>
-        <Button asChild size="sm" className="w-full">
-          <Link href={`/dashboard/services/${categorySlug}/${provider.slug}`}>View Profile</Link>
-        </Button>
+        <div className="space-y-2">
+          {provider.response_time_label && (
+            <p className="flex items-center gap-1.5 text-xs text-muted">
+              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-green-600" />
+              {provider.response_time_label}
+            </p>
+          )}
+          <Button asChild size="sm" className="w-full">
+            <Link href={`/dashboard/services/${categorySlug}/${provider.slug}`}>View Profile</Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
