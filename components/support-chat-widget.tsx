@@ -39,6 +39,18 @@ export function SupportChatWidget() {
     supabase.auth.getUser().then(({ data }) => {
       setAccountEmail(data.user?.email ?? null);
     });
+    // This widget lives in the root layout and never remounts across
+    // client-side navigations — a one-time getUser() call above only ever
+    // reflects whatever the auth state was the moment the app first loaded
+    // (often before login, e.g. on /login or /signup itself), so without
+    // this listener the widget stays hidden after signing up until someone
+    // manually reloads the page.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAccountEmail(session?.user?.email ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   async function handleSend(e: React.FormEvent) {
