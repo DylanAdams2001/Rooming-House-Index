@@ -958,6 +958,19 @@ export const propertyRentals: PropertyRental[] = [
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-19",
   },
+  {
+    id: "13-pine-st-frankston-north-3200",
+    address: "13 Pine St, Frankston North VIC 3200",
+    suburbId: "frankston-north-3200",
+    lat: -38.1246745,
+    lng: 145.1425695,
+    rooms: [
+      { label: "Room 1", weeklyRate: 350, status: "tenanted", note: "Last leased 20 May 2025" },
+    ],
+    avgWeeklyRate: 350,
+    sourceNote: "Real rent income supplied directly.",
+    dateAdded: "2026-08-29",
+  },
 ];
 
 export function getPropertyRentalsForSuburb(suburbId: string) {

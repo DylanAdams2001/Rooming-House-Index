@@ -444,6 +444,7 @@ function seededValue(seed: string, min: number, max: number) {
 // Real room rates supplied directly, for suburbs that only exist in the generated
 // (non-curated) list. Overrides the seeded placeholder rate for these ids only.
 const VERIFIED_RATES: Record<string, number> = {
+  "frankston-north-3200": 350,
   "laverton-3028": 360,
   "norlane-3214": 308,
   "preston-3072": 385,
