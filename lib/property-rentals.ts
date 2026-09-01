@@ -181,11 +181,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.8951012,
     lng: 144.6623482,
     rooms: [
-      { label: "Room 1", weeklyRate: 380, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 380, status: "tenanted", note: "Leased Jun 2026 (confirmed via Domain.com.au)" },
     ],
     avgWeeklyRate: 380,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -200,14 +199,14 @@ export const propertyRentals: PropertyRental[] = [
       { label: "Room 3", weeklyRate: 369, status: "vacant", note: "Advertised, not yet tenanted" },
       { label: "Room 4", weeklyRate: 369, status: "vacant", note: "Advertised, not yet tenanted" },
       { label: "Room 5", weeklyRate: 369, status: "vacant", note: "Advertised, not yet tenanted" },
-      { label: "Room 6", weeklyRate: 349, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 6", weeklyRate: 349, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au)" },
       { label: "Room 7", weeklyRate: 349, status: "vacant", note: "Advertised, not yet tenanted" },
       { label: "Room 8", weeklyRate: 349, status: "vacant", note: "Advertised, not yet tenanted" },
       { label: "Room 9", weeklyRate: 349, status: "vacant", note: "Advertised, not yet tenanted" },
     ],
     avgWeeklyRate: 359,
     sourceNote:
-      "Advertised asking rates supplied directly — currently looking for tenants, not yet rented.",
+      "Advertised asking rates supplied directly. Room 6 confirmed leased via Domain.com.au property history (matches the $349/wk asking rate); the other 8 rooms' status isn't confirmed.",
     dateAdded: "2026-08-14",
   },
   {
@@ -220,13 +219,13 @@ export const propertyRentals: PropertyRental[] = [
       {
         label: "Room 2",
         weeklyRate: 380,
-        status: "vacant",
-        note: "Unfurnished · advertised, not yet tenanted",
+        status: "tenanted",
+        note: "Unfurnished · leased Aug 2026 (confirmed via Domain.com.au)",
       },
     ],
     avgWeeklyRate: 380,
     sourceNote:
-      "Only Room 2's rate has been supplied directly. Total room count for this property and rates for any other rooms aren't known yet.",
+      "Only Room 2's rate has been supplied directly, since leased and confirmed via Domain.com.au property history. Total room count for this property and rates for any other rooms aren't known yet.",
     dateAdded: "2026-08-14",
   },
   {
@@ -256,8 +255,8 @@ export const propertyRentals: PropertyRental[] = [
       {
         label: "Room 4",
         weeklyRate: 370,
-        status: "vacant",
-        note: "Bills included · advertised, not yet tenanted",
+        status: "tenanted",
+        note: "Bills included · leased Aug 2026 (confirmed via Domain.com.au)",
       },
       { label: "Room 5", weeklyRate: 0, status: "unknown" },
       {
@@ -268,7 +267,7 @@ export const propertyRentals: PropertyRental[] = [
       },
     ],
     sourceNote:
-      "Only Rooms 4 and 6 have known rates ($370/wk each, bills included, advertised). Rates for the other rooms aren't known yet — total room count may be higher than 6.",
+      "Only Rooms 4 and 6 have known rates ($370/wk each, bills included). Room 4 is confirmed leased via Domain.com.au property history; Room 6's status isn't confirmed. Rates for the other rooms aren't known yet — total room count may be higher than 6.",
     dateAdded: "2026-08-14",
   },
   {
@@ -278,11 +277,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.8956587,
     lng: 144.6636053,
     rooms: [
-      { label: "Room 1", weeklyRate: 350, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 350, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au)" },
     ],
     avgWeeklyRate: 350,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -293,14 +291,14 @@ export const propertyRentals: PropertyRental[] = [
     lng: 144.657182,
     rooms: [
       {
-        label: "Advertised rate (unit TBC)",
-        weeklyRate: 380,
-        status: "vacant",
-        note: "Not tied to a specific unit number yet · advertised, not yet tenanted",
+        label: "Confirmed rate (unit TBC)",
+        weeklyRate: 360,
+        status: "tenanted",
+        note: "Not tied to a specific unit number yet · one unit confirmed leased Aug 2026 at $360/wk via Domain.com.au",
       },
     ],
     sourceNote:
-      "This address covers 9 units (1–9/6 Richmond Cres). Only one advertised rate ($380/wk) has been supplied so far, not linked to a specific unit — per-unit rates for the complex aren't known yet.",
+      "This address covers 9 units (1–9/6 Richmond Cres). Originally advertised at $380/wk (unit unspecified); Domain.com.au property history now confirms at least one unit leased at $360/wk. Status of the other 8 units isn't known yet.",
     dateAdded: "2026-08-14",
   },
   {
@@ -313,13 +311,12 @@ export const propertyRentals: PropertyRental[] = [
       {
         label: "Room 1",
         weeklyRate: 360,
-        status: "vacant",
-        note: "Unfurnished · advertised, not yet tenanted",
+        status: "tenanted",
+        note: "Unfurnished · leased Jul 2026 (confirmed via Domain.com.au)",
       },
     ],
     avgWeeklyRate: 360,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -332,13 +329,12 @@ export const propertyRentals: PropertyRental[] = [
       {
         label: "Room 1",
         weeklyRate: 285,
-        status: "vacant",
-        note: "Unfurnished, bills included · advertised, not yet tenanted",
+        status: "tenanted",
+        note: "Unfurnished, bills included · leased Aug 2026 (confirmed via Domain.com.au)",
       },
     ],
     avgWeeklyRate: 285,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -351,13 +347,12 @@ export const propertyRentals: PropertyRental[] = [
       {
         label: "Room 1",
         weeklyRate: 300,
-        status: "vacant",
-        note: "Bills and furniture included · advertised, not yet tenanted",
+        status: "tenanted",
+        note: "Bills and furniture included · leased Aug 2026 (confirmed via Domain.com.au)",
       },
     ],
     avgWeeklyRate: 300,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -370,13 +365,12 @@ export const propertyRentals: PropertyRental[] = [
       {
         label: "Room 1",
         weeklyRate: 280,
-        status: "vacant",
-        note: "Bills and furniture included · advertised, not yet tenanted",
+        status: "tenanted",
+        note: "Bills and furniture included · leased Aug 2026 (confirmed via Domain.com.au)",
       },
     ],
     avgWeeklyRate: 280,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -386,11 +380,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.7457286,
     lng: 144.7657578,
     rooms: [
-      { label: "Room 1", weeklyRate: 320, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 300, status: "tenanted", note: "Leased Aug 2026 at $300/wk (confirmed via Domain.com.au) — below the original $320/wk asking price" },
     ],
-    avgWeeklyRate: 320,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    avgWeeklyRate: 300,
+    sourceNote: "Originally advertised at $320/wk; confirmed leased at $300/wk via Domain.com.au property history.",
     dateAdded: "2026-08-14",
   },
   {
@@ -400,11 +393,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -38.2127574,
     lng: 144.3116288,
     rooms: [
-      { label: "Room 1", weeklyRate: 240, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 240, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au)" },
     ],
     avgWeeklyRate: 240,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-19",
   },
   {
@@ -414,11 +406,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -38.098092,
     lng: 144.3285853,
     rooms: [
-      { label: "Room 1", weeklyRate: 370, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 370, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au)" },
     ],
     avgWeeklyRate: 370,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-19",
   },
   {
@@ -442,11 +433,11 @@ export const propertyRentals: PropertyRental[] = [
     lat: -38.2151228,
     lng: 144.2962771,
     rooms: [
-      { label: "Room 1", weeklyRate: 270, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 270, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au) — exact final rate not publicly disclosed, showing original advertised rate" },
     ],
     avgWeeklyRate: 270,
     sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+      "Advertised asking rate supplied directly, since leased and confirmed via Domain.com.au — the site did not disclose the exact final rate, so the original advertised rate is shown.",
     dateAdded: "2026-08-19",
   },
   {
@@ -467,11 +458,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.7573071,
     lng: 144.8058981,
     rooms: [
-      { label: "Room 1", weeklyRate: 340, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 310, status: "tenanted", note: "Leased Aug 2026 at $310/wk (confirmed via Domain.com.au) — below the original $340/wk asking price" },
     ],
-    avgWeeklyRate: 340,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    avgWeeklyRate: 310,
+    sourceNote: "Originally advertised at $340/wk; confirmed leased at $310/wk via Domain.com.au property history.",
     dateAdded: "2026-08-19",
   },
   {
@@ -522,11 +512,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.7436625,
     lng: 144.7717198,
     rooms: [
-      { label: "Room 1", weeklyRate: 310, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 310, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au)" },
     ],
     avgWeeklyRate: 310,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-19",
   },
   {
@@ -560,11 +549,10 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.7469512,
     lng: 144.8061788,
     rooms: [
-      { label: "Room 1", weeklyRate: 350, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 350, status: "tenanted", note: "Leased Aug 2026 as Unit 2/46 (confirmed via Domain.com.au)" },
     ],
     avgWeeklyRate: 350,
-    sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+    sourceNote: "Advertised rate supplied directly, since leased and confirmed via Domain.com.au property history.",
     dateAdded: "2026-08-19",
   },
   {
@@ -856,11 +844,11 @@ export const propertyRentals: PropertyRental[] = [
     lat: -38.196066,
     lng: 144.3532229,
     rooms: [
-      { label: "Room 1", weeklyRate: 395, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 395, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au) — exact final rate not publicly disclosed, showing original advertised rate" },
     ],
     avgWeeklyRate: 395,
     sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+      "Advertised asking rate supplied directly, since leased and confirmed via Domain.com.au — the site did not disclose the exact final rate, so the original advertised rate is shown.",
     dateAdded: "2026-08-19",
   },
   {
@@ -884,9 +872,9 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.6884293,
     lng: 144.568199,
     rooms: [
-      { label: "Room 1", weeklyRate: 390, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 380, status: "vacant", note: "Advertised, not yet tenanted — asking rate updated to $380/wk per current listing" },
     ],
-    avgWeeklyRate: 390,
+    avgWeeklyRate: 380,
     sourceNote:
       "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
     dateAdded: "2026-08-19",
@@ -898,11 +886,11 @@ export const propertyRentals: PropertyRental[] = [
     lat: -37.8846486,
     lng: 144.6671049,
     rooms: [
-      { label: "Room 1", weeklyRate: 330, status: "vacant", note: "Advertised, not yet tenanted" },
+      { label: "Room 1", weeklyRate: 330, status: "tenanted", note: "Leased Aug 2026 (confirmed via Domain.com.au) — exact final rate not publicly disclosed, showing original advertised rate" },
     ],
     avgWeeklyRate: 330,
     sourceNote:
-      "Advertised asking rate supplied directly — currently looking for a tenant, not yet rented. Room count for the rest of the property isn't known yet.",
+      "Advertised asking rate supplied directly, since leased and confirmed via Domain.com.au — the site did not disclose the exact final rate, so the original advertised rate is shown.",
     dateAdded: "2026-08-19",
   },
   {
